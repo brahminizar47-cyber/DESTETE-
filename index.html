@@ -2,169 +2,411 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="DESTATE - عقارات تونس مباشرة من المالك دون وسطاء أو عمولات">
-<title>DESTATE | عقارك مباشرة</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DESTATE - عقارات تونس مباشرة من المالك دون وسطاء أو عمولات">
+  <title>DESTATE | عقارك مباشرة</title>
 
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f7f8fa;color:#172b3a}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 7%;background:white}
-.logo{font-size:30px;font-weight:800;color:#087e75;letter-spacing:1px}
-nav a{margin:0 9px;color:#334;text-decoration:none;font-size:14px}
-.hero{text-align:center;padding:75px 20px;background:#e9f3f1}
-.hero h1{font-size:clamp(34px,6vw,54px);margin:15px 0}
-.hero h1 span{color:#087e75}
-.hero p{font-size:18px;color:#52636c;line-height:1.8}
-.tagline{color:#087e75;font-weight:bold;letter-spacing:1px}
-.search{max-width:900px;margin:30px auto 0;padding:22px;background:white;border-radius:14px;box-shadow:0 8px 30px #173b3510}
-.search-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-select,input{width:100%;padding:14px;border:1px solid #dce3e5;border-radius:8px;background:white;font-size:15px}
-button,.btn{border:0;border-radius:8px;padding:14px 24px;background:#087e75;color:white;font-size:16px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}
-.search button{width:100%;margin-top:14px}
-.section{padding:55px 7%;text-align:center}
-.section h2{font-size:29px}
-.categories{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
-.category{background:white;padding:28px 12px;border-radius:12px;box-shadow:0 4px 18px #00000008}
-.category .emoji{font-size:38px}
-.category h3{margin:12px 0 5px}
-.direct{background:#123b3a;color:white;padding:55px 20px;text-align:center}
-.direct p{line-height:1.9}
-footer{padding:25px;text-align:center;background:#102c2b;color:white;font-size:13px}
-.language{font-size:13px}
-@media(max-width:650px){
-header{padding:17px 5%;flex-wrap:wrap;gap:12px}
-nav a{margin:0 5px;font-size:12px}
-.search-grid{grid-template-columns:1fr}
-.categories{grid-template-columns:1fr 1fr}
-.hero{padding-top:55px}
-}
-@media(max-width:380px){.categories{grid-template-columns:1fr}}
-</style>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f8fa;
+      color: #172b3a;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 7%;
+      background: white;
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: 800;
+      color: #087e75;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      margin: 0 9px;
+      color: #334;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 75px 20px;
+      background: #e9f3f1;
+    }
+
+    .tagline {
+      color: #087e75;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 54px);
+      margin: 18px 0;
+    }
+
+    h1 span { color: #087e75; }
+
+    .hero p {
+      font-size: 18px;
+      color: #52636c;
+      line-height: 1.8;
+    }
+
+    .search {
+      max-width: 950px;
+      margin: 30px auto 0;
+      padding: 22px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 8px 30px #173b3510;
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #dce3e5;
+      border-radius: 8px;
+      background: white;
+      font-size: 15px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 14px 24px;
+      background: #087e75;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover { background: #06665f; }
+
+    .search button {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .section {
+      padding: 55px 7%;
+      text-align: center;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .category {
+      background: white;
+      padding: 25px 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px #00000008;
+    }
+
+    .emoji { font-size: 36px; }
+
+    #results {
+      max-width: 1000px;
+      margin: 30px auto;
+      text-align: right;
+    }
+
+    .property {
+      background: white;
+      padding: 20px;
+      margin: 14px 0;
+      border-radius: 12px;
+      border: 1px solid #e5e5e5;
+    }
+
+    .property h3 { color: #087e75; }
+
+    .price {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .direct {
+      background: #123b3a;
+      color: white;
+      padding: 55px 20px;
+      text-align: center;
+    }
+
+    .direct p { line-height: 1.9; }
+
+    footer {
+      padding: 25px;
+      text-align: center;
+      background: #102c2b;
+      color: white;
+      font-size: 13px;
+    }
+
+    @media(max-width: 750px) {
+      header {
+        padding: 17px 5%;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .search-grid { grid-template-columns: 1fr; }
+      .categories { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 55px 15px; }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-<div class="logo">DESTATE</div>
-<nav>
-<a href="#categories">العقارات</a>
-<a href="#about">من نحن</a>
-<a href="#contact">اتصل بنا</a>
-</nav>
+  <div class="logo">DESTATE</div>
+  <nav>
+    <a href="#categories">العقارات</a>
+    <a href="#about">من نحن</a>
+    <a href="#contact">اتصل بنا</a>
+  </nav>
 </header>
 
 <main>
 
-<section class="hero">
-<div class="tagline">NO AGENTS. NO COMMISSION.</div>
-<h1>عقارك <span>مباشرة</span></h1>
-<p>
-اشري أو اكري مباشرة من المالك في تونس.<br>
-بلا وسطاء، بلا وكالات، وبلا عمولة.
-</p>
+  <section class="hero">
+    <div class="tagline">NO AGENTS. NO COMMISSION.</div>
+    <h1>عقارك <span>مباشرة</span></h1>
+    <p>
+      اشري أو اكري مباشرة من المالك في تونس.<br>
+      بلا وسطاء، بلا وكالات، وبلا عمولة.
+    </p>
 
-<div class="search">
-<div class="search-grid">
+    <div class="search">
+      <div class="search-grid">
 
-<select id="type">
-<option value="">جميع أنواع العقارات</option>
-<option value="land">أرض سكنية</option>
-<option value="agricultural_land">أرض فلاحية</option>
-<option value="house">دار</option>
-<option value="apartment">شقة</option>
-<option value="commercial">محل تجاري</option>
-</select>
+        <select id="type">
+          <option value="">جميع أنواع العقارات</option>
+          <option value="land">أرض سكنية</option>
+          <option value="agricultural_land">أرض فلاحية</option>
+          <option value="house">دار</option>
+          <option value="apartment">شقة</option>
+          <option value="commercial">محل تجاري</option>
+        </select>
 
-<select id="governorate">
-<option value="">كل الولايات</option>
-<option>تونس</option>
-<option>أريانة</option>
-<option>بن عروس</option>
-<option>منوبة</option>
-<option>نابل</option>
-<option>زغوان</option>
-<option>بنزرت</option>
-<option>باجة</option>
-<option>جندوبة</option>
-<option>الكاف</option>
-<option>سليانة</option>
-<option>سوسة</option>
-<option>المنستير</option>
-<option>المهدية</option>
-<option>صفاقس</option>
-<option>القيروان</option>
-<option>القصرين</option>
-<option>سيدي بوزيد</option>
-<option>قابس</option>
-<option>مدنين</option>
-<option>تطاوين</option>
-<option>قفصة</option>
-<option>توزر</option>
-<option>قبلي</option>
-</select>
+        <select id="governorate">
+          <option value="">كل الولايات</option>
+          <option>تونس</option>
+          <option>أريانة</option>
+          <option>بن عروس</option>
+          <option>منوبة</option>
+          <option>نابل</option>
+          <option>زغوان</option>
+          <option>بنزرت</option>
+          <option>باجة</option>
+          <option>جندوبة</option>
+          <option>الكاف</option>
+          <option>سليانة</option>
+          <option>سوسة</option>
+          <option>المنستير</option>
+          <option>المهدية</option>
+          <option>صفاقس</option>
+          <option>القيروان</option>
+          <option>القصرين</option>
+          <option>سيدي بوزيد</option>
+          <option>قابس</option>
+          <option>مدنين</option>
+          <option>تطاوين</option>
+          <option>قفصة</option>
+          <option>توزر</option>
+          <option>قبلي</option>
+        </select>
 
-<input type="number" id="maxPrice" placeholder="السعر الأقصى بالدينار">
+        <input
+          type="number"
+          id="maxPrice"
+          min="0"
+          placeholder="السعر الأقصى بالدينار"
+        >
 
-</div>
-<button type="button" onclick="searchProperties()">ابحث عن عقار</button>
-</div>
-</section>
+      </div>
 
-<section class="section" id="categories">
-<h2>اكتشف العقارات</h2>
-<p>اختار نوع العقار الذي تبحث عنه</p>
+      <button id="searchButton" type="button">ابحث عن عقار</button>
+    </div>
 
-<div class="categories">
+    <div id="results" aria-live="polite"></div>
+  </section>
 
-<div class="category">
-<div class="emoji">🏡</div>
-<h3>ديار</h3>
-</div>
+  <section class="section" id="categories">
+    <h2>اكتشف العقارات</h2>
+    <p>من المالك مباشرة</p>
 
-<div class="category">
-<div class="emoji">🏢</div>
-<h3>شقق</h3>
-</div>
+    <div class="categories">
+      <div class="category">
+        <div class="emoji">🏡</div>
+        <h3>ديار</h3>
+      </div>
 
-<div class="category">
-<div class="emoji">🌳</div>
-<h3>أراضي سكنية</h3>
-</div>
+      <div class="category">
+        <div class="emoji">🏢</div>
+        <h3>شقق</h3>
+      </div>
 
-<div class="category">
-<div class="emoji">🚜</div>
-<h3>أراضي فلاحية</h3>
-</div>
+      <div class="category">
+        <div class="emoji">🌳</div>
+        <h3>أراضي سكنية</h3>
+      </div>
 
-<div class="category">
-<div class="emoji">🏬</div>
-<h3>محلات تجارية</h3>
-</div>
+      <div class="category">
+        <div class="emoji">🚜</div>
+        <h3>أراضي فلاحية</h3>
+      </div>
 
-</div>
-</section>
+      <div class="category">
+        <div class="emoji">🏬</div>
+        <h3>محلات تجارية</h3>
+      </div>
+    </div>
+  </section>
 
-<section class="direct" id="about">
-<h2>من المالك إلى المشتري مباشرة</h2>
-<p>
-DESTATE منصة عقارية تونسية تجمع المالك والمشتري مباشرة.<br>
-لا وكالات عقارية، لا وسطاء، ولا عمولات.
-</p>
-<h3>Your Property. Your Deal.</h3>
-</section>
+  <section class="direct" id="about">
+    <h2>من المالك إلى المشتري مباشرة</h2>
+    <p>
+      DESTATE منصة عقارية تونسية تجمع المالك والمشتري مباشرة.<br>
+      لا وكالات عقارية، لا وسطاء، ولا عمولات.
+    </p>
+    <h3>Your Property. Your Deal.</h3>
+  </section>
 
 </main>
 
 <footer id="contact">
-DESTATE © 2026 — منصة عقارية تونسية مباشرة
+  DESTATE © 2026 — منصة عقارية تونسية مباشرة
 </footer>
 
-<script>
-function searchProperties(){
-alert("سيتم تفعيل البحث الحقيقي بعد ربط قاعدة البيانات.");
-}
+<script type="module">
+  import { createClient } from
+    'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL =
+    'https://zmipxldmmfkfpsldvium.supabase.co';
+
+  const SUPABASE_KEY =
+    'sb_publishable_hp6N4e3C6a6UPuA4K7MSxw_OdIc4ox8';
+
+  const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  const results = document.getElementById('results');
+  const searchButton = document.getElementById('searchButton');
+
+  const propertyNames = {
+    land: 'أرض سكنية',
+    agricultural_land: 'أرض فلاحية',
+    house: 'دار',
+    apartment: 'شقة',
+    commercial: 'محل تجاري'
+  };
+
+  function safe(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[char]);
+  }
+
+  async function searchProperties() {
+    results.innerHTML = '<p>جاري البحث...</p>';
+    searchButton.disabled = true;
+
+    try {
+      const type = document.getElementById('type').value;
+      const governorate =
+        document.getElementById('governorate').value;
+      const maxPrice =
+        document.getElementById('maxPrice').value;
+
+      let query = supabase
+        .from('properties')
+        .select(
+          'id,title,description,property_type,governorate,city,price,area'
+        )
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      if (type) {
+        query = query.eq('property_type', type);
+      }
+
+      if (governorate) {
+        query = query.eq('governorate', governorate);
+      }
+
+      if (maxPrice && Number(maxPrice) > 0) {
+        query = query.lte('price', Number(maxPrice));
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        results.innerHTML =
+          '<p>ما فماش عقارات منشورة تطابق بحثك حالياً.</p>';
+        return;
+      }
+
+      results.innerHTML = `
+        <h2>نتائج البحث: ${data.length}</h2>
+        ${data.map(property => `
+          <article class="property">
+            <h3>${safe(property.title)}</h3>
+            <p>${safe(propertyNames[property.property_type] || property.property_type)}</p>
+            <p>📍 ${safe(property.governorate)} ${safe(property.city || '')}</p>
+            <p class="price">
+              💰 ${Number(property.price).toLocaleString('fr-FR')} د.ت
+            </p>
+            ${property.area
+              ? `<p>📐 ${safe(property.area)} م²</p>`
+              : ''}
+            <p>${safe(property.description || '')}</p>
+          </article>
+        `).join('')}
+      `;
+
+    } catch (error) {
+      console.error(error);
+      results.innerHTML =
+        '<p>تعذّر إتمام البحث. تأكّد من إعدادات الاتصال بقاعدة البيانات.</p>';
+    } finally {
+      searchButton.disabled = false;
+    }
+  }
+
+  searchButton.addEventListener('click', searchProperties);
 </script>
 
 </body>
