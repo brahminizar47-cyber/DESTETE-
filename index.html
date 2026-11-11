@@ -36,7 +36,6 @@ label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}
 .symbol{font-size:30px;display:block;margin-bottom:9px}
 .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
 .property{background:white;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
-.property img{width:100%;height:180px;object-fit:cover;background:#e8edf2}
 .property-content{padding:16px}
 .property h3{margin:0 0 10px;color:var(--navy)}
 .price{color:var(--blue);font-weight:bold;font-size:19px}
@@ -66,11 +65,13 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
   <button class="secondary" onclick="openPublish()">+ أضف عقارك</button>
  </nav>
 </header>
+
 <section class="hero" id="home">
  <h1>عقارك، فرصتك، تواصلك المباشر</h1>
  <p>منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</p>
  <p>ابحث عن عقارك في جميع أنحاء تونس</p>
 </section>
+
 <main class="container">
 <section class="search-box" id="search">
  <h2 class="section-title">ابحث عن عقار</h2>
@@ -126,6 +127,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()">ابحث الآن</button>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()">إعادة ضبط البحث</button>
 </section>
+
 <section style="margin-top:38px">
  <h2 class="section-title">تصفح حسب النوع</h2>
  <div class="categories">
@@ -136,6 +138,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
   <div class="category" onclick="chooseType('commercial')"><span class="symbol">🏬</span>محلات تجارية</div>
  </div>
 </section>
+
 <section id="listings" style="margin-top:40px">
  <h2 class="section-title">أحدث العقارات</h2>
  <div id="results" class="results">
@@ -143,12 +146,13 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
  </div>
 </section>
 </main>
+
 <footer>
  <div class="logo">DE<span>STATE</span></div>
  منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات
  <div>© 2026 DESTATE - جميع الحقوق محفوظة</div>
 </footer>
-<!-- نافذة تسجيل الدخول وإنشاء الحساب -->
+
 <div class="modal" id="loginModal">
  <div class="modal-box">
   <div class="modal-head">
@@ -165,7 +169,6 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
  </div>
 </div>
 
-<!-- نافذة إضافة عقار -->
 <div class="modal" id="publishModal">
  <div class="modal-box">
   <div class="modal-head">
@@ -227,7 +230,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 
 <script>
 const SUPABASE_URL = "https://zmipxldmmfkfpsldvium.supabase.co";
-const SUPABASE_KEY = "sb_publishable_hp6N4e3C6a6UPuA4K7MSxw_OdIc4ox8";
+const SUPABASE_KEY = "sb_publishable_ohUN940nP5SXpsFxlbnr8w_s3RMBidV";
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
@@ -260,11 +263,9 @@ function closeModal(id) {
 }
 function openPublish() {
  openModal("publishModal");
- if(!currentUser) {
-  document.getElementById("publishStatus").textContent="يلزمك تسجيل الدخول قبل نشر إعلان.";
- } else {
-  document.getElementById("publishStatus").textContent="أنت مسجل الدخول. يمكنك إعداد إعلانك.";
- }
+ document.getElementById("publishStatus").textContent=currentUser
+  ? "أنت مسجل الدخول. يمكنك إعداد إعلانك."
+  : "يلزمك تسجيل الدخول قبل نشر إعلان.";
 }
 
 async function refreshUser() {
@@ -445,8 +446,3 @@ searchProperties();
 </script>
 </body>
 </html>
-</body>
-</html>
-
-
-  
