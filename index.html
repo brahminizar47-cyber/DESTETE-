@@ -7,6 +7,7 @@
 <title>DESTATE | العقارات في تونس</title>
 <meta name="description" content="منصة DESTATE العقارية في تونس">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{--navy:#102b46;--blue:#1769aa;--gold:#e8ad45;--bg:#f4f6f9;--muted:#687789;--border:#e1e6ed}
 *{box-sizing:border-box}
@@ -17,6 +18,7 @@ header{background:var(--navy);color:white;padding:16px 5%;display:flex;justify-c
 nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 nav a{color:white;text-decoration:none;font-size:14px}
 button{border:0;border-radius:8px;padding:11px 16px;cursor:pointer;font-weight:bold}
+button:disabled{opacity:.5;cursor:not-allowed}
 .primary{background:var(--gold);color:#182536}
 .secondary{background:var(--blue);color:white}
 .container{width:min(1100px,92%);margin:30px auto}
@@ -51,9 +53,17 @@ label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}
 .hidden{display:none!important}
 footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;margin-top:50px;line-height:2}
 .status{padding:12px;border-radius:8px;margin:12px 0;background:#eef4fa;color:var(--navy);font-size:13px}
+.image-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.image-thumb{position:relative}
+.image-thumb img{width:100%;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+.image-thumb button{position:absolute;top:4px;left:4px;padding:4px 8px;background:#b42318;color:white}
+.property-gallery{display:flex;gap:5px;overflow-x:auto;background:#e8edf2;height:185px}
+.property-gallery img{height:185px;min-width:75%;object-fit:cover}
+.upload-info{font-size:12px;color:var(--muted);line-height:1.7;margin-top:6px}
 @media(max-width:600px){header{justify-content:center}nav{justify-content:center}.hero h1{font-size:27px}}
 </style>
 </head>
+
 <body>
 <header>
  <div class="logo">DE<span>STATE</span></div>
@@ -176,8 +186,10 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
    <button class="close" onclick="closeModal('publishModal')">✕</button>
   </div>
   <div id="publishStatus" class="status">سجّل الدخول قبل نشر إعلان.</div>
+
   <form id="propertyForm" onsubmit="publishProperty(event)">
    <div class="field"><label>عنوان الإعلان</label><input id="pTitle" required placeholder="مثال: منزل للبيع في سوسة"></div>
+
    <div class="field"><label>نوع العقار</label>
     <select id="pType" required>
      <option value="">اختر</option>
@@ -188,6 +200,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
      <option value="commercial">محل تجاري</option>
     </select>
    </div>
+
    <div class="field"><label>الولاية</label>
     <select id="pGovernorate" required>
      <option value="">اختر الولاية</option>
@@ -201,9 +214,11 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
      <option>قفصة</option><option>توزر</option><option>قبلي</option>
     </select>
    </div>
+
    <div class="field"><label>المدينة / المنطقة</label><input id="pCity" placeholder="المدينة أو المنطقة"></div>
    <div class="field"><label>السعر بالدينار التونسي</label><input id="pPrice" type="number" min="0" required></div>
    <div class="field"><label>المساحة بالمتر المربع</label><input id="pArea" type="number" min="0" required></div>
+
    <div class="field"><label>نوع الملكية</label>
     <select id="pOwnership" required>
      <option value="">اختر</option>
@@ -211,6 +226,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
      <option value="shared">مشتركة</option>
     </select>
    </div>
+
    <div class="field"><label>نوع المعلن</label>
     <select id="pAdvertiser" required>
      <option value="">اختر</option>
@@ -219,11 +235,20 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
      <option value="agency">وكالة عقارية</option>
     </select>
    </div>
+
    <div class="field"><label>رقم الهاتف</label><input id="pPhone" type="tel" required placeholder="+216"></div>
    <div class="field"><label>وصف العقار</label><textarea id="pDescription" required placeholder="اكتب تفاصيل العقار: عدد الغرف، الحالة، الطابق، المرافق..."></textarea></div>
+
    <div class="notice">الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.</div>
-   <p class="small">إضافة الصور غير مفعّلة في هذه النسخة الأولية.</p>
-   <button class="secondary" style="width:100%" type="submit">نشر الإعلان</button>
+
+   <div class="field">
+    <label>صور العقار (من 1 إلى 8 صور)</label>
+    <input id="pImages" type="file" accept="image/jpeg,image/png,image/webp" multiple required>
+    <div class="upload-info">الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.</div>
+    <div id="imagePreview" class="image-grid"></div>
+   </div>
+
+   <button id="publishButton" class="secondary" style="width:100%" type="submit">نشر الإعلان</button>
   </form>
  </div>
 </div>
@@ -231,6 +256,9 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 <script>
 const SUPABASE_URL = "https://zmipxldmmfkfpsldvium.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ohUN940nP5SXpsFxlbnr8w_s3RMBidV";
+const BUCKET = "property-images";
+const MAX_IMAGES = 8;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
@@ -332,12 +360,117 @@ function resetSearch() {
  searchProperties();
 }
 
+/* اختيار الصور ومعاينتها */
+function getSelectedFiles() {
+ return Array.from(document.getElementById("pImages").files || []);
+}
+
+function renderImagePreviews() {
+ const files=getSelectedFiles();
+ const preview=document.getElementById("imagePreview");
+ preview.innerHTML="";
+
+ files.forEach((file,index)=>{
+  const url=URL.createObjectURL(file);
+  const item=document.createElement("div");
+  item.className="image-thumb";
+
+  const img=document.createElement("img");
+  img.src=url;
+  img.alt="صورة العقار";
+
+  const remove=document.createElement("button");
+  remove.type="button";
+  remove.textContent="✕";
+  remove.title="حذف الصورة";
+  remove.onclick=()=>removeImage(index);
+
+  item.append(img,remove);
+  preview.appendChild(item);
+ });
+}
+
+function removeImage(index) {
+ const input=document.getElementById("pImages");
+ const transfer=new DataTransfer();
+ getSelectedFiles().forEach((file,i)=>{
+  if(i!==index) transfer.items.add(file);
+ });
+ input.files=transfer.files;
+ renderImagePreviews();
+}
+
+document.getElementById("pImages").addEventListener("change",function(){
+ const files=getSelectedFiles();
+
+ if(files.length>MAX_IMAGES) {
+  alert("يمكنك اختيار 8 صور كحد أقصى.");
+  this.value="";
+  renderImagePreviews();
+  return;
+ }
+
+ for(const file of files) {
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)) {
+   alert("صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.");
+   this.value="";
+   renderImagePreviews();
+   return;
+  }
+
+  if(file.size>MAX_IMAGE_SIZE) {
+   alert("حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.");
+   this.value="";
+   renderImagePreviews();
+   return;
+  }
+ }
+
+ renderImagePreviews();
+});
+
+/* رفع الصور إلى Supabase Storage */
+async function uploadPropertyImages(files) {
+ const urls=[];
+ const uploadedPaths=[];
+
+ for(const file of files) {
+  const extensions={
+   "image/jpeg":"jpg",
+   "image/png":"png",
+   "image/webp":"webp"
+  };
+
+  const extension=extensions[file.type];
+  const filename=crypto.randomUUID()+"."+extension;
+  const path=currentUser.id+"/"+Date.now()+"-"+filename;
+
+  const {error}=await db.storage.from(BUCKET).upload(path,file,{
+   cacheControl:"3600",
+   upsert:false,
+   contentType:file.type
+  });
+
+  if(error) {
+   await db.storage.from(BUCKET).remove(uploadedPaths);
+   throw new Error("تعذر رفع الصور: "+error.message);
+  }
+
+  uploadedPaths.push(path);
+
+  const {data}=db.storage.from(BUCKET).getPublicUrl(path);
+  urls.push(data.publicUrl);
+ }
+
+ return {urls,uploadedPaths};
+}
+
 async function searchProperties() {
  const results=document.getElementById("results");
  results.innerHTML='<div class="empty">جاري البحث...</div>';
 
  let query=db.from("properties")
-  .select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,created_at")
+  .select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at")
   .eq("status","published");
 
  const type=document.getElementById("type").value;
@@ -368,13 +501,21 @@ async function searchProperties() {
 
 function displayProperties(items) {
  const results=document.getElementById("results");
+
  if(!items.length) {
   results.innerHTML='<div class="empty">لا توجد عقارات مطابقة للبحث حالياً.</div>';
   return;
  }
- results.innerHTML=items.map(p=>`
+
+ results.innerHTML=items.map(p=>{
+  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+  const gallery=images.length
+   ? `<div class="property-gallery">${images.map(url=>`<img src="${safe(url)}" alt="صورة العقار" loading="lazy">`).join("")}</div>`
+   : '<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
+
+  return `
   <article class="property">
-   <div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>
+   ${gallery}
    <div class="property-content">
     <h3>${safe(p.title)}</h3>
     <span class="tag">${safe(typeNames[p.property_type] || p.property_type)}</span>
@@ -385,8 +526,8 @@ function displayProperties(items) {
     <p>${safe((p.description || "").slice(0,150))}</p>
     <button class="secondary" onclick="showContact('${safe(p.id)}')">اتصل بالمعلن</button>
    </div>
-  </article>
- `).join("");
+  </article>`;
+ }).join("");
 }
 
 async function showContact(id) {
@@ -400,36 +541,76 @@ async function showContact(id) {
 
 async function publishProperty(event) {
  event.preventDefault();
+
  if(!currentUser) {
   alert("سجّل الدخول أولاً.");
   openModal("loginModal");
   return;
  }
 
- const payload={
-  owner_id:currentUser.id,
-  title:document.getElementById("pTitle").value.trim(),
-  property_type:document.getElementById("pType").value,
-  governorate:document.getElementById("pGovernorate").value,
-  city:document.getElementById("pCity").value.trim(),
-  price:Number(document.getElementById("pPrice").value),
-  area:Number(document.getElementById("pArea").value),
-  ownership_type:document.getElementById("pOwnership").value,
-  advertiser_type:document.getElementById("pAdvertiser").value,
-  phone:document.getElementById("pPhone").value.trim(),
-  description:document.getElementById("pDescription").value.trim(),
-  status:"pending"
- };
+ const files=getSelectedFiles();
 
- const {error}=await db.from("properties").insert(payload);
- if(error) {
-  alert("لم يتم نشر الإعلان. يلزم مراجعة إعدادات قاعدة البيانات والأعمدة والصلاحيات: "+error.message);
+ if(files.length<1 || files.length>MAX_IMAGES) {
+  alert("يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.");
   return;
  }
- alert("تم إرسال الإعلان للمراجعة. سيظهر بعد نشره واعتماده.");
- document.getElementById("propertyForm").reset();
- closeModal("publishModal");
- searchProperties();
+
+ for(const file of files) {
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type) || file.size>MAX_IMAGE_SIZE) {
+   alert("تأكد من صيغة الصور وحجمها قبل النشر.");
+   return;
+  }
+ }
+
+ const button=document.getElementById("publishButton");
+ const status=document.getElementById("publishStatus");
+ button.disabled=true;
+ button.textContent="جاري رفع الصور والنشر...";
+ status.textContent="يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.";
+
+ let uploadedPaths=[];
+
+ try {
+  const uploaded=await uploadPropertyImages(files);
+  uploadedPaths=uploaded.uploadedPaths;
+
+  const payload={
+   owner_id:currentUser.id,
+   title:document.getElementById("pTitle").value.trim(),
+   property_type:document.getElementById("pType").value,
+   governorate:document.getElementById("pGovernorate").value,
+   city:document.getElementById("pCity").value.trim(),
+   price:Number(document.getElementById("pPrice").value),
+   area:Number(document.getElementById("pArea").value),
+   ownership_type:document.getElementById("pOwnership").value,
+   advertiser_type:document.getElementById("pAdvertiser").value,
+   phone:document.getElementById("pPhone").value.trim(),
+   description:document.getElementById("pDescription").value.trim(),
+   image_urls:uploaded.urls,
+   status:"pending"
+  };
+
+  const {error}=await db.from("properties").insert(payload);
+
+  if(error) {
+   await db.storage.from(BUCKET).remove(uploadedPaths);
+   throw new Error("لم يتم حفظ الإعلان: "+error.message);
+  }
+
+  alert("تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.");
+  document.getElementById("propertyForm").reset();
+  document.getElementById("imagePreview").innerHTML="";
+  closeModal("publishModal");
+  searchProperties();
+
+ } catch(error) {
+  console.error(error);
+  alert(error.message || "حدث خطأ أثناء النشر.");
+  status.textContent="لم يكتمل النشر. راجع رسالة الخطأ.";
+ } finally {
+  button.disabled=false;
+  button.textContent="نشر الإعلان";
+ }
 }
 
 db.auth.onAuthStateChange((_event,session)=>{
