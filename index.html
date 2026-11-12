@@ -329,3 +329,302 @@ async function uploadPropertyImages(files){
  }
  return {urls,uploadedPaths};
 }
+ async function searchProperties(){
+ const results=document.getElementById("propertyResults");
+ results.innerHTML='<div class="empty">'+tr("loading")+'</div>';
+
+ let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at").eq("status","published");
+
+ const type=document.getElementById("type").value;
+ const gov=document.getElementById("governorate").value;
+ const ownership=document.getElementById("ownership").value;
+ const landType=document.getElementById("landType").value;
+ const maxPrice=document.getElementById("maxPrice").value;
+ const minArea=document.getElementById("minArea").value;
+ const advertiser=document.getElementById("advertiserFilter").value;
+
+ if(type)q=q.eq("property_type",type);
+ if(gov)q=q.eq("governorate",gov);
+ if(ownership)q=q.eq("ownership_type",ownership);
+ if(landType)q=q.eq("land_type",landType);
+ if(maxPrice)q=q.lte("price",Number(maxPrice));
+ if(minArea)q=q.gte("area",Number(minArea));
+ if(advertiser)q=q.eq("advertiser_type",advertiser);
+
+ const {data,error}=await q.order("created_at",{ascending:false});
+
+ if(error){
+  results.innerHTML='<div class="empty">'+tr("searchError")+'</div>';
+  console.error(error);
+  return;
+ }
+
+ lastProperties=data||[];
+ displayProperties(lastProperties);
+}
+
+function displayProperties(items){
+ const results=document.getElementById("propertyResults");
+
+ if(!items.length){
+  results.innerHTML='<div class="empty">'+tr("noResults")+'</div>';
+  return;
+ }
+
+ results.innerHTML=items.map(p=>{
+  const imgs=Array.isArray(p.image_urls)?p.image_urls:[];
+  const gallery=imgs.length
+   ?'<div class="property-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>'
+   :'<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
+
+  const location=(currentLanguage==="en"?(govEnglish[p.governorate]||p.governorate):p.governorate)+" "+(p.city||"");
+
+  return '<article class="property">'+gallery+
+   '<div class="property-content">'+
+   '<h3>'+safe(p.title)+'</h3>'+
+   '<span class="tag">'+safe(tr(typeNames[p.property_type]||"propertyType"))+'</span>'+
+   '<span class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</span>'+
+   '<div class="meta">📍 '+safe(location)+'</div>'+
+   '<div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div>'+
+   '<div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
+   '<p>'+safe((p.description||"").slice(0,150))+'</p>'+
+   '<button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button>'+
+   '</div></article>';
+ }).join("");
+}
+
+async function showContact(){
+ if(!currentUser){
+  alert(tr("loginRequired"));
+  openModal("loginModal");
+  return;
+ }
+ alert(tr("contactNotReady"));
+}
+
+async function publishProperty(event){
+ event.preventDefault();
+
+ if(!currentUser){
+  alert(tr("mustLogin"));
+  openModal("loginModal");
+  return;
+ }
+
+ const files=getSelectedFiles();
+
+ if(files.length<1||files.length>MAX_IMAGES){
+  alert(tr("chooseAtLeastOne"));
+  return;
+ }
+
+ for(const f of files){
+  if(!["image/jpeg","image/png","image/webp"].includes(f.type)||f.size>MAX_IMAGE_SIZE){
+   alert(tr("checkPhotos"));
+   return;
+  }
+ }
+
+ const type=document.getElementById("pType").value;
+ const land=type==="land"||type==="agricultural_land";
+
+ const button=document.getElementById("publishButton");
+ const status=document.getElementById("publishStatus");
+
+ button.disabled=true;
+ button.textContent=tr("uploading");
+ status.textContent=tr("pleaseWait");
+
+ let paths=[];
+
+ try{
+  if(!document.getElementById("pOwnership").value||(land&&!document.getElementById("pLandType").value)){
+   throw new Error(tr("chooseType"));
+  }
+
+  const uploaded=await uploadPropertyImages(files);
+  paths=uploaded.uploadedPaths;
+
+  const payload={
+   owner_id:currentUser.id,
+   title:document.getElementById("pTitle").value.trim(),
+   property_type:type,
+   governorate:document.getElementById("pGovernorate").value,
+   city:document.getElementById("pCity").value.trim(),
+   price:Number(document.getElementById("pPrice").value),
+   area:Number(document.getElementById("pArea").value),
+   ownership_type:document.getElementById("pOwnership").value,
+   land_type:land?document.getElementById("pLandType").value:null,
+   advertiser_type:document.getElementById("pAdvertiser").value,
+   phone:document.getElementById("pPhone").value.trim(),
+   description:document.getElementById("pDescription").value.trim(),
+   image_urls:uploaded.urls,
+   status:"pending"
+  };
+
+  const {error}=await db.from("properties").insert(payload);
+
+  if(error){
+   await db.storage.from(BUCKET).remove(paths);
+   throw new Error(tr("saveError")+error.message);
+  }
+
+  alert(tr("publishSuccess"));
+  document.getElementById("propertyForm").reset();
+  document.getElementById("imagePreview").innerHTML="";
+  updatePublishFields();
+  closeModal("publishModal");
+  searchProperties();
+
+ }catch(e){
+  console.error(e);
+  alert(e.message||tr("publishError"));
+  status.textContent=tr("publishFailed");
+ }finally{
+  button.disabled=false;
+  button.textContent=tr("publish");
+ }
+}
+
+/* لوحة الإدارة: تعتمد على دالة is_admin() وسياسات RLS الموجودة في Supabase */
+function adminText(ar,en){
+ return currentLanguage==="ar"?ar:en;
+}
+
+async function loadAdminPanel(){
+ const panel=document.getElementById("adminPanel");
+
+ if(!panel)return;
+
+ panel.classList.add("hidden");
+
+ if(!currentUser)return;
+
+ const status=document.getElementById("adminStatus");
+ status.textContent=tr("adminChecking");
+
+ const {data,error}=await db.rpc("is_admin");
+
+ if(error){
+  console.warn("Admin permission check:",error.message);
+  return;
+ }
+
+ if(data!==true)return;
+
+ panel.classList.remove("hidden");
+
+ document.getElementById("adminTitle").textContent=tr("adminTitle");
+ document.getElementById("adminIntro").textContent=tr("adminIntro");
+ document.getElementById("adminRefresh").textContent=tr("adminRefresh");
+
+ await loadPendingProperties();
+}
+
+async function loadPendingProperties(){
+ const status=document.getElementById("adminStatus");
+ const list=document.getElementById("pendingProperties");
+
+ if(!status||!list)return;
+
+ status.textContent=tr("adminLoading");
+ list.innerHTML="";
+
+ const {data,error}=await db.from("properties")
+  .select("*")
+  .eq("status","pending")
+  .order("created_at",{ascending:true});
+
+ if(error){
+  status.textContent=tr("pendingError")+error.message;
+  return;
+ }
+
+ if(!data||!data.length){
+  status.textContent=tr("adminEmpty");
+  return;
+ }
+
+ status.textContent=tr("adminCount")+data.length;
+
+ list.innerHTML=data.map(p=>{
+  const loc=[p.governorate,p.city].filter(Boolean).map(safe).join(" - ");
+  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+
+  const photos=images.map(u=>
+   '<a href="'+safe(u)+'" target="_blank" rel="noopener">'+
+   '<img src="'+safe(u)+'" alt="Property photo" style="width:90px;height:70px;object-fit:cover;border-radius:6px;margin:3px">'+
+   '</a>'
+  ).join("");
+
+  return '<article class="admin-card">'+
+   '<h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3>'+
+   '<div class="meta">'+tr("location")+": "+loc+'</div>'+
+   '<div class="meta">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' TND · '+tr("area")+": "+safe(p.area||"")+' m²</div>'+
+   '<div class="meta">'+tr("advertiserType")+": "+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type||""))+' · '+tr("phone")+": "+safe(p.phone||"")+'</div>'+
+   '<p>'+safe(p.description||"")+'</p>'+
+   '<div>'+photos+'</div>'+
+   '<div class="admin-actions">'+
+   '<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\')">'+tr("approve")+'</button>'+
+   '<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\')">'+tr("reject")+'</button>'+
+   '</div></article>';
+ }).join("");
+}
+
+async function reviewProperty(id,nextStatus){
+ const approve=nextStatus==="published";
+
+ if(!confirm(approve?tr("approveConfirm"):tr("rejectConfirm")))return;
+
+ const {data,error}=await db.from("properties")
+  .update({status:nextStatus})
+  .eq("id",id)
+  .eq("status","pending")
+  .select("id");
+
+ if(error){
+  alert(tr("reviewError")+error.message);
+  return;
+ }
+
+ if(!data||!data.length){
+  alert(tr("reviewNoRow"));
+  return;
+ }
+
+ alert(approve?tr("approved"):tr("rejected"));
+
+ await loadPendingProperties();
+
+ if(approve)await searchProperties();
+}
+
+db.auth.onAuthStateChange((_event,session)=>{
+ currentUser=session?.user||null;
+
+ const a=document.getElementById("authStatus");
+ const p=document.getElementById("publishStatus");
+
+ if(a){
+  a.textContent=currentUser
+   ?tr("loggedIn")+currentUser.email
+   :(currentLanguage==="ar"
+    ?"الدخول مجاني. تصفح العقارات متاح للجميع."
+    :"Registration is free. Everyone can browse properties.");
+ }
+
+ if(p){
+  p.textContent=currentUser?tr("readyToPublish"):tr("loginBefore");
+ }
+
+ setTimeout(loadAdminPanel,0);
+});
+
+applyLanguage();
+updateFilters();
+updatePublishFields();
+refreshUser();
+searchProperties();
+</script>
+</body>
+</html>
