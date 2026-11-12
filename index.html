@@ -56,10 +56,15 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 .image-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
 .image-thumb{position:relative}
 .image-thumb img{width:100%;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
-.image-thumb button{position:absolute;top:4px;left:4px;padding:4px 8px;background:#b42318;color:white}
+.image-thumb button{position:absolute;top:4px;inset-inline-start:4px;padding:4px 8px;background:#b42318;color:white}
 .property-gallery{display:flex;gap:5px;overflow-x:auto;background:#e8edf2;height:185px}
 .property-gallery img{height:185px;min-width:75%;object-fit:cover}
 .upload-info{font-size:12px;color:var(--muted);line-height:1.7;margin-top:6px}
+html[dir="ltr"] body{text-align:left}
+html[dir="rtl"] body{text-align:right}
+html[dir="ltr"] .property-content{text-align:left}
+html[dir="rtl"] .property-content{text-align:right}
+html[dir="ltr"] .modal-head{flex-direction:row}
 @media(max-width:600px){header{justify-content:center}nav{justify-content:center}.hero h1{font-size:27px}}
 </style>
 </head>
@@ -68,187 +73,226 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 <header>
  <div class="logo">DE<span>STATE</span></div>
  <nav>
-  <a href="#home">الرئيسية</a>
-  <a href="#search">البحث</a>
-  <a href="#listings">العقارات</a>
-  <button class="primary" onclick="openModal('loginModal')">دخول / حساب جديد</button>
-  <button class="secondary" onclick="openPublish()">+ أضف عقارك</button>
+  <a href="#home" data-i18n="home">الرئيسية</a>
+  <a href="#search" data-i18n="search">البحث</a>
+  <a href="#listings" data-i18n="listings">العقارات</a>
+  <button class="primary" id="languageButton" onclick="toggleLanguage()">English</button>
+  <button class="primary" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button>
+  <button class="secondary" onclick="openPublish()" data-i18n="addProperty">+ أضف عقارك</button>
  </nav>
 </header>
 
 <section class="hero" id="home">
- <h1>عقارك، فرصتك، تواصلك المباشر</h1>
- <p>منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</p>
- <p>ابحث عن عقارك في جميع أنحاء تونس</p>
+ <h1 data-i18n="heroTitle">عقارك، فرصتك، تواصلك المباشر</h1>
+ <p data-i18n="heroText">منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</p>
+ <p data-i18n="heroText2">ابحث عن عقارك في جميع أنحاء تونس</p>
 </section>
 
 <main class="container">
 <section class="search-box" id="search">
- <h2 class="section-title">ابحث عن عقار</h2>
+ <h2 class="section-title" data-i18n="searchTitle">ابحث عن عقار</h2>
  <div class="filters">
-  <div><label>نوع العقار</label>
+  <div><label data-i18n="propertyType">نوع العقار</label>
    <select id="type" onchange="updateFilters()">
-    <option value="">كل العقارات</option>
-    <option value="house">منزل</option>
-    <option value="apartment">شقة</option>
-    <option value="land">أرض سكنية</option>
-    <option value="agricultural_land">أرض فلاحية</option>
-    <option value="commercial">محل تجاري</option>
+    <option value="" data-i18n="allProperties">كل العقارات</option>
+    <option value="house" data-i18n="house">منزل</option>
+    <option value="apartment" data-i18n="apartment">شقة</option>
+    <option value="land" data-i18n="land">أرض سكنية</option>
+    <option value="agricultural_land" data-i18n="agriculturalLand">أرض فلاحية</option>
+    <option value="commercial" data-i18n="commercial">محل تجاري</option>
    </select>
   </div>
-  <div><label>الولاية</label>
+
+  <div><label data-i18n="governorate">الولاية</label>
    <select id="governorate">
-    <option value="">كل الولايات</option>
-    <option>تونس</option><option>أريانة</option><option>بن عروس</option>
-    <option>منوبة</option><option>نابل</option><option>زغوان</option>
-    <option>بنزرت</option><option>باجة</option><option>جندوبة</option>
-    <option>الكاف</option><option>سليانة</option><option>سوسة</option>
-    <option>المنستير</option><option>المهدية</option><option>صفاقس</option>
-    <option>القيروان</option><option>القصرين</option><option>سيدي بوزيد</option>
-    <option>قابس</option><option>مدنين</option><option>تطاوين</option>
-    <option>قفصة</option><option>توزر</option><option>قبلي</option>
+    <option value="" data-i18n="allGovernorates">كل الولايات</option>
+    <option value="تونس" data-i18n="gov_tunis">تونس</option>
+    <option value="أريانة" data-i18n="gov_ariana">أريانة</option>
+    <option value="بن عروس" data-i18n="gov_ben_arous">بن عروس</option>
+    <option value="منوبة" data-i18n="gov_manouba">منوبة</option>
+    <option value="نابل" data-i18n="gov_nabeul">نابل</option>
+    <option value="زغوان" data-i18n="gov_zaghouan">زغوان</option>
+    <option value="بنزرت" data-i18n="gov_bizerte">بنزرت</option>
+    <option value="باجة" data-i18n="gov_beja">باجة</option>
+    <option value="جندوبة" data-i18n="gov_jendouba">جندوبة</option>
+    <option value="الكاف" data-i18n="gov_kef">الكاف</option>
+    <option value="سليانة" data-i18n="gov_siliana">سليانة</option>
+    <option value="سوسة" data-i18n="gov_sousse">سوسة</option>
+    <option value="المنستير" data-i18n="gov_monastir">المنستير</option>
+    <option value="المهدية" data-i18n="gov_mahdia">المهدية</option>
+    <option value="صفاقس" data-i18n="gov_sfax">صفاقس</option>
+    <option value="القيروان" data-i18n="gov_kairouan">القيروان</option>
+    <option value="القصرين" data-i18n="gov_kasserine">القصرين</option>
+    <option value="سيدي بوزيد" data-i18n="gov_sidi_bouzid">سيدي بوزيد</option>
+    <option value="قابس" data-i18n="gov_gabes">قابس</option>
+    <option value="مدنين" data-i18n="gov_medenine">مدنين</option>
+    <option value="تطاوين" data-i18n="gov_tataouine">تطاوين</option>
+    <option value="قفصة" data-i18n="gov_gafsa">قفصة</option>
+    <option value="توزر" data-i18n="gov_tozeur">توزر</option>
+    <option value="قبلي" data-i18n="gov_kebili">قبلي</option>
    </select>
   </div>
-  <div id="ownershipField"><label>نوع الملكية</label>
+
+  <div id="ownershipField"><label data-i18n="ownershipType">نوع الملكية</label>
    <select id="ownership">
-    <option value="">الكل</option>
-    <option value="individual">فردية</option>
-    <option value="shared">مشتركة</option>
+    <option value="" data-i18n="all">الكل</option>
+    <option value="individual" data-i18n="individual">فردية</option>
+    <option value="shared" data-i18n="shared">مشتركة</option>
    </select>
   </div>
-  <div id="landField" class="hidden"><label>صبغة الأرض</label>
+
+  <div id="landField" class="hidden"><label data-i18n="landNature">صبغة الأرض</label>
    <select id="landType">
-    <option value="">الكل</option>
-    <option value="residential">سكنية</option>
-    <option value="agricultural">فلاحية</option>
+    <option value="" data-i18n="all">الكل</option>
+    <option value="residential" data-i18n="residential">سكنية</option>
+    <option value="agricultural" data-i18n="agricultural">فلاحية</option>
    </select>
   </div>
-  <div><label>السعر الأقصى (دينار)</label><input id="maxPrice" type="number" placeholder="مثال: 200000"></div>
-  <div><label>المساحة الدنيا (م²)</label><input id="minArea" type="number" placeholder="مثال: 100"></div>
-  <div><label>نوع المعلن</label>
+
+  <div><label data-i18n="maxPrice">السعر الأقصى (دينار)</label><input id="maxPrice" type="number" data-i18n-placeholder="maxPriceExample" placeholder="مثال: 200000"></div>
+  <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" data-i18n-placeholder="minAreaExample" placeholder="مثال: 100"></div>
+
+  <div><label data-i18n="advertiserType">نوع المعلن</label>
    <select id="advertiserFilter">
-    <option value="">الكل</option>
-    <option value="owner">مالك العقار</option>
-    <option value="broker">وسيط مستقل</option>
-    <option value="agency">وكالة عقارية</option>
+    <option value="" data-i18n="all">الكل</option>
+    <option value="owner" data-i18n="owner">مالك العقار</option>
+    <option value="broker" data-i18n="broker">وسيط مستقل</option>
+    <option value="agency" data-i18n="agency">وكالة عقارية</option>
    </select>
   </div>
  </div>
- <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()">ابحث الآن</button>
- <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()">إعادة ضبط البحث</button>
+
+ <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
+ <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
 
 <section style="margin-top:38px">
- <h2 class="section-title">تصفح حسب النوع</h2>
+ <h2 class="section-title" data-i18n="browseByType">تصفح حسب النوع</h2>
  <div class="categories">
-  <div class="category" onclick="chooseType('house')"><span class="symbol">🏠</span>منازل</div>
-  <div class="category" onclick="chooseType('apartment')"><span class="symbol">🏢</span>شقق</div>
-  <div class="category" onclick="chooseType('land')"><span class="symbol">🌳</span>أراضي سكنية</div>
-  <div class="category" onclick="chooseType('agricultural_land')"><span class="symbol">🌾</span>أراضي فلاحية</div>
-  <div class="category" onclick="chooseType('commercial')"><span class="symbol">🏬</span>محلات تجارية</div>
+  <div class="category" onclick="chooseType('house')"><span class="symbol">🏠</span><span data-i18n="houses">منازل</span></div>
+  <div class="category" onclick="chooseType('apartment')"><span class="symbol">🏢</span><span data-i18n="apartments">شقق</span></div>
+  <div class="category" onclick="chooseType('land')"><span class="symbol">🌳</span><span data-i18n="residentialLands">أراضي سكنية</span></div>
+  <div class="category" onclick="chooseType('agricultural_land')"><span class="symbol">🌾</span><span data-i18n="agriculturalLands">أراضي فلاحية</span></div>
+  <div class="category" onclick="chooseType('commercial')"><span class="symbol">🏬</span><span data-i18n="commercialProperties">محلات تجارية</span></div>
  </div>
 </section>
 
 <section id="listings" style="margin-top:40px">
- <h2 class="section-title">أحدث العقارات</h2>
+ <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
  <div id="results" class="results">
-  <div class="empty">جاري تحميل العقارات...</div>
+  <div class="empty" data-i18n="loadingProperties">جاري تحميل العقارات...</div>
  </div>
 </section>
 </main>
 
 <footer>
  <div class="logo">DE<span>STATE</span></div>
- منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات
- <div>© 2026 DESTATE - جميع الحقوق محفوظة</div>
+ <span data-i18n="footerText">منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</span>
+ <div>© 2026 DESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div>
 </footer>
 
 <div class="modal" id="loginModal">
  <div class="modal-box">
   <div class="modal-head">
-   <h2>حساب DESTATE</h2>
+   <h2 data-i18n="accountTitle">حساب DESTATE</h2>
    <button class="close" onclick="closeModal('loginModal')">✕</button>
   </div>
-  <div id="authStatus" class="status">الدخول مجاني. تصفح العقارات متاح للجميع.</div>
-  <div class="field"><label>البريد الإلكتروني</label><input id="authEmail" type="email" placeholder="name@example.com"></div>
-  <div class="field"><label>كلمة المرور</label><input id="authPassword" type="password" placeholder="كلمة المرور"></div>
-  <button class="secondary" style="width:100%" onclick="signIn()">تسجيل الدخول</button>
-  <button class="primary" style="width:100%;margin-top:9px" onclick="signUp()">إنشاء حساب مجاني</button>
-  <button style="width:100%;margin-top:9px;background:#eee" onclick="signOut()">تسجيل الخروج</button>
-  <p class="small">قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.</p>
+  <div id="authStatus" class="status" data-i18n="loginFree">الدخول مجاني. تصفح العقارات متاح للجميع.</div>
+  <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input id="authEmail" type="email" placeholder="name@example.com"></div>
+  <div class="field"><label data-i18n="password">كلمة المرور</label><input id="authPassword" type="password" data-i18n-placeholder="password"></div>
+  <button class="secondary" style="width:100%" onclick="signIn()" data-i18n="signIn">تسجيل الدخول</button>
+  <button class="primary" style="width:100%;margin-top:9px" onclick="signUp()" data-i18n="signUp">إنشاء حساب مجاني</button>
+  <button style="width:100%;margin-top:9px;background:#eee" onclick="signOut()" data-i18n="signOut">تسجيل الخروج</button>
+  <p class="small" data-i18n="emailConfirmation">قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.</p>
  </div>
 </div>
 
 <div class="modal" id="publishModal">
  <div class="modal-box">
   <div class="modal-head">
-   <h2>إضافة عقار جديد</h2>
+   <h2 data-i18n="addNewProperty">إضافة عقار جديد</h2>
    <button class="close" onclick="closeModal('publishModal')">✕</button>
   </div>
-  <div id="publishStatus" class="status">سجّل الدخول قبل نشر إعلان.</div>
+  <div id="publishStatus" class="status" data-i18n="loginBeforePublish">سجّل الدخول قبل نشر إعلان.</div>
 
   <form id="propertyForm" onsubmit="publishProperty(event)">
-   <div class="field"><label>عنوان الإعلان</label><input id="pTitle" required placeholder="مثال: منزل للبيع في سوسة"></div>
+   <div class="field"><label data-i18n="adTitle">عنوان الإعلان</label><input id="pTitle" required data-i18n-placeholder="adTitleExample" placeholder="مثال: منزل للبيع في سوسة"></div>
 
-   <div class="field"><label>نوع العقار</label>
+   <div class="field"><label data-i18n="propertyType">نوع العقار</label>
     <select id="pType" required>
-     <option value="">اختر</option>
-     <option value="house">منزل</option>
-     <option value="apartment">شقة</option>
-     <option value="land">أرض سكنية</option>
-     <option value="agricultural_land">أرض فلاحية</option>
-     <option value="commercial">محل تجاري</option>
+     <option value="" data-i18n="choose">اختر</option>
+     <option value="house" data-i18n="house">منزل</option>
+     <option value="apartment" data-i18n="apartment">شقة</option>
+     <option value="land" data-i18n="land">أرض سكنية</option>
+     <option value="agricultural_land" data-i18n="agriculturalLand">أرض فلاحية</option>
+     <option value="commercial" data-i18n="commercial">محل تجاري</option>
     </select>
    </div>
 
-   <div class="field"><label>الولاية</label>
+   <div class="field"><label data-i18n="governorate">الولاية</label>
     <select id="pGovernorate" required>
-     <option value="">اختر الولاية</option>
-     <option>تونس</option><option>أريانة</option><option>بن عروس</option>
-     <option>منوبة</option><option>نابل</option><option>زغوان</option>
-     <option>بنزرت</option><option>باجة</option><option>جندوبة</option>
-     <option>الكاف</option><option>سليانة</option><option>سوسة</option>
-     <option>المنستير</option><option>المهدية</option><option>صفاقس</option>
-     <option>القيروان</option><option>القصرين</option><option>سيدي بوزيد</option>
-     <option>قابس</option><option>مدنين</option><option>تطاوين</option>
-     <option>قفصة</option><option>توزر</option><option>قبلي</option>
+     <option value="" data-i18n="chooseGovernorate">اختر الولاية</option>
+     <option value="تونس" data-i18n="gov_tunis">تونس</option>
+     <option value="أريانة" data-i18n="gov_ariana">أريانة</option>
+     <option value="بن عروس" data-i18n="gov_ben_arous">بن عروس</option>
+     <option value="منوبة" data-i18n="gov_manouba">منوبة</option>
+     <option value="نابل" data-i18n="gov_nabeul">نابل</option>
+     <option value="زغوان" data-i18n="gov_zaghouan">زغوان</option>
+     <option value="بنزرت" data-i18n="gov_bizerte">بنزرت</option>
+     <option value="باجة" data-i18n="gov_beja">باجة</option>
+     <option value="جندوبة" data-i18n="gov_jendouba">جندوبة</option>
+     <option value="الكاف" data-i18n="gov_kef">الكاف</option>
+     <option value="سليانة" data-i18n="gov_siliana">سليانة</option>
+     <option value="سوسة" data-i18n="gov_sousse">سوسة</option>
+     <option value="المنستير" data-i18n="gov_monastir">المنستير</option>
+     <option value="المهدية" data-i18n="gov_mahdia">المهدية</option>
+     <option value="صفاقس" data-i18n="gov_sfax">صفاقس</option>
+     <option value="القيروان" data-i18n="gov_kairouan">القيروان</option>
+     <option value="القصرين" data-i18n="gov_kasserine">القصرين</option>
+     <option value="سيدي بوزيد" data-i18n="gov_sidi_bouzid">سيدي بوزيد</option>
+     <option value="قابس" data-i18n="gov_gabes">قابس</option>
+     <option value="مدنين" data-i18n="gov_medenine">مدنين</option>
+     <option value="تطاوين" data-i18n="gov_tataouine">تطاوين</option>
+     <option value="قفصة" data-i18n="gov_gafsa">قفصة</option>
+     <option value="توزر" data-i18n="gov_tozeur">توزر</option>
+     <option value="قبلي" data-i18n="gov_kebili">قبلي</option>
     </select>
    </div>
 
-   <div class="field"><label>المدينة / المنطقة</label><input id="pCity" placeholder="المدينة أو المنطقة"></div>
-   <div class="field"><label>السعر بالدينار التونسي</label><input id="pPrice" type="number" min="0" required></div>
-   <div class="field"><label>المساحة بالمتر المربع</label><input id="pArea" type="number" min="0" required></div>
+   <div class="field"><label data-i18n="cityArea">المدينة / المنطقة</label><input id="pCity" data-i18n-placeholder="cityAreaPlaceholder" placeholder="المدينة أو المنطقة"></div>
+   <div class="field"><label data-i18n="priceTND">السعر بالدينار التونسي</label><input id="pPrice" type="number" min="0" required></div>
+   <div class="field"><label data-i18n="areaSqm">المساحة بالمتر المربع</label><input id="pArea" type="number" min="0" required></div>
 
-   <div class="field"><label>نوع الملكية</label>
+   <div class="field"><label data-i18n="ownershipType">نوع الملكية</label>
     <select id="pOwnership" required>
-     <option value="">اختر</option>
-     <option value="individual">فردية</option>
-     <option value="shared">مشتركة</option>
+     <option value="" data-i18n="choose">اختر</option>
+     <option value="individual" data-i18n="individual">فردية</option>
+     <option value="shared" data-i18n="shared">مشتركة</option>
     </select>
    </div>
 
-   <div class="field"><label>نوع المعلن</label>
+   <div class="field"><label data-i18n="advertiserType">نوع المعلن</label>
     <select id="pAdvertiser" required>
-     <option value="">اختر</option>
-     <option value="owner">مالك العقار</option>
-     <option value="broker">وسيط مستقل</option>
-     <option value="agency">وكالة عقارية</option>
+     <option value="" data-i18n="choose">اختر</option>
+     <option value="owner" data-i18n="owner">مالك العقار</option>
+     <option value="broker" data-i18n="broker">وسيط مستقل</option>
+     <option value="agency" data-i18n="agency">وكالة عقارية</option>
     </select>
    </div>
 
-   <div class="field"><label>رقم الهاتف</label><input id="pPhone" type="tel" required placeholder="+216"></div>
-   <div class="field"><label>وصف العقار</label><textarea id="pDescription" required placeholder="اكتب تفاصيل العقار: عدد الغرف، الحالة، الطابق، المرافق..."></textarea></div>
+   <div class="field"><label data-i18n="phone">رقم الهاتف</label><input id="pPhone" type="tel" required placeholder="+216"></div>
+   <div class="field"><label data-i18n="description">وصف العقار</label><textarea id="pDescription" required data-i18n-placeholder="descriptionPlaceholder" placeholder="اكتب تفاصيل العقار: عدد الغرف، الحالة، الطابق، المرافق..."></textarea></div>
 
-   <div class="notice">الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.</div>
+   <div class="notice" data-i18n="photoNotice">الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.</div>
 
    <div class="field">
-    <label>صور العقار (من 1 إلى 8 صور)</label>
+    <label data-i18n="propertyPhotos">صور العقار (من 1 إلى 8 صور)</label>
     <input id="pImages" type="file" accept="image/jpeg,image/png,image/webp" multiple required>
-    <div class="upload-info">الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.</div>
+    <div class="upload-info" data-i18n="photoRules">الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.</div>
     <div id="imagePreview" class="image-grid"></div>
    </div>
 
-   <button id="publishButton" class="secondary" style="width:100%" type="submit">نشر الإعلان</button>
+   <button id="publishButton" class="secondary" style="width:100%" type="submit" data-i18n="publish">نشر الإعلان</button>
   </form>
  </div>
 </div>
@@ -262,95 +306,193 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
+let currentLanguage = localStorage.getItem("destate_language") || "ar";
+let lastProperties = [];
+
+const translations = {
+ ar: {
+  home:"الرئيسية",search:"البحث",listings:"العقارات",login:"دخول / حساب جديد",addProperty:"+ أضف عقارك",
+  heroTitle:"عقارك، فرصتك، تواصلك المباشر",heroText:"منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات",heroText2:"ابحث عن عقارك في جميع أنحاء تونس",
+  searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",
+  governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"صبغة الأرض",residential:"سكنية",agricultural:"فلاحية",
+  maxPrice:"السعر الأقصى (دينار)",maxPriceExample:"مثال: 200000",minArea:"المساحة الدنيا (م²)",minAreaExample:"مثال: 100",advertiserType:"نوع المعلن",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",
+  searchNow:"ابحث الآن",resetSearch:"إعادة ضبط البحث",browseByType:"تصفح حسب النوع",houses:"منازل",apartments:"شقق",residentialLands:"أراضي سكنية",agriculturalLands:"أراضي فلاحية",commercialProperties:"محلات تجارية",
+  latestProperties:"أحدث العقارات",loadingProperties:"جاري تحميل العقارات...",footerText:"منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات",copyright:"جميع الحقوق محفوظة",
+  accountTitle:"حساب DESTATE",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب مجاني",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",
+  addNewProperty:"إضافة عقار جديد",loginBeforePublish:"سجّل الدخول قبل نشر إعلان.",adTitle:"عنوان الإعلان",adTitleExample:"مثال: منزل للبيع في سوسة",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",cityAreaPlaceholder:"المدينة أو المنطقة",
+  priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",descriptionPlaceholder:"اكتب تفاصيل العقار: عدد الغرف، الحالة، الطابق، المرافق...",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",
+  propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
+  loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. قد نحتاج إلى مراجعة إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",location:"الموقع",price:"السعر",area:"المساحة",contact:"اتصل بالمعلن",notSpecified:"غير محددة",advertiser:"معلن",
+  loginRequired:"للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactNotReady:"يلزم إعداد وصول آمن لرقم الهاتف في قاعدة البيانات قبل إظهاره. لم يتم كشف رقم الهاتف في هذه النسخة.",
+  enterEmailPassword:"اكتب البريد الإلكتروني وكلمة مرور من 6 أحرف على الأقل.",accountCreated:"تم إرسال طلب إنشاء الحساب. تفقد بريدك الإلكتروني إذا طُلب التأكيد.",signedIn:"تم تسجيل الدخول.",signedOut:"تم تسجيل الخروج.",
+  mustLogin:"يلزمك تسجيل الدخول قبل نشر إعلان.",chooseAtLeastOne:"يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.",tooManyImages:"يمكنك اختيار 8 صور كحد أقصى.",badFormat:"صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.",tooLarge:"حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.",
+  uploading:"جاري رفع الصور والنشر...",pleaseWait:"يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.",uploadError:"تعذر رفع الصور: ",saveError:"لم يتم حفظ الإعلان: ",publishSuccess:"تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.",publishFailed:"لم يكتمل النشر. راجع رسالة الخطأ.",publishError:"حدث خطأ أثناء النشر.",checkPhotos:"تأكد من صيغة الصور وحجمها قبل النشر.",
+  loggedIn:"أنت مسجل الدخول: ",readyToPublish:"أنت مسجل الدخول. يمكنك إعداد إعلانك.",loginBefore:"يلزمك تسجيل الدخول قبل نشر إعلان."
+ },
+ en: {
+  home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",
+  heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian real estate platform connecting advertisers and property seekers",heroText2:"Find your property anywhere in Tunisia",
+  searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",
+  governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",
+  maxPrice:"Maximum Price (TND)",maxPriceExample:"Example: 200000",minArea:"Minimum Area (m²)",minAreaExample:"Example: 100",advertiserType:"Advertiser Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
+  searchNow:"Search Now",resetSearch:"Reset Search",browseByType:"Browse by Type",houses:"Houses",apartments:"Apartments",residentialLands:"Residential Lands",agriculturalLands:"Agricultural Lands",commercialProperties:"Commercial Properties",
+  latestProperties:"Latest Properties",loadingProperties:"Loading properties...",footerText:"A Tunisian real estate platform connecting advertisers and property seekers",copyright:"All rights reserved",
+  accountTitle:"DESTATE Account",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create Free Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",
+  addNewProperty:"Add a New Property",loginBeforePublish:"Please log in before publishing an ad.",adTitle:"Listing Title",adTitleExample:"Example: House for sale in Sousse",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",cityAreaPlaceholder:"City or area",
+  priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",descriptionPlaceholder:"Describe the property: rooms, condition, floor, facilities...",photoNotice:"Please use genuine and recent photos of the listed property. Misleading buyers with unrelated photos is prohibited.",
+  propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
+  loading:"Searching...",searchError:"Unable to load properties. We may need to review the database settings.",noResults:"No properties currently match your search.",location:"Location",price:"Price",area:"Area",contact:"Contact Advertiser",notSpecified:"Not specified",advertiser:"Advertiser",
+  loginRequired:"Please create a free account or log in to contact the advertiser.",contactNotReady:"Secure access to the phone number must be configured in the database before it can be displayed. The phone number is not exposed in this version.",
+  enterEmailPassword:"Enter your email and a password of at least 6 characters.",accountCreated:"Your registration request was sent. Check your email if confirmation is required.",signedIn:"You are now logged in.",signedOut:"You have been logged out.",
+  mustLogin:"Please log in before publishing a listing.",chooseAtLeastOne:"Choose at least one image and no more than 8.",tooManyImages:"You can choose a maximum of 8 images.",badFormat:"Unsupported format. Use JPG, PNG or WebP.",tooLarge:"Each image must be no larger than 5 MB.",
+  uploading:"Uploading images and publishing...",pleaseWait:"Please wait. Do not close the page while images are uploading.",uploadError:"Image upload failed: ",saveError:"Listing could not be saved: ",publishSuccess:"Images uploaded and listing submitted for review. It will appear after approval.",publishFailed:"Publishing was not completed. Check the error message.",publishError:"An error occurred while publishing.",checkPhotos:"Check the image formats and sizes before publishing.",
+  loggedIn:"Logged in as: ",readyToPublish:"You are logged in. You can prepare your listing.",loginBefore:"Please log in before publishing a listing."
+ }
+};
+
+const governorates = {
+ "تونس":"gov_tunis","أريانة":"gov_ariana","بن عروس":"gov_ben_arous","منوبة":"gov_manouba","نابل":"gov_nabeul","زغوان":"gov_zaghouan","بنزرت":"gov_bizerte","باجة":"gov_beja","جندوبة":"gov_jendouba","الكاف":"gov_kef","سليانة":"gov_siliana","سوسة":"gov_sousse","المنستير":"gov_monastir","المهدية":"gov_mahdia","صفاقس":"gov_sfax","القيروان":"gov_kairouan","القصرين":"gov_kasserine","سيدي بوزيد":"gov_sidi_bouzid","قابس":"gov_gabes","مدنين":"gov_medenine","تطاوين":"gov_tataouine","قفصة":"gov_gafsa","توزر":"gov_tozeur","قبلي":"gov_kebili"
+};
+
+const governorateTranslations = {
+ en:{
+  gov_tunis:"Tunis",gov_ariana:"Ariana",gov_ben_arous:"Ben Arous",gov_manouba:"Manouba",gov_nabeul:"Nabeul",gov_zaghouan:"Zaghouan",gov_bizerte:"Bizerte",gov_beja:"Beja",gov_jendouba:"Jendouba",gov_kef:"El Kef",gov_siliana:"Siliana",gov_sousse:"Sousse",gov_monastir:"Monastir",gov_mahdia:"Mahdia",gov_sfax:"Sfax",gov_kairouan:"Kairouan",gov_kasserine:"Kasserine",gov_sidi_bouzid:"Sidi Bouzid",gov_gabes:"Gabes",gov_medenine:"Medenine",gov_tataouine:"Tataouine",gov_gafsa:"Gafsa",gov_tozeur:"Tozeur",gov_kebili:"Kebili"
+ }
+};
 
 const typeNames = {
- house:"منزل",
- apartment:"شقة",
- land:"أرض سكنية",
- agricultural_land:"أرض فلاحية",
- commercial:"محل تجاري"
+ house:"house",apartment:"apartment",land:"land",agricultural_land:"agriculturalLand",commercial:"commercial"
 };
 
 const advertiserNames = {
- owner:"مالك العقار",
- broker:"وسيط مستقل",
- agency:"وكالة عقارية"
+ owner:"owner",broker:"broker",agency:"agency"
 };
 
-function safe(value) {
- return String(value ?? "").replace(/[&<>"']/g, c => ({
+function tr(key){
+ return translations[currentLanguage][key] || translations.ar[key] || key;
+}
+
+function applyLanguage(){
+ const lang=currentLanguage;
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+ document.title=lang==="ar"?"DESTATE | العقارات في تونس":"DESTATE | Real Estate in Tunisia";
+ document.getElementById("languageButton").textContent=lang==="ar"?"English":"العربية";
+
+ document.querySelectorAll("[data-i18n]").forEach(element=>{
+  const key=element.dataset.i18n;
+  if(translations[lang][key]) element.textContent=translations[lang][key];
+ });
+
+ document.querySelectorAll("[data-i18n-placeholder]").forEach(element=>{
+  const key=element.dataset.i18nPlaceholder;
+  if(translations[lang][key]) element.placeholder=translations[lang][key];
+ });
+
+ document.querySelectorAll("option[data-i18n]").forEach(option=>{
+  const key=option.dataset.i18n;
+  if(lang==="en" && governorateTranslations.en[key]){
+   option.textContent=governorateTranslations.en[key];
+  }else if(translations[lang][key]){
+   option.textContent=translations[lang][key];
+  }
+ });
+
+ const authStatus=document.getElementById("authStatus");
+ if(authStatus){
+  authStatus.textContent=currentUser
+   ? tr("loggedIn")+currentUser.email
+   : tr("loginFree");
+ }
+
+ const publishStatus=document.getElementById("publishStatus");
+ if(publishStatus){
+  publishStatus.textContent=currentUser?tr("readyToPublish"):tr("loginBefore");
+ }
+
+ if(lastProperties.length) displayProperties(lastProperties);
+}
+
+function toggleLanguage(){
+ currentLanguage=currentLanguage==="ar"?"en":"ar";
+ localStorage.setItem("destate_language",currentLanguage);
+ applyLanguage();
+}
+
+function safe(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  })[c]);
 }
 
-function openModal(id) {
+function openModal(id){
  document.getElementById(id).style.display="block";
 }
-function closeModal(id) {
+
+function closeModal(id){
  document.getElementById(id).style.display="none";
 }
-function openPublish() {
+
+function openPublish(){
  openModal("publishModal");
  document.getElementById("publishStatus").textContent=currentUser
-  ? "أنت مسجل الدخول. يمكنك إعداد إعلانك."
-  : "يلزمك تسجيل الدخول قبل نشر إعلان.";
+  ?tr("readyToPublish"):tr("loginBefore");
 }
 
-async function refreshUser() {
- const {data,error}=await db.auth.getUser();
- currentUser=data?.user || null;
+async function refreshUser(){
+ const {data}=await db.auth.getUser();
+ currentUser=data?.user||null;
  const status=document.getElementById("authStatus");
  if(status) status.textContent=currentUser
-  ? "أنت مسجل الدخول: "+currentUser.email
-  : "الدخول مجاني. تصفح العقارات متاح للجميع.";
+  ?tr("loggedIn")+currentUser.email:tr("loginFree");
 }
 
-async function signUp() {
+async function signUp(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
- if(!email || password.length<6) {
-  alert("اكتب البريد الإلكتروني وكلمة مرور من 6 أحرف على الأقل.");
+ if(!email||password.length<6){
+  alert(tr("enterEmailPassword"));
   return;
  }
- const {data,error}=await db.auth.signUp({email,password});
- if(error) {alert(error.message);return;}
+ const {error}=await db.auth.signUp({email,password});
+ if(error){alert(error.message);return;}
  await refreshUser();
- alert("تم إرسال طلب إنشاء الحساب. تفقد بريدك الإلكتروني إذا طُلب التأكيد.");
+ alert(tr("accountCreated"));
 }
 
-async function signIn() {
+async function signIn(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
- const {data,error}=await db.auth.signInWithPassword({email,password});
- if(error) {alert(error.message);return;}
+ const {error}=await db.auth.signInWithPassword({email,password});
+ if(error){alert(error.message);return;}
  await refreshUser();
  closeModal("loginModal");
- alert("تم تسجيل الدخول.");
+ alert(tr("signedIn"));
 }
 
-async function signOut() {
+async function signOut(){
  const {error}=await db.auth.signOut();
- if(error) {alert(error.message);return;}
+ if(error){alert(error.message);return;}
  currentUser=null;
  await refreshUser();
- alert("تم تسجيل الخروج.");
+ alert(tr("signedOut"));
 }
 
-function updateFilters() {
+function updateFilters(){
  const type=document.getElementById("type").value;
- const land=type==="land" || type==="agricultural_land";
+ const land=type==="land"||type==="agricultural_land";
  document.getElementById("landField").classList.toggle("hidden",!land);
  document.getElementById("ownershipField").classList.toggle("hidden",!type);
 }
 
-function chooseType(type) {
+function chooseType(type){
  document.getElementById("type").value=type;
  updateFilters();
  searchProperties();
  document.getElementById("search").scrollIntoView({behavior:"smooth"});
 }
 
-function resetSearch() {
+function resetSearch(){
  ["type","governorate","ownership","landType","advertiserFilter"].forEach(id=>{
   document.getElementById(id).value="";
  });
@@ -361,11 +503,11 @@ function resetSearch() {
 }
 
 /* اختيار الصور ومعاينتها */
-function getSelectedFiles() {
- return Array.from(document.getElementById("pImages").files || []);
+function getSelectedFiles(){
+ return Array.from(document.getElementById("pImages").files||[]);
 }
 
-function renderImagePreviews() {
+function renderImagePreviews(){
  const files=getSelectedFiles();
  const preview=document.getElementById("imagePreview");
  preview.innerHTML="";
@@ -377,12 +519,12 @@ function renderImagePreviews() {
 
   const img=document.createElement("img");
   img.src=url;
-  img.alt="صورة العقار";
+  img.alt=tr("propertyPhotos");
 
   const remove=document.createElement("button");
   remove.type="button";
   remove.textContent="✕";
-  remove.title="حذف الصورة";
+  remove.title=currentLanguage==="ar"?"حذف الصورة":"Remove image";
   remove.onclick=()=>removeImage(index);
 
   item.append(img,remove);
@@ -390,7 +532,7 @@ function renderImagePreviews() {
  });
 }
 
-function removeImage(index) {
+function removeImage(index){
  const input=document.getElementById("pImages");
  const transfer=new DataTransfer();
  getSelectedFiles().forEach((file,i)=>{
@@ -403,61 +545,53 @@ function removeImage(index) {
 document.getElementById("pImages").addEventListener("change",function(){
  const files=getSelectedFiles();
 
- if(files.length>MAX_IMAGES) {
-  alert("يمكنك اختيار 8 صور كحد أقصى.");
+ if(files.length>MAX_IMAGES){
+  alert(tr("tooManyImages"));
   this.value="";
   renderImagePreviews();
   return;
  }
 
- for(const file of files) {
-  if(!["image/jpeg","image/png","image/webp"].includes(file.type)) {
-   alert("صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.");
+ for(const file of files){
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+   alert(tr("badFormat"));
    this.value="";
    renderImagePreviews();
    return;
   }
-
-  if(file.size>MAX_IMAGE_SIZE) {
-   alert("حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.");
+  if(file.size>MAX_IMAGE_SIZE){
+   alert(tr("tooLarge"));
    this.value="";
    renderImagePreviews();
    return;
   }
  }
-
  renderImagePreviews();
 });
 
 /* رفع الصور إلى Supabase Storage */
-async function uploadPropertyImages(files) {
+async function uploadPropertyImages(files){
  const urls=[];
  const uploadedPaths=[];
 
- for(const file of files) {
-  const extensions={
-   "image/jpeg":"jpg",
-   "image/png":"png",
-   "image/webp":"webp"
-  };
-
+ for(const file of files){
+  const extensions={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
   const extension=extensions[file.type];
-  const filename=crypto.randomUUID()+"."+extension;
-  const path=currentUser.id+"/"+Date.now()+"-"+filename;
+  const randomName=crypto.randomUUID
+   ?crypto.randomUUID()
+   :Date.now()+"-"+Math.random().toString(36).slice(2);
+  const path=currentUser.id+"/"+Date.now()+"-"+randomName+"."+extension;
 
   const {error}=await db.storage.from(BUCKET).upload(path,file,{
-   cacheControl:"3600",
-   upsert:false,
-   contentType:file.type
+   cacheControl:"3600",upsert:false,contentType:file.type
   });
 
-  if(error) {
+  if(error){
    await db.storage.from(BUCKET).remove(uploadedPaths);
-   throw new Error("تعذر رفع الصور: "+error.message);
+   throw new Error(tr("uploadError")+error.message);
   }
 
   uploadedPaths.push(path);
-
   const {data}=db.storage.from(BUCKET).getPublicUrl(path);
   urls.push(data.publicUrl);
  }
@@ -465,9 +599,9 @@ async function uploadPropertyImages(files) {
  return {urls,uploadedPaths};
 }
 
-async function searchProperties() {
+async function searchProperties(){
  const results=document.getElementById("results");
- results.innerHTML='<div class="empty">جاري البحث...</div>';
+ results.innerHTML='<div class="empty">'+tr("loading")+'</div>';
 
  let query=db.from("properties")
   .select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at")
@@ -491,73 +625,83 @@ async function searchProperties() {
 
  const {data,error}=await query.order("created_at",{ascending:false});
 
- if(error) {
-  results.innerHTML='<div class="empty">تعذّر تحميل العقارات. قد نحتاج إلى مراجعة إعدادات قاعدة البيانات.</div>';
-  console.error(error);
+ if(error){
+  results.innerHTML='<div class="empty">'+tr("searchError")+'</div>';
+  console.error("DESTATE database error:",error);
   return;
  }
- displayProperties(data || []);
+
+ lastProperties=data||[];
+ displayProperties(lastProperties);
 }
 
-function displayProperties(items) {
+function displayProperties(items){
  const results=document.getElementById("results");
 
- if(!items.length) {
-  results.innerHTML='<div class="empty">لا توجد عقارات مطابقة للبحث حالياً.</div>';
+ if(!items.length){
+  results.innerHTML='<div class="empty">'+tr("noResults")+'</div>';
   return;
  }
 
  results.innerHTML=items.map(p=>{
   const images=Array.isArray(p.image_urls)?p.image_urls:[];
   const gallery=images.length
-   ? `<div class="property-gallery">${images.map(url=>`<img src="${safe(url)}" alt="صورة العقار" loading="lazy">`).join("")}</div>`
-   : '<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
+   ?`<div class="property-gallery">${images.map(url=>`<img src="${safe(url)}" alt="${safe(tr("propertyPhotos"))}" loading="lazy">`).join("")}</div>`
+   :'<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
+
+  const typeKey=typeNames[p.property_type];
+  const advertiserKey=advertiserNames[p.advertiser_type];
+  const propertyType=typeKey?tr(typeKey):safe(p.property_type);
+  const advertiser=advertiserKey?tr(advertiserKey):tr("advertiser");
+  const location=governorates[p.governorate]
+   ?(currentLanguage==="en"?governorateTranslations.en[governorates[p.governorate]]:p.governorate)
+   :safe(p.governorate);
 
   return `
   <article class="property">
    ${gallery}
    <div class="property-content">
     <h3>${safe(p.title)}</h3>
-    <span class="tag">${safe(typeNames[p.property_type] || p.property_type)}</span>
-    <span class="tag">${safe(advertiserNames[p.advertiser_type] || "معلن")}</span>
-    <div class="meta">📍 ${safe(p.governorate)} ${safe(p.city || "")}</div>
-    <div class="price">${Number(p.price || 0).toLocaleString("fr-FR")} د.ت</div>
-    <div class="meta">المساحة: ${safe(p.area || "غير محددة")} م²</div>
-    <p>${safe((p.description || "").slice(0,150))}</p>
-    <button class="secondary" onclick="showContact('${safe(p.id)}')">اتصل بالمعلن</button>
+    <span class="tag">${safe(propertyType)}</span>
+    <span class="tag">${safe(advertiser)}</span>
+    <div class="meta">📍 ${safe(location)} ${safe(p.city||"")}</div>
+    <div class="price">${tr("price")}: ${Number(p.price||0).toLocaleString(currentLanguage==="ar"?"fr-FR":"en-US")} ${currentLanguage==="ar"?"د.ت":"TND"}</div>
+    <div class="meta">${tr("area")}: ${safe(p.area||tr("notSpecified"))} ${currentLanguage==="ar"?"م²":"m²"}</div>
+    <p>${safe((p.description||"").slice(0,150))}</p>
+    <button class="secondary" onclick="showContact('${safe(p.id)}')">${tr("contact")}</button>
    </div>
   </article>`;
  }).join("");
 }
 
-async function showContact(id) {
- if(!currentUser) {
-  alert("للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.");
+async function showContact(id){
+ if(!currentUser){
+  alert(tr("loginRequired"));
   openModal("loginModal");
   return;
  }
- alert("يلزم إعداد وصول آمن لرقم الهاتف في قاعدة البيانات قبل إظهاره. لم يتم كشف رقم الهاتف في هذه النسخة.");
+ alert(tr("contactNotReady"));
 }
 
-async function publishProperty(event) {
+async function publishProperty(event){
  event.preventDefault();
 
- if(!currentUser) {
-  alert("سجّل الدخول أولاً.");
+ if(!currentUser){
+  alert(tr("mustLogin"));
   openModal("loginModal");
   return;
  }
 
  const files=getSelectedFiles();
 
- if(files.length<1 || files.length>MAX_IMAGES) {
-  alert("يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.");
+ if(files.length<1||files.length>MAX_IMAGES){
+  alert(tr("chooseAtLeastOne"));
   return;
  }
 
- for(const file of files) {
-  if(!["image/jpeg","image/png","image/webp"].includes(file.type) || file.size>MAX_IMAGE_SIZE) {
-   alert("تأكد من صيغة الصور وحجمها قبل النشر.");
+ for(const file of files){
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>MAX_IMAGE_SIZE){
+   alert(tr("checkPhotos"));
    return;
   }
  }
@@ -565,12 +709,12 @@ async function publishProperty(event) {
  const button=document.getElementById("publishButton");
  const status=document.getElementById("publishStatus");
  button.disabled=true;
- button.textContent="جاري رفع الصور والنشر...";
- status.textContent="يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.";
+ button.textContent=tr("uploading");
+ status.textContent=tr("pleaseWait");
 
  let uploadedPaths=[];
 
- try {
+ try{
   const uploaded=await uploadPropertyImages(files);
   uploadedPaths=uploaded.uploadedPaths;
 
@@ -592,35 +736,43 @@ async function publishProperty(event) {
 
   const {error}=await db.from("properties").insert(payload);
 
-  if(error) {
+  if(error){
    await db.storage.from(BUCKET).remove(uploadedPaths);
-   throw new Error("لم يتم حفظ الإعلان: "+error.message);
+   throw new Error(tr("saveError")+error.message);
   }
 
-  alert("تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.");
+  alert(tr("publishSuccess"));
   document.getElementById("propertyForm").reset();
   document.getElementById("imagePreview").innerHTML="";
   closeModal("publishModal");
   searchProperties();
 
- } catch(error) {
+ }catch(error){
   console.error(error);
-  alert(error.message || "حدث خطأ أثناء النشر.");
-  status.textContent="لم يكتمل النشر. راجع رسالة الخطأ.";
- } finally {
+  alert(error.message||tr("publishError"));
+  status.textContent=tr("publishFailed");
+ }finally{
   button.disabled=false;
-  button.textContent="نشر الإعلان";
+  button.textContent=tr("publish");
  }
 }
 
 db.auth.onAuthStateChange((_event,session)=>{
- currentUser=session?.user || null;
+ currentUser=session?.user||null;
  const status=document.getElementById("authStatus");
- if(status) status.textContent=currentUser
-  ? "أنت مسجل الدخول: "+currentUser.email
-  : "الدخول مجاني. تصفح العقارات متاح للجميع.";
+ if(status){
+  status.textContent=currentUser
+   ?tr("loggedIn")+currentUser.email
+   :tr("loginFree");
+ }
+ const publishStatus=document.getElementById("publishStatus");
+ if(publishStatus){
+  publishStatus.textContent=currentUser
+   ?tr("readyToPublish"):tr("loginBefore");
+ }
 });
 
+applyLanguage();
 updateFilters();
 refreshUser();
 searchProperties();
