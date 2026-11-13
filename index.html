@@ -545,13 +545,15 @@ function renderProfile(){
 function setProfileLabels(){
  const labels={profileTitle:uiText("حسابي الشخصي","My Profile"),profileIntro:uiText("إدارة معلومات حسابك وإعداداتك","Manage your account information and settings"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات","Edit information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileShortcutsTitle:uiText("اختصارات حسابك","Account shortcuts"),profileListingsButton:uiText("إعلاناتي وإحصائياتي","My listings & statistics"),profileFavoritesButton:uiText("مفضلتي","My Favorites"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profileSignOutButton:uiText("تسجيل الخروج","Sign out"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
  Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
+ const accountLabels={accountCenterTitle:uiText("مركزك الشخصي","Your account hub"),accountNotificationsLabel:uiText("إشعاراتي","Notifications"),accountMessagesLabel:uiText("رسائلي","Messages"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountShowNotifications:uiText("الإشعارات","Notifications"),accountShowMessages:uiText("الرسائل الواردة","Inbox"),accountNotificationsHeading:uiText("إشعاراتي","Notifications"),accountMessagesHeading:uiText("محادثاتي","Conversations")};
+ Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
 function openProfile(){
  if(!currentUser){openModal("loginModal");return}
  renderProfile();setProfileLabels();
  const panel=document.getElementById("profilePanel");panel.classList.remove("hidden");
- panel.scrollIntoView({behavior:"smooth",block:"start"});
+ panel.scrollIntoView({behavior:"smooth",block:"start"});loadAccountCenter();
 }
 function closeProfile(){document.getElementById("profilePanel")?.classList.add("hidden")}
 async function saveProfileName(){
@@ -578,6 +580,88 @@ async function saveProfilePassword(){
 }
 function goToMyListings(){closeProfile();const panel=document.getElementById("myPropertiesPanel");panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});loadMyPropertyStats()}
 function goToFavorites(){closeProfile();openFavorites()}
+
+function showAccountTab(tab){
+ const notifications=document.getElementById("accountNotificationsView");
+ const messages=document.getElementById("accountMessagesView");
+ if(!notifications||!messages)return;
+ notifications.classList.toggle("hidden",tab!=="notifications");
+ messages.classList.toggle("hidden",tab!=="messages");
+ if(tab==="notifications")loadAccountNotifications();
+ if(tab==="messages")loadAccountConversations();
+}
+async function loadAccountCenter(){
+ if(!currentUser)return;
+ await Promise.all([loadAccountNotifications(),loadAccountConversations()]);
+}
+async function loadAccountNotifications(){
+ const list=document.getElementById("accountNotificationsList");
+ if(!list||!currentUser)return;
+ list.innerHTML='<div class="small">'+uiText("جاري تحميل الإشعارات...","Loading notifications...")+'</div>';
+ const {data,error}=await db.from("user_notifications").select("id,notification_type,title,body,property_id,conversation_id,is_read,created_at").order("created_at",{ascending:false}).limit(50);
+ if(error){list.innerHTML='<div class="status">'+uiText("الإشعارات غير متاحة بعد. يلزم تطبيق تحديث قاعدة البيانات.","Notifications are not available yet. Apply the database migration first.")+'</div>';document.getElementById("accountNotificationsCount").textContent="0";return}
+ const rows=data||[];
+ document.getElementById("accountNotificationsCount").textContent=rows.filter(x=>!x.is_read).length;
+ if(!rows.length){list.innerHTML='<div class="empty">'+uiText("ما عندك حتى إشعار حالياً.","You have no notifications yet.")+'</div>';return}
+ list.innerHTML=rows.map(n=>'<button type="button" class="account-item '+(!n.is_read?'unread':'')+'" onclick="openAccountNotification(\''+safe(n.id)+'\',\''+safe(n.conversation_id||'')+'\')"><strong>'+safe(n.title||uiText("إشعار جديد","New notification"))+'</strong><p>'+safe(n.body||"")+'</p><small>'+safe(new Date(n.created_at).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small></button>').join("");
+}
+async function openAccountNotification(id,conversationId){
+ await db.from("user_notifications").update({is_read:true}).eq("id",id);
+ if(conversationId){showAccountTab("messages");await openConversation(conversationId);return}
+ await loadAccountNotifications();
+}
+async function loadAccountConversations(){
+ const list=document.getElementById("accountConversationsList");
+ if(!list||!currentUser)return;
+ list.innerHTML='<div class="small">'+uiText("جاري تحميل المحادثات...","Loading conversations...")+'</div>';
+ const {data,error}=await db.from("property_conversations").select("id,property_id,buyer_id,seller_id,last_message_at,properties(title)").order("last_message_at",{ascending:false}).limit(50);
+ if(error){list.innerHTML='<div class="status">'+uiText("الرسائل غير متاحة بعد. يلزم تطبيق تحديث قاعدة البيانات.","Messaging is not available yet. Apply the database migration first.")+'</div>';document.getElementById("accountMessagesCount").textContent="0";return}
+ if(!data||!data.length){list.innerHTML='<div class="empty">'+uiText("ما عندك حتى محادثة. افتح إعلاناً واضغط راسل المعلن.","No conversations yet. Open a listing and message its advertiser.")+'</div>';document.getElementById("accountMessagesCount").textContent="0";return}
+ const ids=data.map(c=>c.id);
+ const {data:unreadRows}=await db.from("property_messages").select("conversation_id").in("conversation_id",ids).neq("sender_id",currentUser.id).is("read_at",null);
+ const counts={};(unreadRows||[]).forEach(m=>counts[m.conversation_id]=(counts[m.conversation_id]||0)+1);
+ document.getElementById("accountMessagesCount").textContent=Object.values(counts).reduce((a,b)=>a+b,0);
+ list.innerHTML=data.map(c=>{
+  const buyer=c.buyer_id===currentUser.id;
+  return '<button type="button" class="account-item '+(counts[c.id]?'unread':'')+'" onclick="openConversation(\''+safe(c.id)+'\')"><strong>'+safe(c.properties?.title||uiText("إعلان عقاري","Property listing"))+'</strong><p>'+uiText(buyer?"أنت المشتري — البائع":"أنت البائع — المشتري",buyer?"You are the buyer — seller":"You are the seller — buyer")+'</p><small>'+safe(new Date(c.last_message_at).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small></button>';
+ }).join("");
+}
+async function openConversation(id){
+ const thread=document.getElementById("accountConversationThread");
+ if(!thread)return;
+ thread.classList.remove("hidden");thread.dataset.conversationId=id;
+ thread.innerHTML='<div class="small">'+uiText("جاري تحميل الرسائل...","Loading messages...")+'</div>';
+ const {data:conversation,error:convError}=await db.from("property_conversations").select("id,property_id,buyer_id,seller_id,properties(title)").eq("id",id).maybeSingle();
+ if(convError||!conversation){thread.innerHTML='<div class="status">'+uiText("تعذّر فتح المحادثة.","Could not open conversation.")+'</div>';return}
+ await db.from("property_messages").update({read_at:new Date().toISOString()}).eq("conversation_id",id).neq("sender_id",currentUser.id).is("read_at",null);
+ const {data:messages,error}=await db.from("property_messages").select("id,sender_id,body,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(100);
+ if(error){thread.innerHTML='<div class="status">'+safe(error.message)+'</div>';return}
+ thread.innerHTML='<div class="admin-heading"><strong>'+safe(conversation.properties?.title||uiText("محادثة عقارية","Property conversation"))+'</strong><button type="button" onclick="document.getElementById(\'accountConversationThread\').classList.add(\'hidden\')">'+uiText("إغلاق","Close")+'</button></div><div class="thread-messages" id="threadMessages">'+(messages||[]).map(m=>'<div class="thread-message '+(m.sender_id===currentUser.id?'mine':'')+'">'+safe(m.body)+'<small>'+safe(new Date(m.created_at).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small></div>').join("")+'</div><form onsubmit="sendConversationReply(event)"><div class="field"><textarea id="conversationReply" maxlength="3000" required placeholder="'+uiText("اكتب رسالتك...","Write your message...")+'"></textarea></div><button class="primary" type="submit">'+uiText("إرسال","Send")+'</button></form>';
+ const box=document.getElementById("threadMessages");if(box)box.scrollTop=box.scrollHeight;
+ await loadAccountConversations();await loadAccountNotifications();
+}
+async function sendConversationReply(event){
+ event.preventDefault();
+ const thread=document.getElementById("accountConversationThread");
+ const id=thread?.dataset.conversationId;
+ const input=document.getElementById("conversationReply");
+ const body=input?.value.trim();
+ if(!id||!body)return;
+ const button=event.submitter;if(button)button.disabled=true;
+ const {error}=await db.rpc("send_property_message",{p_conversation_id:id,p_body:body});
+ if(button)button.disabled=false;
+ if(error){alert(uiText("تعذّر إرسال الرسالة: ","Could not send message: ")+error.message);return}
+ await openConversation(id);
+}
+async function startPropertyConversation(propertyId){
+ if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
+ const body=prompt(uiText("اكتب أول رسالة للبائع:","Write your first message to the advertiser:"));
+ if(!body||!body.trim())return;
+ const {data,error}=await db.rpc("start_property_conversation",{p_property_id:propertyId,p_first_message:body.trim()});
+ if(error){alert(uiText("تعذّر بدء المحادثة: ","Could not start conversation: ")+error.message);return}
+ openProfile();showAccountTab("messages");await openConversation(data);
+}
+
 
 function updateFilters(){
  const type=document.getElementById("type").value;
@@ -858,7 +942,7 @@ async function openPropertyDetails(id){
  document.getElementById("detailTitle").textContent=p.title;
  const imgs=Array.isArray(p.image_urls)?p.image_urls:[];
  const gallery=imgs.length?'<div class="detail-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':"";
- box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p><p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p><p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("راسل المعلن","Message advertiser")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
  const {error:viewError}=await db.rpc("record_property_view",{p_property_id:p.id,p_visitor_id:getVisitorId()});
  if(viewError)console.warn("View tracking unavailable:",viewError.message);
  const history=await db.rpc("get_property_price_history",{p_property_id:p.id});
