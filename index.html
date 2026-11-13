@@ -670,7 +670,8 @@ async function deleteAdminProperty(id){
    const parsed=new URL(imageUrl);
    if(parsed.origin!==SUPABASE_URL||!parsed.pathname.includes(marker))continue;
    const path=decodeURIComponent(parsed.pathname.split(marker).slice(1).join(marker));
-   if(path&&!paths.includes(path))paths.push(path);
+   const segments=path.split("/");
+   if(segments.length>=3&&segments[1]===String(id)&&!paths.includes(path))paths.push(path);
   }catch(e){
    console.warn("Skipping invalid property image URL",imageUrl);
   }
@@ -686,7 +687,7 @@ async function deleteAdminProperty(id){
 
  const {data,error}=await db.from("properties").delete().eq("id",id).select("id");
  if(error){
-  alert(tr("deleteError")+error.message+(paths.length?"\\n"+tr("deletePartialError"):""));
+  alert(tr("deleteError")+error.message+(paths.length?" "+tr("deletePartialError"):""));
   return;
  }
  if(!data||!data.length){
