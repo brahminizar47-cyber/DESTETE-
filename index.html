@@ -83,14 +83,14 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 #favoritesPanel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}
 #favoritesPanel .admin-heading{margin-bottom:12px}
 #favoritesPanel .admin-heading .section-title{margin:0}
-.legal-consent{display:flex;align-items:flex-start;gap:9px;margin:12px 0;padding:12px;background:#f4f7f1;border:1px solid var(--border);border-radius:9px;line-height:1.6}.legal-consent input{width:auto;min-width:18px;margin-top:4px}.legal-consent a{color:var(--navy);text-decoration:underline}
+.legal-consent{display:flex;align-items:flex-start;gap:9px;margin:12px 0;padding:12px;background:#f4f7f1;border:1px solid var(--border);border-radius:9px;line-height:1.6}.legal-consent input{width:auto;min-width:18px;margin-top:4px}.legal-consent a{color:var(--navy);text-decoration:underline}.profile-panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:30px}.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.profile-info{background:#f5f7fa;border:1px solid var(--border);border-radius:9px;padding:12px;min-width:0}.profile-info strong{display:block;margin-top:6px;overflow-wrap:anywhere}.profile-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.profile-actions button{flex:1;min-width:130px}.profile-section{border-top:1px solid var(--border);margin-top:18px;padding-top:16px}.profile-section h3{margin:0 0 12px;color:var(--navy)}
 </style>
 </head>
 <body>
 <header>
  <div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div>
  <nav>
-  <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a><button class="secondary" id="favoritesNavButton" type="button" onclick="openFavorites()" style="display:none">مفضلتي</button>
+  <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a><button class="secondary" id="profileNavButton" type="button" onclick="openProfile()" style="display:none">حسابي</button><button class="secondary" id="favoritesNavButton" type="button" onclick="openFavorites()" style="display:none">مفضلتي</button>
   <button class="primary" id="languageButton" onclick="toggleLanguage()">English</button>
   <button class="primary" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button><button class="secondary" type="button" onclick="openReportModal()" id="headerReportButton">تقديم بلاغ / شكوى</button>
   <button class="secondary" onclick="openPublish()" data-i18n="addProperty">+ أضف عقارك</button>
@@ -133,6 +133,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
 </section>
+<section id="profilePanel" class="profile-panel hidden"><div class="admin-heading"><div><h2 class="section-title" id="profileTitle">حسابي الشخصي</h2><p class="small" id="profileIntro">إدارة معلومات حسابك وإعداداتك</p></div><button type="button" onclick="closeProfile()">إغلاق</button></div><div id="profileStatus" class="status" role="status" aria-live="polite"></div><div class="profile-grid"><div class="profile-info"><span id="profileNameLabel">الاسم</span><strong id="profileNameValue">—</strong></div><div class="profile-info"><span id="profileEmailLabel">البريد الإلكتروني</span><strong id="profileEmailValue">—</strong></div><div class="profile-info"><span id="profileCreatedLabel">تاريخ إنشاء الحساب</span><strong id="profileCreatedValue">—</strong></div></div><div class="profile-section"><h3 id="profileEditTitle">تعديل المعلومات</h3><div class="field"><label id="profileDisplayNameLabel" for="profileDisplayName">الاسم الظاهر</label><input id="profileDisplayName" type="text" maxlength="80" autocomplete="name"></div><button class="secondary" type="button" onclick="saveProfileName()" id="profileSaveNameButton">حفظ الاسم</button></div><div class="profile-section"><h3 id="profileSecurityTitle">الأمان وكلمة المرور</h3><div class="field"><label id="profileNewPasswordLabel" for="profileNewPassword">كلمة مرور جديدة (12 حرفاً على الأقل)</label><input id="profileNewPassword" type="password" minlength="12" autocomplete="new-password"></div><button class="secondary" type="button" onclick="saveProfilePassword()" id="profileSavePasswordButton">تحديث كلمة المرور</button></div><div class="profile-section"><h3 id="profileShortcutsTitle">اختصارات حسابك</h3><div class="profile-actions"><button class="secondary" type="button" onclick="goToMyListings()" id="profileListingsButton">إعلاناتي وإحصائياتي</button><button class="secondary" type="button" onclick="goToFavorites()" id="profileFavoritesButton">مفضلتي</button><button type="button" onclick="toggleLanguage()" id="profileLanguageButton">تغيير اللغة</button><button class="danger" type="button" onclick="signOut()" id="profileSignOutButton">تسجيل الخروج</button></div></div><p class="small" id="profilePrivacyNote">بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.</p></section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
@@ -421,6 +422,7 @@ function applyLanguage(){
  document.title=currentLanguage==="ar"?"D-ESTATE | منصة رقمية تونسية للعقارات":"D-ESTATE | Direct Estate";
  document.getElementById("languageButton").textContent=currentLanguage==="ar"?"English":"العربية";
  const reportButton=document.getElementById("headerReportButton");if(reportButton)reportButton.textContent=currentLanguage==="ar"?"تقديم بلاغ / شكوى":"Report / Complaint";
+ const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display=currentUser?"inline-block":"none";}
  const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser?"inline-block":"none";}
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
  const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("إغلاق","Close");
@@ -458,6 +460,7 @@ function openPublish(){ openModal("publishModal");
 async function refreshUser(){
  const {data}=await db.auth.getUser();
  currentUser=data?.user||null;
+ renderProfile();
  applyLanguage();
  await loadAdminPanel();
  await loadMyPropertyStats();
@@ -508,9 +511,60 @@ async function signOut(){
  const {error}=await db.auth.signOut();
  if(error){alert(error.message);return}
  currentUser=null;
+ closeProfile();
  await refreshUser();
  alert(tr("signedOut"));
 }
+
+function renderProfile(){
+ const panel=document.getElementById("profilePanel");
+ const nav=document.getElementById("profileNavButton");
+ if(!panel||!nav)return;
+ nav.style.display=currentUser?"inline-block":"none";
+ if(!currentUser){panel.classList.add("hidden");return}
+ const metadata=currentUser.user_metadata||{};
+ const displayName=metadata.display_name||metadata.full_name||metadata.name||"—";
+ document.getElementById("profileNameValue").textContent=displayName;
+ document.getElementById("profileEmailValue").textContent=currentUser.email||"—";
+ document.getElementById("profileCreatedValue").textContent=currentUser.created_at?new Date(currentUser.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"):"—";
+ document.getElementById("profileDisplayName").value=displayName==="—"?"":displayName;
+}
+function setProfileLabels(){
+ const labels={profileTitle:uiText("حسابي الشخصي","My Profile"),profileIntro:uiText("إدارة معلومات حسابك وإعداداتك","Manage your account information and settings"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات","Edit information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileShortcutsTitle:uiText("اختصارات حسابك","Account shortcuts"),profileListingsButton:uiText("إعلاناتي وإحصائياتي","My listings & statistics"),profileFavoritesButton:uiText("مفضلتي","My Favorites"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profileSignOutButton:uiText("تسجيل الخروج","Sign out"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
+ Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
+ const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
+}
+function openProfile(){
+ if(!currentUser){openModal("loginModal");return}
+ renderProfile();setProfileLabels();
+ const panel=document.getElementById("profilePanel");panel.classList.remove("hidden");
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeProfile(){document.getElementById("profilePanel")?.classList.add("hidden")}
+async function saveProfileName(){
+ if(!currentUser)return;
+ const name=document.getElementById("profileDisplayName").value.trim();
+ const status=document.getElementById("profileStatus");
+ if(!name){status.textContent=uiText("اكتب الاسم أولاً.","Please enter a display name.");return}
+ const button=document.getElementById("profileSaveNameButton");button.disabled=true;
+ const {data,error}=await db.auth.updateUser({data:{display_name:name}});
+ button.disabled=false;
+ if(error){status.textContent=uiText("تعذّر تحديث الاسم: ","Could not update name: ")+error.message;return}
+ currentUser=data.user||currentUser;renderProfile();setProfileLabels();
+ status.textContent=uiText("تم تحديث الاسم بنجاح.","Display name updated successfully.");
+}
+async function saveProfilePassword(){
+ if(!currentUser)return;
+ const input=document.getElementById("profileNewPassword");const password=input.value;
+ const status=document.getElementById("profileStatus");
+ if(password.length<12){status.textContent=uiText("كلمة المرور يجب أن تحتوي على 12 حرفاً على الأقل.","Password must be at least 12 characters.");return}
+ const button=document.getElementById("profileSavePasswordButton");button.disabled=true;
+ const {error}=await db.auth.updateUser({password});button.disabled=false;
+ if(error){status.textContent=uiText("تعذّر تحديث كلمة المرور: ","Could not update password: ")+error.message;return}
+ input.value="";status.textContent=uiText("تم تحديث كلمة المرور بنجاح.","Password updated successfully.");
+}
+function goToMyListings(){closeProfile();const panel=document.getElementById("myPropertiesPanel");panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});loadMyPropertyStats()}
+function goToFavorites(){closeProfile();openFavorites()}
 
 function updateFilters(){
  const type=document.getElementById("type").value;
