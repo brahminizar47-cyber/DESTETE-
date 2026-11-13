@@ -61,7 +61,8 @@ declare
 begin
   if p_comment is null or btrim(p_comment) = '' then return true; end if;
   v_compact := regexp_replace(lower(normalize(p_comment, NFKC)), '[^[:alnum:]؀-ۿ]', '', 'g');
-  v_compact := translate(v_compact, 'ًٌٍَُِّْـٰéèêëàâäáíîïóôöúûüç', 'eeeeaaaaiiiooouuuc');
+  v_compact := translate(v_compact, 'ًٌٍَُِّْـٰ', '');
+  v_compact := translate(v_compact, 'éèêëàâäáíîïóôöúûüç', 'eeeeaaaaiiiooouuuc');
   foreach v_term in array v_terms loop
     if v_term <> '' and strpos(v_compact, v_term) > 0 then return false; end if;
   end loop;
