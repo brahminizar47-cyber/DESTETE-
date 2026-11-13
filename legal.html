@@ -70,6 +70,25 @@ li{margin:6px 0}.en{display:none}body[lang-view="en"] .ar{display:none}body[lang
 <div class="intro muted"><div class="ar">النسخة السارية: 2026-11-13-v1. تاريخ النفاذ: 13 نوفمبر 2026. يرجى الرجوع إلى هذه الصفحة عند كل تحديث.</div><div class="en">Current version: 2026-11-13-v1. Effective date: 13 November 2026. Please revisit this page when it is updated.</div></div>
 </main>
 <script>
-function toggleLang(){const en=document.body.getAttribute('lang-view')==='en';document.body.setAttribute('lang-view',en?'ar':'en');document.documentElement.lang=en?'ar':'en';document.documentElement.dir=en?'rtl':'ltr';document.getElementById('lang').textContent=en?'English':'العربية';}
+function setLegalLanguage(language){
+ const lang=language==='en'?'en':'ar';
+ document.body.setAttribute('lang-view',lang);
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ document.getElementById('lang').textContent=lang==='ar'?'English':'العربية';
+}
+function toggleLang(){
+ const next=document.body.getAttribute('lang-view')==='en'?'ar':'en';
+ localStorage.setItem('destate_language',next);
+ setLegalLanguage(next);
+}
+function syncLegalLanguage(){
+ setLegalLanguage(localStorage.getItem('destate_language')||'ar');
+}
+window.addEventListener('storage',event=>{
+ if(event.key==='destate_language')syncLegalLanguage();
+});
+window.addEventListener('pageshow',syncLegalLanguage);
+syncLegalLanguage();
 </script>
 </body></html>
