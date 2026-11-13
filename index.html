@@ -44,7 +44,22 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 .admin-panel{margin-top:40px;background:white;border:2px solid var(--gold);border-radius:14px;padding:22px}
 .admin-card{border:1px solid var(--border);border-radius:10px;padding:15px;background:#fff}
 .admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.admin-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.admin-heading .section-title{margin-bottom:6px}
+.admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+.admin-stat{background:#f5f7fa;border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:7px;color:var(--muted);font-size:13px}
+.admin-stat strong{font-size:25px;color:var(--navy);font-variant-numeric:tabular-nums}
+.admin-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:10px;margin:14px 0}
+.admin-toolbar input,.admin-toolbar select{width:100%;min-width:0;border:1px solid var(--border);border-radius:8px;padding:12px;background:#fff;color:var(--text);font:inherit}
+.admin-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.admin-state{display:inline-block;border-radius:20px;padding:5px 9px;font-size:12px;background:#edf3f9;color:var(--navy);white-space:nowrap}
+.admin-state.pending{background:#fff3d6;color:#875900}
+.admin-state.published{background:#e7f6ed;color:#17663a}
+.admin-state.rejected{background:#fdebea;color:#a12622}
+.admin-card .property-gallery{height:135px;border-radius:8px;margin-top:10px}
+.admin-card .property-gallery img{height:135px;min-width:45%}
 .danger{background:#b42318;color:white}
+@media(max-width:600px){.admin-panel{padding:14px}.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-toolbar{grid-template-columns:1fr}.admin-heading{align-items:stretch}.admin-heading button{width:100%}}
 html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 @media(max-width:600px){header{justify-content:center}nav{justify-content:center}.hero h1{font-size:27px}}
 </style>
@@ -97,11 +112,24 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div>
 </section>
 <section id="adminPanel" class="admin-panel hidden">
- <h2 class="section-title" id="adminTitle">لوحة الإدارة</h2>
- <p id="adminIntro"></p>
- <div id="adminStatus" class="status"></div>
+ <div class="admin-heading">
+  <div><h2 class="section-title" id="adminTitle">لوحة الإدارة</h2><p id="adminIntro"></p></div>
+  <button id="adminRefresh" class="secondary" type="button" onclick="loadAdminProperties()">تحديث البيانات</button>
+ </div>
+ <div id="adminStats" class="admin-stats">
+  <div class="admin-stat"><span id="adminTotalLabel">كل الإعلانات</span><strong id="adminTotal">0</strong></div>
+  <div class="admin-stat"><span id="adminPendingLabel">في الانتظار</span><strong id="adminPending">0</strong></div>
+  <div class="admin-stat"><span id="adminPublishedLabel">منشورة</span><strong id="adminPublished">0</strong></div>
+  <div class="admin-stat"><span id="adminRejectedLabel">مرفوضة</span><strong id="adminRejected">0</strong></div>
+ </div>
+ <div class="admin-toolbar">
+  <input id="adminSearch" type="search" placeholder="ابحث بالعنوان أو المدينة أو رقم الإعلان" oninput="renderAdminProperties()" aria-label="Search listings">
+  <select id="adminFilter" onchange="renderAdminProperties()" aria-label="Filter listings">
+   <option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="published">منشورة</option><option value="rejected">مرفوضة</option>
+  </select>
+ </div>
+ <div id="adminStatus" class="status" role="status" aria-live="polite"></div>
  <div id="pendingProperties" class="results"></div>
- <button id="adminRefresh" class="secondary" onclick="loadPendingProperties()">تحديث القائمة</button>
 </section>
 </main>
 <footer><div class="logo">DE<span>STATE</span></div><div data-i18n="footerText">منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</div><div>© DESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div></footer>
@@ -160,7 +188,7 @@ searchNow:"ابحث الآن",resetSearch:"إعادة ضبط البحث",browseB
 accountTitle:"حساب DESTATE",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب مجاني",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
 loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"اتصل بالمعلن",notSpecified:"غير محددة",advertiser:"معلن",loginRequired:"للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المعلن. حاول مرة أخرى لاحقاً.",contactNumber:"رقم هاتف المعلن: ",
 enterEmailPassword:"اكتب البريد الإلكتروني وكلمة مرور من 6 أحرف على الأقل.",accountCreated:"تم إرسال طلب إنشاء الحساب. تفقد بريدك الإلكتروني إذا طُلب التأكيد.",signedIn:"تم تسجيل الدخول.",signedOut:"تم تسجيل الخروج.",mustLogin:"يلزمك تسجيل الدخول قبل نشر إعلان.",chooseAtLeastOne:"يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.",tooManyImages:"يمكنك اختيار 8 صور كحد أقصى.",badFormat:"صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.",tooLarge:"حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.",uploading:"جاري رفع الصور والنشر...",pleaseWait:"يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.",uploadError:"تعذر رفع الصور: ",saveError:"لم يتم حفظ الإعلان: ",publishSuccess:"تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.",publishFailed:"لم يكتمل النشر. راجع رسالة الخطأ.",publishError:"حدث خطأ أثناء النشر.",checkPhotos:"تأكد من صيغة الصور وحجمها قبل النشر.",loggedIn:"أنت مسجل الدخول: ",readyToPublish:"أنت مسجل الدخول. يمكنك إعداد إعلانك.",loginBefore:"يلزمك تسجيل الدخول قبل نشر إعلان.",
-adminTitle:"لوحة الإدارة",adminIntro:"مراجعة الإعلانات المعلّقة قبل نشرها.",adminChecking:"جاري التحقق من صلاحيات الإدارة...",adminLoading:"جاري تحميل الإعلانات المعلّقة...",adminCount:"عدد الإعلانات في الانتظار: ",adminEmpty:"لا توجد إعلانات في انتظار المراجعة.",adminRefresh:"تحديث القائمة",approve:"موافقة ونشر",reject:"رفض الإعلان",location:"الموقع",pendingError:"تعذّر تحميل الإعلانات: ",approveConfirm:"هل تريد الموافقة على الإعلان ونشره؟",rejectConfirm:"هل تريد رفض هذا الإعلان؟",approved:"تم نشر الإعلان بنجاح.",rejected:"تم رفض الإعلان.",reviewError:"تعذّر تحديث الإعلان: ",reviewNoRow:"لم يتم تحديث الإعلان. ربما تمت مراجعته من قبل.",areaUnit:"م²",chooseType:"اختر نوع العقار"
+adminTitle:"لوحة الإدارة",adminIntro:"إدارة جميع الإعلانات ومراجعة حالتها من مكان واحد.",adminChecking:"جاري التحقق من صلاحيات الإدارة...",adminLoading:"جاري تحميل بيانات الإعلانات...",adminRefresh:"تحديث البيانات",adminTotal:"كل الإعلانات",adminPending:"في الانتظار",adminPublished:"منشورة",adminRejected:"مرفوضة",adminSearch:"ابحث بالعنوان أو المدينة أو رقم الإعلان",adminFilterAll:"كل الحالات",adminEmptyAll:"لا توجد إعلانات حالياً.",adminEmptyFilter:"لا توجد إعلانات بهذه الحالة أو بهذه الكلمات.",statusPending:"في الانتظار",statusPublished:"منشور",statusRejected:"مرفوض",approve:"موافقة ونشر",reject:"رفض الإعلان",republish:"إعادة النشر",location:"الموقع",pendingError:"تعذّر تحميل الإعلانات: ",approveConfirm:"هل تريد الموافقة على الإعلان ونشره؟",rejectConfirm:"هل تريد رفض هذا الإعلان؟",republishConfirm:"هل تريد إعادة نشر هذا الإعلان؟",approved:"تم نشر الإعلان بنجاح.",rejected:"تم رفض الإعلان.",reviewError:"تعذّر تحديث الإعلان: ",reviewNoRow:"لم يتم تحديث الإعلان. ربما تمت مراجعته من قبل.",areaUnit:"م²",chooseType:"اختر نوع العقار"
 },
 en:{
 home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian real estate platform connecting advertisers and property seekers",heroText2:"Find your property anywhere in Tunisia",
@@ -169,7 +197,7 @@ searchNow:"Search Now",resetSearch:"Reset Search",browseByType:"Browse by Type",
 accountTitle:"DESTATE Account",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create Free Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
 loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact Advertiser",notSpecified:"Not specified",advertiser:"Advertiser",loginRequired:"Please create a free account or log in to contact the advertiser.",contactError:"Could not retrieve the advertiser's phone number. Please try again later.",contactNumber:"Advertiser phone: ",
 enterEmailPassword:"Enter your email and a password of at least 6 characters.",accountCreated:"Your registration request was sent. Check your email if confirmation is required.",signedIn:"You are now logged in.",signedOut:"You have been logged out.",mustLogin:"Please log in before publishing a listing.",chooseAtLeastOne:"Choose at least one image and no more than 8.",tooManyImages:"You can choose a maximum of 8 images.",badFormat:"Unsupported format. Use JPG, PNG or WebP.",tooLarge:"Each image must be no larger than 5 MB.",uploading:"Uploading images and publishing...",pleaseWait:"Please wait. Do not close the page while images are uploading.",uploadError:"Image upload failed: ",saveError:"Listing could not be saved: ",publishSuccess:"Images uploaded and listing submitted for review. It will appear after approval.",publishFailed:"Publishing was not completed. Check the error message.",publishError:"An error occurred while publishing.",checkPhotos:"Check the image formats and sizes before publishing.",loggedIn:"Logged in as: ",readyToPublish:"You are logged in. You can prepare your listing.",loginBefore:"Please log in before publishing a listing.",
-adminTitle:"Admin Dashboard",adminIntro:"Review pending listings before publication.",adminChecking:"Checking administrator permissions...",adminLoading:"Loading pending listings...",adminCount:"Pending listings: ",adminEmpty:"There are no listings awaiting review.",adminRefresh:"Refresh list",approve:"Approve & Publish",reject:"Reject listing",location:"Location",pendingError:"Could not load listings: ",approveConfirm:"Approve and publish this listing?",rejectConfirm:"Reject this listing?",approved:"Listing published successfully.",rejected:"Listing rejected.",reviewError:"Could not update listing: ",reviewNoRow:"No listing was updated. It may already have been reviewed.",areaUnit:"m²",chooseType:"Choose property type"
+adminTitle:"Admin Dashboard",adminIntro:"Manage every listing and review its status in one place.",adminChecking:"Checking administrator permissions...",adminLoading:"Loading listing data...",adminRefresh:"Refresh data",adminTotal:"All listings",adminPending:"Pending",adminPublished:"Published",adminRejected:"Rejected",adminSearch:"Search by title, city or listing ID",adminFilterAll:"All statuses",adminEmptyAll:"There are no listings yet.",adminEmptyFilter:"No listings match this status or search.",statusPending:"Pending",statusPublished:"Published",statusRejected:"Rejected",approve:"Approve & Publish",reject:"Reject listing",republish:"Republish",location:"Location",pendingError:"Could not load listings: ",approveConfirm:"Approve and publish this listing?",rejectConfirm:"Reject this listing?",republishConfirm:"Republish this listing?",approved:"Listing published successfully.",rejected:"Listing rejected.",reviewError:"Could not update listing: ",reviewNoRow:"No listing was updated. It may already have been reviewed.",areaUnit:"m²",chooseType:"Choose property type"
 }
 };
 
@@ -514,117 +542,143 @@ async function publishProperty(event){
  }
 }
 
-/* لوحة الإدارة: تعتمد على دالة is_admin() وسياسات RLS الموجودة في Supabase */
+/* لوحة الإدارة: إدارة ومراجعة جميع الإعلانات للمسؤول فقط */
+let adminProperties=[];
+
 function adminText(ar,en){
  return currentLanguage==="ar"?ar:en;
 }
 
+function setAdminLabels(){
+ document.getElementById("adminTitle").textContent=tr("adminTitle");
+ document.getElementById("adminIntro").textContent=tr("adminIntro");
+ document.getElementById("adminRefresh").textContent=tr("adminRefresh");
+ document.getElementById("adminTotalLabel").textContent=tr("adminTotal");
+ document.getElementById("adminPendingLabel").textContent=tr("adminPending");
+ document.getElementById("adminPublishedLabel").textContent=tr("adminPublished");
+ document.getElementById("adminRejectedLabel").textContent=tr("adminRejected");
+ document.getElementById("adminSearch").placeholder=tr("adminSearch");
+ const filter=document.getElementById("adminFilter");
+ filter.options[0].text=tr("adminFilterAll");
+ filter.options[1].text=tr("adminPending");
+ filter.options[2].text=tr("adminPublished");
+ filter.options[3].text=tr("adminRejected");
+}
+
 async function loadAdminPanel(){
  const panel=document.getElementById("adminPanel");
-
  if(!panel)return;
-
  panel.classList.add("hidden");
-
  if(!currentUser)return;
 
  const status=document.getElementById("adminStatus");
  status.textContent=tr("adminChecking");
-
  const {data,error}=await db.rpc("is_admin");
-
  if(error){
   console.warn("Admin permission check:",error.message);
+  status.textContent=tr("pendingError")+error.message;
   return;
  }
-
  if(data!==true)return;
 
  panel.classList.remove("hidden");
-
- document.getElementById("adminTitle").textContent=tr("adminTitle");
- document.getElementById("adminIntro").textContent=tr("adminIntro");
- document.getElementById("adminRefresh").textContent=tr("adminRefresh");
-
- await loadPendingProperties();
+ setAdminLabels();
+ await loadAdminProperties();
 }
 
-async function loadPendingProperties(){
+async function loadAdminProperties(){
  const status=document.getElementById("adminStatus");
  const list=document.getElementById("pendingProperties");
-
  if(!status||!list)return;
 
  status.textContent=tr("adminLoading");
  list.innerHTML="";
-
  const {data,error}=await db.from("properties")
   .select("id,title,description,property_type,governorate,city,price,area,availability_status,advertiser_type,ownership_type,land_type,image_urls,created_at,status")
-  .eq("status","pending")
-  .order("created_at",{ascending:true});
+  .order("created_at",{ascending:false});
 
  if(error){
   status.textContent=tr("pendingError")+error.message;
+  console.error("Admin listings:",error);
   return;
  }
 
- if(!data||!data.length){
-  status.textContent=tr("adminEmpty");
+ adminProperties=data||[];
+ const count=(state)=>adminProperties.filter(p=>p.status===state).length;
+ document.getElementById("adminTotal").textContent=adminProperties.length;
+ document.getElementById("adminPending").textContent=count("pending");
+ document.getElementById("adminPublished").textContent=count("published");
+ document.getElementById("adminRejected").textContent=count("rejected");
+ status.textContent="";
+ setAdminLabels();
+ renderAdminProperties();
+}
+
+function renderAdminProperties(){
+ const list=document.getElementById("pendingProperties");
+ if(!list)return;
+ const filter=document.getElementById("adminFilter")?.value||"all";
+ const term=(document.getElementById("adminSearch")?.value||"").trim().toLocaleLowerCase();
+ const items=adminProperties.filter(p=>{
+  const matchesStatus=filter==="all"||p.status===filter;
+  const haystack=[p.title,p.governorate,p.city,p.id].filter(Boolean).join(" ").toLocaleLowerCase();
+  return matchesStatus&&(!term||haystack.includes(term));
+ });
+
+ if(!items.length){
+  list.innerHTML='<div class="empty">'+(adminProperties.length?tr("adminEmptyFilter"):tr("adminEmptyAll"))+'</div>';
   return;
  }
 
- status.textContent=tr("adminCount")+data.length;
-
- list.innerHTML=data.map(p=>{
+ list.innerHTML=items.map(p=>{
   const loc=[p.governorate,p.city].filter(Boolean).map(safe).join(" - ");
   const images=Array.isArray(p.image_urls)?p.image_urls:[];
-
-  const photos=images.map(u=>
-   '<a href="'+safe(u)+'" target="_blank" rel="noopener">'+
-   '<img src="'+safe(u)+'" alt="Property photo" style="width:90px;height:70px;object-fit:cover;border-radius:6px;margin:3px">'+
-   '</a>'
-  ).join("");
-
+  const photos=images.length
+   ?'<div class="property-gallery">'+images.map(u=>'<a href="'+safe(u)+'" target="_blank" rel="noopener"><img src="'+safe(u)+'" alt="Property photo" loading="lazy"></a>').join("")+'</div>'
+   :'';
+  const stateLabel=p.status==="pending"?tr("statusPending"):p.status==="published"?tr("statusPublished"):tr("statusRejected");
+  let actions="";
+  if(p.status==="pending"){
+   actions='<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\',\'pending\')">'+tr("approve")+'</button>'+
+    '<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'pending\')">'+tr("reject")+'</button>';
+  }else if(p.status==="rejected"){
+   actions='<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\',\'rejected\')">'+tr("republish")+'</button>';
+  }else if(p.status==="published"){
+   actions='<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'published\')">'+tr("reject")+'</button>';
+  }
   return '<article class="admin-card">'+
-   '<h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3>'+
+   '<div class="admin-card-head"><h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3><span class="admin-state '+safe(p.status)+'">'+stateLabel+'</span></div>'+
    '<div class="meta">'+tr("location")+": "+loc+'</div>'+
    '<div class="meta">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' TND · '+tr("area")+": "+safe(p.area||"")+' m²</div>'+
    '<div class="meta">'+tr("advertiserType")+": "+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type||""))+'</div>'+
-   '<p>'+safe(p.description||"")+'</p>'+
-   '<div>'+photos+'</div>'+
-   '<div class="admin-actions">'+
-   '<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\')">'+tr("approve")+'</button>'+
-   '<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\')">'+tr("reject")+'</button>'+
-   '</div></article>';
+   '<p>'+safe(p.description||"")+'</p>'+photos+
+   '<div class="admin-actions">'+actions+'</div></article>';
  }).join("");
 }
 
-async function reviewProperty(id,nextStatus){
- const approve=nextStatus==="published";
-
- if(!confirm(approve?tr("approveConfirm"):tr("rejectConfirm")))return;
+async function reviewProperty(id,nextStatus,currentStatus){
+ const confirmText=nextStatus==="published"
+  ?(currentStatus==="rejected"?tr("republishConfirm"):tr("approveConfirm"))
+  :tr("rejectConfirm");
+ if(!confirm(confirmText))return;
 
  const {data,error}=await db.from("properties")
   .update({status:nextStatus})
   .eq("id",id)
-  .eq("status","pending")
+  .eq("status",currentStatus)
   .select("id");
 
  if(error){
   alert(tr("reviewError")+error.message);
   return;
  }
-
  if(!data||!data.length){
   alert(tr("reviewNoRow"));
   return;
  }
-
- alert(approve?tr("approved"):tr("rejected"));
-
- await loadPendingProperties();
-
- if(approve)await searchProperties();
+ alert(nextStatus==="published"?tr("approved"):tr("rejected"));
+ await loadAdminProperties();
+ if(nextStatus==="published")await searchProperties();
 }
 
 db.auth.onAuthStateChange((_event,session)=>{
