@@ -59,7 +59,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 .admin-card .property-gallery{height:135px;border-radius:8px;margin-top:10px}
 .admin-card .property-gallery img{height:135px;min-width:45%}
 .danger{background:#b42318;color:white}
-@media(max-width:600px){.admin-panel{padding:14px}.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-toolbar{grid-template-columns:1fr}.admin-heading{align-items:stretch}.admin-heading button{width:100%}}
+@media(max-width:600px){.admin-panel{padding:14px}.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-toolbar{grid-template-columns:1fr}.admin-report-toolbar{grid-template-columns:1fr}.admin-heading{align-items:stretch}.admin-heading button{width:100%}}
 html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 @media(max-width:600px){header{justify-content:center}nav{justify-content:center}.hero h1{font-size:27px}}
 
@@ -72,6 +72,10 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 .report-item small{color:var(--muted)}
 .admin-reports{margin-top:25px;border-top:1px solid var(--border);padding-top:20px}
 .admin-report-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.admin-report-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 180px 180px auto;gap:9px;margin:14px 0}
+.admin-report-toolbar input,.admin-report-toolbar select{min-width:0;width:100%}
+.admin-audit-item{border:1px solid var(--border);border-radius:9px;padding:11px;margin:8px 0;background:#fff;font-size:13px}
+.admin-audit-item small{display:block;color:var(--muted);margin-top:5px}
 </style>
 </head>
 <body>
@@ -138,7 +142,25 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  </div>
  <div id="adminStatus" class="status" role="status" aria-live="polite"></div>
  <div id="pendingProperties" class="results"></div>
- <div class="admin-reports"><h3 id="adminReportsTitle">البلاغات والشكاوى</h3><div id="adminReportsList"></div></div>
+ <div class="admin-reports">
+  <h3 id="adminReportsTitle">البلاغات والشكاوى</h3>
+  <div class="admin-report-toolbar">
+   <input id="adminReportSearch" type="search" placeholder="ابحث في تفاصيل البلاغ أو رقمه" onkeydown="if(event.key==='Enter'){adminReportPage=0;loadAdminReports()}">
+   <select id="adminReportStatus" onchange="adminReportPage=0;loadAdminReports()">
+    <option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="reviewing">قيد المراجعة</option><option value="resolved">تمت المعالجة</option><option value="rejected">مرفوض</option>
+   </select>
+   <select id="adminReportType" onchange="adminReportPage=0;loadAdminReports()">
+    <option value="all">كل الأنواع</option><option value="listing">إعلان</option><option value="advertiser">معلن</option><option value="review">تقييم</option><option value="technical">تقني</option><option value="other">أخرى</option>
+   </select>
+   <button class="secondary" type="button" onclick="adminReportPage=0;loadAdminReports()">بحث</button>
+  </div>
+  <div id="adminReportsList"></div>
+  <div id="adminReportsPagination" class="pagination"></div>
+ </div>
+ <div class="admin-reports">
+  <h3 id="adminAuditTitle">سجل أنشطة الإدارة</h3>
+  <div id="adminAuditList"></div>
+ </div>
 
 </section>
 </main>
@@ -270,7 +292,7 @@ async function submitAdvertiserReview(e){
  if(comment.length>150){alert(uiText("التعليق يتجاوز 150 حرفاً.","Comment exceeds 150 characters."));return}
  const b=document.getElementById("submitReviewButton");b.disabled=true;
  const {error}=await db.rpc("submit_advertiser_review",{p_property_id:activeReviewPropertyId,p_rating:selectedReviewRating,p_comment:comment});b.disabled=false;
- if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):uiText("تعذّر إرسال التقييم: ","Could not submit review: ")+error.message);return}
+ if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):error.message.includes("RATE_LIMITED:review")?uiText("وصلت إلى الحد الأقصى للتقييمات. حاول غداً.","You reached the review limit. Please try again tomorrow."):uiText("تعذّر إرسال التقييم: ","Could not submit review: ")+error.message);return}
  alert(uiText("تم حفظ تقييمك.","Your review has been saved."));await loadAdvertiserReviews(activeReviewPropertyId);
 }
 function openReportModal(type="other",propertyId=null,targetId=null){
@@ -293,7 +315,7 @@ async function submitPlatformReport(e){
  if(!details||details.length>1000){alert(uiText("اكتب تفاصيل البلاغ (حتى 1000 حرف).","Enter details (up to 1000 characters)."));return}
  const b=document.getElementById("submitReportButton");b.disabled=true;
  const {error}=await db.rpc("submit_platform_report",{p_target_type:type,p_property_id:reportTarget.propertyId,p_target_id:type==="review"?reportTarget.targetId:null,p_details:details});b.disabled=false;
- if(error){alert(uiText("تعذّر إرسال البلاغ: ","Could not submit report: ")+error.message);return}
+ if(error){alert(error.message.includes("RATE_LIMITED:report")?uiText("وصلت إلى الحد الأقصى للشكاوى. حاول بعد ساعة.","You reached the report limit. Please try again in an hour."):uiText("تعذّر إرسال البلاغ: ","Could not submit report: ")+error.message);return}
  alert(uiText("تم استلام بلاغك بسرية.","Your report was submitted privately."));document.getElementById("reportDetails").value="";await loadMyReports();
 }
 async function loadMyReports(){
@@ -304,11 +326,68 @@ async function loadMyReports(){
 }
 async function loadAdminReports(){
  const list=document.getElementById("adminReportsList");if(!list)return;
- const {data,error}=await db.rpc("admin_list_platform_reports");if(error){list.textContent=uiText("تعذّر تحميل الشكاوى: ","Could not load reports: ")+error.message;return}
- const rows=Array.isArray(data)?data:[];
- list.innerHTML=rows.length?rows.map(r=>'<article class="report-item"><strong>'+safe(r.target_type)+'</strong> · '+safe(r.status)+'<small> · '+safe(new Date(r.created_at).toLocaleString())+'</small><p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>').join(""):'<p class="small">'+uiText("لا توجد بلاغات.","No reports.")+'</p>';
+ const status=document.getElementById("adminReportStatus")?.value||"all";
+ const type=document.getElementById("adminReportType")?.value||"all";
+ const search=document.getElementById("adminReportSearch")?.value.trim()||"";
+ const {data,error}=await db.rpc("admin_list_platform_reports",{
+  p_limit:ADMIN_REPORT_PAGE_SIZE,
+  p_offset:adminReportPage*ADMIN_REPORT_PAGE_SIZE,
+  p_status:status==="all"?null:status,
+  p_target_type:type==="all"?null:type,
+  p_search:search||null
+ });
+ if(error){list.textContent=uiText("تعذّر تحميل الشكاوى: ","Could not load reports: ")+error.message;return}
+ const result=data&&typeof data==="object"?data:{};
+ const rows=Array.isArray(result.items)?result.items:[];
+ adminReportTotal=Number(result.total_count)||0;
+ list.innerHTML=rows.length?rows.map(r=>'<article class="report-item"><strong>'+safe(r.target_type)+'</strong> · '+safe(r.status)+'<small> · '+safe(new Date(r.created_at).toLocaleString())+'</small><p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>').join(""):'<p class="small">'+uiText("لا توجد بلاغات مطابقة.","No matching reports.")+'</p>';
+ renderAdminReportsPagination();
 }
-async function updateAdminReport(id,status){const {error}=await db.rpc("admin_update_platform_report",{p_report_id:id,p_status:status});if(error){alert(error.message);return}await loadAdminReports()}
+function renderAdminReportsPagination(){
+ const el=document.getElementById("adminReportsPagination");if(!el)return;
+ const pages=Math.max(1,Math.ceil(adminReportTotal/ADMIN_REPORT_PAGE_SIZE));
+ const current=Math.min(adminReportPage+1,pages);
+ el.innerHTML='<button type="button" '+(adminReportPage===0?'disabled':'')+' onclick="changeAdminReportPage(-1)">'+uiText("السابق","Previous")+'</button><span>'+uiText("صفحة","Page")+' '+current+' / '+pages+' · '+adminReportTotal+'</span><button type="button" '+(current>=pages?'disabled':'')+' onclick="changeAdminReportPage(1)">'+uiText("التالي","Next")+'</button>';
+}
+function changeAdminReportPage(delta){
+ const pages=Math.max(1,Math.ceil(adminReportTotal/ADMIN_REPORT_PAGE_SIZE));
+ adminReportPage=Math.max(0,Math.min(pages-1,adminReportPage+delta));
+ loadAdminReports();
+}
+async function updateAdminReport(id,status){
+ const {error}=await db.rpc("admin_update_platform_report",{p_report_id:id,p_status:status});
+ if(error){alert(error.message);return}
+ await loadAdminReports();
+ await loadAdminActionLogs();
+}
+function adminAuditActionLabel(row){
+ const details=row.details||{};
+ if(row.action==="listing_status_changed")return uiText("تغيير حالة إعلان","Listing status changed");
+ if(row.action==="listing_deleted")return uiText("حذف إعلان","Listing deleted");
+ if(row.action==="report_status_changed")return uiText("تحديث حالة بلاغ","Report status updated");
+ return safe(row.action);
+}
+function adminAuditDetails(row){
+ const d=row.details||{};
+ const title=d.title?String(d.title):"";
+ const from=d.from_status?String(d.from_status):"";
+ const to=d.to_status?String(d.to_status):"";
+ const previous=d.previous_status?String(d.previous_status):"";
+ const parts=[];
+ if(title)parts.push(title);
+ if(from||to)parts.push((from||"—")+" → "+(to||"—"));
+ if(previous)parts.push(uiText("الحالة السابقة: ","Previous status: ")+previous);
+ if(d.target_type)parts.push(uiText("النوع: ","Type: ")+String(d.target_type));
+ if(row.entity_id)parts.push(String(row.entity_id));
+ return parts.map(safe).join(" · ");
+}
+async function loadAdminActionLogs(){
+ const list=document.getElementById("adminAuditList");if(!list)return;
+ const {data,error}=await db.rpc("admin_list_action_logs",{p_limit:50,p_offset:0});
+ if(error){list.textContent=uiText("تعذّر تحميل سجل الإدارة: ","Could not load admin log: ")+error.message;return}
+ const rows=Array.isArray(data)?data:[];
+ list.innerHTML=rows.length?rows.map(r=>'<article class="admin-audit-item"><strong>'+adminAuditActionLabel(r)+'</strong><span> · '+safe(new Date(r.created_at).toLocaleString())+'</span><div>'+adminAuditDetails(r)+'</div><small>'+uiText("معرّف المسؤول: ","Admin ID: ")+safe(String(r.actor_id||"").slice(0,8))+'</small></article>').join(""):'<p class="small">'+uiText("لا توجد أنشطة إدارية مسجلة بعد.","No admin activity recorded yet.")+'</p>';
+}
 
 function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
@@ -551,7 +630,8 @@ async function showContact(propertyId){
  const {data,error}=await db.rpc("get_property_contact",{p_property_id:propertyId});
  if(error||!data){
   console.error("Contact lookup failed:",error?.message||"No contact returned");
-  alert(tr("contactError"));
+  if(String(error?.message||"").includes("RATE_LIMITED:contact"))alert(uiText("وصلت إلى الحد الأقصى لطلبات الاتصال. حاول بعد ساعة.","You reached the contact request limit. Please try again in an hour."));
+  else alert(tr("contactError"));
   return;
  }
  alert(tr("contactNumber")+data);
@@ -657,6 +737,8 @@ async function publishProperty(event){
 
 /* لوحة الإدارة: إدارة ومراجعة جميع الإعلانات للمسؤول فقط */
 let adminProperties=[];
+let adminReportPage=0,adminReportTotal=0;
+const ADMIN_REPORT_PAGE_SIZE=20;
 
 function adminText(ar,en){
  return currentLanguage==="ar"?ar:en;
@@ -676,6 +758,24 @@ function setAdminLabels(){
  filter.options[1].text=tr("adminPending");
  filter.options[2].text=tr("adminPublished");
  filter.options[3].text=tr("adminRejected");
+ const reportsTitle=document.getElementById("adminReportsTitle");
+ if(reportsTitle)reportsTitle.textContent=uiText("البلاغات والشكاوى","Reports and complaints");
+ const auditTitle=document.getElementById("adminAuditTitle");
+ if(auditTitle)auditTitle.textContent=uiText("سجل أنشطة الإدارة","Admin activity log");
+ const reportSearch=document.getElementById("adminReportSearch");
+ if(reportSearch)reportSearch.placeholder=uiText("ابحث في تفاصيل البلاغ أو رقمه","Search report details or ID");
+ const reportStatus=document.getElementById("adminReportStatus");
+ if(reportStatus){
+  const labels={all:uiText("كل الحالات","All statuses"),pending:uiText("في الانتظار","Pending"),reviewing:uiText("قيد المراجعة","Reviewing"),resolved:uiText("تمت المعالجة","Resolved"),rejected:uiText("مرفوض","Rejected")};
+  Array.from(reportStatus.options).forEach(o=>{o.textContent=labels[o.value]||o.value});
+ }
+ const reportType=document.getElementById("adminReportType");
+ if(reportType){
+  const labels={all:uiText("كل الأنواع","All types"),listing:uiText("إعلان","Listing"),advertiser:uiText("معلن","Advertiser"),review:uiText("تقييم","Review"),technical:uiText("تقني","Technical"),other:uiText("أخرى","Other")};
+  Array.from(reportType.options).forEach(o=>{o.textContent=labels[o.value]||o.value});
+ }
+ const searchButton=document.querySelector(".admin-report-toolbar button");
+ if(searchButton)searchButton.textContent=uiText("بحث","Search");
 }
 
 async function loadAdminPanel(){
@@ -698,6 +798,7 @@ async function loadAdminPanel(){
  setAdminLabels();
  await loadAdminProperties();
  await loadAdminReports();
+ await loadAdminActionLogs();
 }
 
 async function loadAdminProperties(){
@@ -808,6 +909,7 @@ async function deleteAdminProperty(id){
  }
  alert(tr("deleted"));
  await loadAdminProperties();
+ await loadAdminActionLogs();
  await searchProperties();
 }
 
@@ -832,6 +934,7 @@ async function reviewProperty(id,nextStatus,currentStatus){
   return; }
  alert(nextStatus==="published"?tr("approved"):tr("rejected"));
  await loadAdminProperties();
+ await loadAdminActionLogs();
  if(nextStatus==="published")await searchProperties();
 }
 
