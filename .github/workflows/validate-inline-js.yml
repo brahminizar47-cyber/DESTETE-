@@ -1,0 +1,60 @@
+name: Validate inline JavaScript
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  inline-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript embedded in index.html
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class ScriptExtractor(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_script = False
+                  self.current = []
+                  self.scripts = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() == "script":
+                      self.in_script = True
+                      self.current = []
+
+              def handle_data(self, data):
+                  if self.in_script:
+                      self.current.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag.lower() == "script" and self.in_script:
+                      self.scripts.append("".join(self.current))
+                      self.in_script = False
+
+          source = Path("index.html").read_text(encoding="utf-8")
+          parser = ScriptExtractor()
+          parser.feed(source)
+          inline = [script for script in parser.scripts if script.strip()]
+          if not inline:
+              raise SystemExit("No inline JavaScript blocks found")
+          for index, script in enumerate(inline, start=1):
+              Path(f"/tmp/destate-inline-{index}.js").write_text(script, encoding="utf-8")
+          print(f"Extracted {len(inline)} inline JavaScript block(s)")
+          PY
+          for file in /tmp/destate-inline-*.js; do
+            node --check "$file"
+          done
