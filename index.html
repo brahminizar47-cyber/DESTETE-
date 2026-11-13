@@ -117,8 +117,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <div class="category" onclick="chooseType('commercial')"><span class="symbol">🏬</span><span data-i18n="commercialProperties">محلات تجارية</span></div>
  </div>
 </section>
-<section id="listings" style="margin-top:38px">
- <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
+<section id="listings" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div>
 </section>
 <section id="adminPanel" class="admin-panel hidden">
@@ -237,7 +236,6 @@ const typeNames={house:"house",apartment:"apartment",land:"land",agricultural_la
 const advertiserNames={owner:"owner",broker:"broker",agency:"agency"};
 
 function tr(k){return translations[currentLanguage][k]||translations.ar[k]||k}
-
 function uiText(ar,en){return currentLanguage==="ar"?ar:en}
 let activeReviewPropertyId=null,selectedReviewRating=0,reportTarget={type:"other",propertyId:null,targetId:null};
 function renderRatingStars(){const box=document.getElementById("ratingStars");if(box)box.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=selectedReviewRating?'selected':'')+'" onclick="setReviewRating('+n+')">★</button>').join("")}
@@ -357,8 +355,7 @@ async function signUp(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
  if(!email||password.length<6){alert(tr("enterEmailPassword"));return}
- const {error}=await db.auth.signUp({email,password});
- if(error){alert(error.message);return}
+ const {error}=await db.auth.signUp({email,password}); if(error){alert(error.message);return}
  await refreshUser();
  alert(tr("accountCreated"));
 }
@@ -477,8 +474,7 @@ async function uploadPropertyImages(files,propertyId){
 
  if(type)q=q.eq("property_type",type);
  if(gov)q=q.eq("governorate",gov);
- if(ownership)q=q.eq("ownership_type",ownership);
- if(landType)q=q.eq("land_type",landType);
+ if(ownership)q=q.eq("ownership_type",ownership); if(landType)q=q.eq("land_type",landType);
  if(maxPrice)q=q.lte("price",Number(maxPrice));
  if(minArea)q=q.gte("area",Number(minArea));
  if(advertiser)q=q.eq("advertiser_type",advertiser);
@@ -520,7 +516,7 @@ function displayProperties(items){
    '<div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div>'+
    '<div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
    '<p>'+safe((p.description||"").slice(0,150))+'</p>'+
-   '<div class="card-actions"><button class="secondary" onclick="showContact(\\''+safe(p.id)+'\\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\\''+safe(p.id)+'\\')">'+uiText("تقييم المعلن","Rate advertiser")+'</button><button type="button" onclick="openReportModal(\\'listing\\',\\''+safe(p.id)+'\\')">'+uiText("إبلاغ","Report")+'</button></div>'+
+   '<div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المعلن","Rate advertiser")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '</div></article>';
  }).join("");
 }
@@ -597,8 +593,7 @@ async function publishProperty(event){
    land_type:land?document.getElementById("pLandType").value:null,
    advertiser_type:document.getElementById("pAdvertiser").value,
    description:document.getElementById("pDescription").value.trim(),
-   image_urls:[]
-  };
+   image_urls:[]  };
 
   const {data:propertyId,error}=await db.rpc("create_property_with_contact",{
    p_property:payload,
@@ -717,7 +712,6 @@ async function loadAdminProperties(){
  renderAdminProperties();
  loadAdminReports();
 }
-
 function renderAdminProperties(){
  const list=document.getElementById("pendingProperties");
  if(!list)return;
@@ -837,8 +831,7 @@ db.auth.onAuthStateChange((_event,session)=>{
   a.textContent=currentUser
    ?tr("loggedIn")+currentUser.email
    :(currentLanguage==="ar"
-    ?"الدخول مجاني. تصفح العقارات متاح للجميع."
-    :"Registration is free. Everyone can browse properties.");
+    ?"الدخول مجاني. تصفح العقارات متاح للجميع."    :"Registration is free. Everyone can browse properties.");
  }
 
  if(p){
