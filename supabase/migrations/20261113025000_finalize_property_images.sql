@@ -58,7 +58,7 @@ begin
     v_filename := substring(v_url from length(v_prefix) + 1);
     if v_filename = ''
        or position('/' in v_filename) > 0
-       or v_filename !~ '^[A-Za-z0-9._-]+\.(jpg|png|webp)$' then
+       or v_filename !~ '^[A-Za-z0-9._-]+[.](jpg|png|webp)$' then
       raise exception 'Invalid property image path' using errcode = '22023';
     end if;
 
