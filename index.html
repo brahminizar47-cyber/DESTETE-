@@ -543,7 +543,7 @@ async function loadPendingProperties(){
  list.innerHTML="";
 
  const {data,error}=await db.from("properties")
-  .select("*")
+  .select("id,title,description,property_type,governorate,city,address,price,area,bedrooms,availability_status,advertiser_type,ownership_type,land_type,image_urls,created_at,status,owner_id")
   .eq("status","pending")
   .order("created_at",{ascending:true});
 
