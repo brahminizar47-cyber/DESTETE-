@@ -5,7 +5,8 @@
 -- Remove broad table-level reads, then explicitly allow every public listing field
 -- except the legacy properties.phone column.
 revoke select on table public.properties from anon, authenticated;
-revoke select (phone) on table public.properties from anon, authenticated;
+revoke select (owner_id, address, bedrooms, phone)
+  on table public.properties from anon, authenticated;
 
 grant select (
   id,
