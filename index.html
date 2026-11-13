@@ -233,7 +233,7 @@ function toggleLanguage(){
  currentLanguage=currentLanguage==="ar"?"en":"ar";
  localStorage.setItem("destate_language",currentLanguage);
  applyLanguage();
- if(!document.getElementById("adminPanel").classList.contains("hidden"))loadPendingProperties();
+ if(!document.getElementById("adminPanel").classList.contains("hidden"))loadAdminProperties();
 }
 function openModal(id){document.getElementById(id).style.display="block"}
 function closeModal(id){document.getElementById(id).style.display="none"}
