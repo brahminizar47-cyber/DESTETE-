@@ -1,6 +1,10 @@
--- Finalize uploaded listing photos only after the listing exists in pending state.
--- Apply this migration before testing the revised publishing flow.
+-- Restrict the dedicated public image bucket once, at migration time.
+-- This must not run on every image-finalization RPC call.
+update storage.buckets
+   set allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp']::text[]
+ where id = 'property-images';
 
+-- Finalize uploaded listing photos only after the listing exists in pending state.
 create or replace function public.finalize_property_images(
   p_property_id uuid,
   p_image_urls jsonb
@@ -36,11 +40,6 @@ begin
     raise exception 'A listing must contain between 1 and 8 images' using errcode = '22023';
   end if;
 
-  -- Restrict the dedicated public image bucket at the Storage boundary too.
-  update storage.buckets
-     set allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp']::text[]
-   where id = 'property-images';
-
   v_prefix := 'https://zmipxldmmfkfpsldvium.supabase.co/storage/v1/object/public/property-images/'
     || v_uid::text || '/' || p_property_id::text || '/';
 
@@ -59,7 +58,7 @@ begin
     v_filename := substring(v_url from length(v_prefix) + 1);
     if v_filename = ''
        or position('/' in v_filename) > 0
-       or v_filename !~ '^[A-Za-z0-9._-]+\.(jpg|png|webp)$' then
+       or v_filename !~ '^[A-Za-z0-9._-]+\\.(jpg|png|webp)$' then
       raise exception 'Invalid property image path' using errcode = '22023';
     end if;
 
@@ -72,33 +71,7 @@ begin
         and lower(coalesce(o.metadata->>'mimetype', '')) in ('image/jpeg', 'image/png', 'image/webp')
         and coalesce(
           case
-            when (o.metadata->>'size') ~ '^[0-9]+
-    ) into v_found;
-
-    if not v_found then
-      raise exception 'An uploaded image is missing, oversized, or has an unsupported type' using errcode = '22023';
-    end if;
-  end loop;
-
-  update public.properties
-     set image_urls = p_image_urls
-   where id = p_property_id
-     and owner_id = v_uid
-     and status = 'pending';
-
-  if not found then
-    raise exception 'Pending listing not found or not owned by the current user' using errcode = 'P0002';
-  end if;
-
-  return true;
-end;
-$function$;
-
-revoke all on function public.finalize_property_images(uuid, jsonb)
-  from public, anon, service_role;
-grant execute on function public.finalize_property_images(uuid, jsonb)
-  to authenticated;
-
+            when (o.metadata->>'size') ~ '^[0-9]+$'
               then (o.metadata->>'size')::bigint
             else null
           end,
