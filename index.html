@@ -255,8 +255,8 @@ function updateFilters(){
 function updatePublishFields(){
  const type=document.getElementById("pType").value;
  const land=type==="land"||type==="agricultural_land";
- document.getElementById("publishOwnershipField").classList.remove("hidden");
- document.getElementById("pOwnership").required=true;
+ document.getElementById("publishOwnershipField").classList.toggle("hidden",!land);
+ document.getElementById("pOwnership").required=land;
  document.getElementById("publishLandTypeField").classList.toggle("hidden",!land);
  document.getElementById("pLandType").required=land;
 }
@@ -450,7 +450,7 @@ async function publishProperty(event){
  let paths=[];
 
  try{
-  if(!document.getElementById("pOwnership").value||(land&&!document.getElementById("pLandType").value)){
+  if(land&&(!document.getElementById("pOwnership").value||!document.getElementById("pLandType").value)){
    throw new Error(tr("chooseType"));
   }
 
@@ -573,7 +573,7 @@ async function loadPendingProperties(){
    '<h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3>'+
    '<div class="meta">'+tr("location")+": "+loc+'</div>'+
    '<div class="meta">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' TND · '+tr("area")+": "+safe(p.area||"")+' m²</div>'+
-   '<div class="meta">'+tr("advertiserType")+": "+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type||""))+' · '+'</div>'+
+   '<div class="meta">'+tr("advertiserType")+": "+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type||""))+'</div>'+
    '<p>'+safe(p.description||"")+'</p>'+
    '<div>'+photos+'</div>'+
    '<div class="admin-actions">'+
