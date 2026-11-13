@@ -83,6 +83,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 #favoritesPanel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}
 #favoritesPanel .admin-heading{margin-bottom:12px}
 #favoritesPanel .admin-heading .section-title{margin:0}
+.legal-consent{display:flex;align-items:flex-start;gap:9px;margin:12px 0;padding:12px;background:#f4f7f1;border:1px solid var(--border);border-radius:9px;line-height:1.6}.legal-consent input{width:auto;min-width:18px;margin-top:4px}.legal-consent a{color:var(--navy);text-decoration:underline}
 </style>
 </head>
 <body>
@@ -178,7 +179,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 
 </section>
 </main>
-<footer><div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div><div data-i18n="footerText">منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها</div><div>© D-ESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div></footer>
+<footer><div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div><div data-i18n="footerText">منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها</div><div>© D-ESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div><div class="small"><a href="/legal.html#terms" data-i18n="legalTermsLink" style="color:white">شروط الاستخدام</a> · <a href="/legal.html#privacy" data-i18n="legalPrivacyLink" style="color:white">سياسة الخصوصية</a> · <a href="/legal.html#publishing" data-i18n="legalPublishingLink" style="color:white">شروط النشر</a></div></footer>
 <div id="propertyDetailsModal" class="modal"><div class="modal-box"><div class="modal-head"><h2 id="detailTitle">تفاصيل العقار</h2><button class="close" onclick="closeModal('propertyDetailsModal')">✕</button></div><div id="propertyDetailsContent"></div></div></div>
 <div id="compareModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>مقارنة العقارات</h2><button class="close" onclick="closeModal('compareModal')">✕</button></div><div id="compareResults"></div></div></div>
 <div id="loginModal" class="modal">
@@ -187,6 +188,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <p id="authStatus" class="small"></p>
   <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email"></div>
   <div class="field"><label data-i18n="password">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password"></div>
+  <label class="legal-consent"><input id="legalConsent" type="checkbox"><span><span data-i18n="legalConsentText">أوافق على شروط الاستخدام وسياسة الخصوصية</span> — <a href="/legal.html#terms" target="_blank" rel="noopener" data-i18n="legalTermsLink">شروط الاستخدام</a> · <a href="/legal.html#privacy" target="_blank" rel="noopener" data-i18n="legalPrivacyLink">سياسة الخصوصية</a></span></label>
   <button class="secondary" style="width:100%;margin-bottom:8px" onclick="signIn()" data-i18n="signIn">تسجيل الدخول</button>
   <button class="primary" style="width:100%;margin-bottom:8px" onclick="signUp()" data-i18n="signUp">إنشاء حساب مجاني</button>
   <button style="width:100%;background:#eee" onclick="signOut()" data-i18n="signOut">تسجيل الخروج</button>
@@ -254,7 +256,7 @@ ar:{
 home:"الرئيسية",search:"البحث",listings:"العقارات",login:"دخول / حساب جديد",addProperty:"+ أضف عقارك",heroTitle:"عقارك، فرصتك، تواصلك المباشر",heroText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",heroText2:"ابحث عن عقارك في جميع أنحاء تونس",
 searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"صبغة الأرض",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"نوع المعلن",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",
 searchNow:"ابحث الآن",resetSearch:"إعادة ضبط البحث",browseByType:"تصفح حسب النوع",houses:"منازل",apartments:"شقق",residentialLands:"أراضي سكنية",agriculturalLands:"أراضي فلاحية",commercialProperties:"محلات تجارية",latestProperties:"أحدث العقارات",footerText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",copyright:"جميع الحقوق محفوظة",
-accountTitle:"حساب D-ESTATE",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب مجاني",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
+accountTitle:"حساب D-ESTATE",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب مجاني",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
 loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"اتصل بالمعلن",notSpecified:"غير محددة",advertiser:"معلن",loginRequired:"للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المعلن. حاول مرة أخرى لاحقاً.",contactNumber:"رقم هاتف المعلن: ",
 enterEmailPassword:"اكتب البريد الإلكتروني وكلمة مرور من 12 حرفاً على الأقل.",accountCreated:"تم إرسال طلب إنشاء الحساب. تفقد بريدك الإلكتروني إذا طُلب التأكيد.",signedIn:"تم تسجيل الدخول.",signedOut:"تم تسجيل الخروج.",mustLogin:"يلزمك تسجيل الدخول قبل نشر إعلان.",chooseAtLeastOne:"يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.",tooManyImages:"يمكنك اختيار 8 صور كحد أقصى.",badFormat:"صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.",tooLarge:"حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.",uploading:"جاري رفع الصور والنشر...",pleaseWait:"يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.",uploadError:"تعذر رفع الصور: ",saveError:"لم يتم حفظ الإعلان: ",publishSuccess:"تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.",publishFailed:"لم يكتمل النشر. راجع رسالة الخطأ.",publishError:"حدث خطأ أثناء النشر.",checkPhotos:"تأكد من صيغة الصور وحجمها قبل النشر.",loggedIn:"أنت مسجل الدخول: ",readyToPublish:"أنت مسجل الدخول. يمكنك إعداد إعلانك.",loginBefore:"يلزمك تسجيل الدخول قبل نشر إعلان.",
 adminTitle:"لوحة الإدارة",adminIntro:"إدارة جميع الإعلانات ومراجعة حالتها من مكان واحد.",adminChecking:"جاري التحقق من صلاحيات الإدارة...",adminLoading:"جاري تحميل بيانات الإعلانات...",adminRefresh:"تحديث البيانات",adminTotal:"كل الإعلانات",adminPending:"في الانتظار",adminPublished:"منشورة",adminRejected:"مرفوضة",adminSearch:"ابحث بالعنوان أو المدينة أو رقم الإعلان",adminFilterAll:"كل الحالات",adminEmptyAll:"لا توجد إعلانات حالياً.",adminEmptyFilter:"لا توجد إعلانات بهذه الحالة أو بهذه الكلمات.",statusPending:"في الانتظار",statusPublished:"منشور",statusRejected:"مرفوض",approve:"موافقة ونشر",reject:"رفض الإعلان",republish:"إعادة النشر",deleteListing:"حذف الإعلان",deleteConfirm:"هل أنت متأكد من حذف هذا الإعلان نهائياً؟ سيتم حذف صوره أيضاً.",deleted:"تم حذف الإعلان وصوره بنجاح.",deleteError:"تعذّر حذف الإعلان: ",deleteImagesError:"تعذّر حذف صور الإعلان، لم يتم حذف الإعلان: ",deletePartialError:"تم حذف الإعلان، لكن تعذّر حذف بعض الصور من التخزين: ",location:"الموقع",pendingError:"تعذّر تحميل الإعلانات: ",approveConfirm:"هل تريد الموافقة على الإعلان ونشره؟",rejectConfirm:"هل تريد رفض هذا الإعلان؟",republishConfirm:"هل تريد إعادة نشر هذا الإعلان؟",approved:"تم نشر الإعلان بنجاح.",rejected:"تم رفض الإعلان.",reviewError:"تعذّر تحديث الإعلان: ",reviewNoRow:"لم يتم تحديث الإعلان. ربما تمت مراجعته من قبل.",areaUnit:"م²",chooseType:"اختر نوع العقار"
@@ -263,7 +265,7 @@ en:{
 home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian digital platform connecting property owners with property seekers",heroText2:"Find your property anywhere in Tunisia",
 searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"Advertiser Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
 searchNow:"Search Now",resetSearch:"Reset Search",browseByType:"Browse by Type",houses:"Houses",apartments:"Apartments",residentialLands:"Residential Lands",agriculturalLands:"Agricultural Lands",commercialProperties:"Commercial Properties",latestProperties:"Latest Properties",footerText:"A Tunisian digital platform connecting property owners with property seekers",copyright:"All rights reserved",
-accountTitle:"D-ESTATE Account",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create Free Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
+accountTitle:"D-ESTATE Account",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create Free Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
 loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact Advertiser",notSpecified:"Not specified",advertiser:"Advertiser",loginRequired:"Please create a free account or log in to contact the advertiser.",contactError:"Could not retrieve the advertiser's phone number. Please try again later.",contactNumber:"Advertiser phone: ",
 enterEmailPassword:"Enter your email and a password of at least 12 characters.",accountCreated:"Your registration request was sent. Check your email if confirmation is required.",signedIn:"You are now logged in.",signedOut:"You have been logged out.",mustLogin:"Please log in before publishing a listing.",chooseAtLeastOne:"Choose at least one image and no more than 8.",tooManyImages:"You can choose a maximum of 8 images.",badFormat:"Unsupported format. Use JPG, PNG or WebP.",tooLarge:"Each image must be no larger than 5 MB.",uploading:"Uploading images and publishing...",pleaseWait:"Please wait. Do not close the page while images are uploading.",uploadError:"Image upload failed: ",saveError:"Listing could not be saved: ",publishSuccess:"Images uploaded and listing submitted for review. It will appear after approval.",publishFailed:"Publishing was not completed. Check the error message.",publishError:"An error occurred while publishing.",checkPhotos:"Check the image formats and sizes before publishing.",loggedIn:"Logged in as: ",readyToPublish:"You are logged in. You can prepare your listing.",loginBefore:"Please log in before publishing a listing.",
 adminTitle:"Admin Dashboard",adminIntro:"Manage every listing and review its status in one place.",adminChecking:"Checking administrator permissions...",adminLoading:"Loading listing data...",adminRefresh:"Refresh data",adminTotal:"All listings",adminPending:"Pending",adminPublished:"Published",adminRejected:"Rejected",adminSearch:"Search by title, city or listing ID",adminFilterAll:"All statuses",adminEmptyAll:"There are no listings yet.",adminEmptyFilter:"No listings match this status or search.",statusPending:"Pending",statusPublished:"Published",statusRejected:"Rejected",approve:"Approve & Publish",reject:"Reject listing",republish:"Republish",deleteListing:"Delete listing",deleteConfirm:"Permanently delete this listing? Its photos will also be deleted.",deleted:"Listing and photos deleted successfully.",deleteError:"Could not delete listing: ",deleteImagesError:"Could not delete the listing photos. The listing was not deleted: ",deletePartialError:"The listing was deleted, but some photos could not be removed from storage: ",location:"Location",pendingError:"Could not load listings: ",approveConfirm:"Approve and publish this listing?",rejectConfirm:"Reject this listing?",republishConfirm:"Republish this listing?",approved:"Listing published successfully.",rejected:"Listing rejected.",reviewError:"Could not update listing: ",reviewNoRow:"No listing was updated. It may already have been reviewed.",areaUnit:"m²",chooseType:"Choose property type"
@@ -465,16 +467,39 @@ async function refreshUser(){
 async function signUp(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
+ const accepted=document.getElementById("legalConsent").checked;
  if(!email||password.length<12){alert(tr("enterEmailPassword"));return}
- const {error}=await db.auth.signUp({email,password}); if(error){alert(error.message);return}
+ if(!accepted){alert(tr("legalConsentRequired"));return}
+ const {error}=await db.auth.signUp({email,password,options:{data:{
+  accepted_terms_version:"2026-11-13-v1",
+  accepted_privacy_version:"2026-11-13-v1"
+ }}});
+ if(error){alert(error.message);return}
  await refreshUser();
  alert(tr("accountCreated"));
 }
 async function signIn(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
- const {error}=await db.auth.signInWithPassword({email,password});
+ const {data,error}=await db.auth.signInWithPassword({email,password});
  if(error){alert(error.message);return}
+ const metadata=data.user?.user_metadata||{};
+ const needsAcceptance=metadata.accepted_terms_version!=="2026-11-13-v1"||metadata.accepted_privacy_version!=="2026-11-13-v1";
+ if(needsAcceptance){
+  if(!document.getElementById("legalConsent").checked){
+   await db.auth.signOut();
+   alert(tr("legalConsentRequired"));
+   return;
+  }
+  const {error:acceptError}=await db.rpc("record_legal_acceptance",{
+   p_terms_version:"2026-11-13-v1",p_privacy_version:"2026-11-13-v1"
+  });
+  if(acceptError){await db.auth.signOut();alert(tr("legalAcceptError"));return}
+  const {error:updateError}=await db.auth.updateUser({data:{
+   accepted_terms_version:"2026-11-13-v1",accepted_privacy_version:"2026-11-13-v1"
+  }});
+  if(updateError){await db.auth.signOut();alert(tr("legalAcceptError"));return}
+ }
  await refreshUser();
  closeModal("loginModal");
  alert(tr("signedIn"));
@@ -1145,6 +1170,16 @@ db.auth.onAuthStateChange((_event,session)=>{
  setTimeout(()=>{loadAdminPanel();loadMyPropertyStats()},0);
 });
 
+window.addEventListener("storage",event=>{
+ if(event.key==="destate_language"&&event.newValue&&event.newValue!==currentLanguage){
+  currentLanguage=event.newValue==="en"?"en":"ar";
+  applyLanguage();
+ }
+});
+window.addEventListener("pageshow",()=>{
+ const saved=localStorage.getItem("destate_language")||"ar";
+ if(saved!==currentLanguage){currentLanguage=saved==="en"?"en":"ar";applyLanguage();}
+});
 applyLanguage();
 updateFilters();
 updatePublishFields();
