@@ -39,12 +39,12 @@ begin
   end if;
 
   v_property_type := nullif(btrim(p_property->>'property_type'), '');
-  if v_property_type not in ('land', 'agricultural_land', 'house', 'apartment', 'commercial') then
+  if v_property_type is null or v_property_type not in ('land', 'agricultural_land', 'house', 'apartment', 'commercial') then
     raise exception 'Invalid property type' using errcode = '22023';
   end if;
 
   v_advertiser_type := nullif(btrim(p_property->>'advertiser_type'), '');
-  if v_advertiser_type not in ('owner', 'broker', 'agency') then
+  if v_advertiser_type is null or v_advertiser_type not in ('owner', 'broker', 'agency') then
     raise exception 'Invalid advertiser type' using errcode = '22023';
   end if;
 
@@ -56,7 +56,10 @@ begin
       raise exception 'Price and area must be valid numbers' using errcode = '22023';
   end;
 
-  if v_price is null or v_price <= 0 or v_area is null or v_area <= 0 then
+  if v_price is null or v_area is null
+     or v_price <= 0 or v_area <= 0
+     or v_price::text in ('NaN', 'Infinity', '-Infinity')
+     or v_area::text in ('NaN', 'Infinity', '-Infinity') then
     raise exception 'Price and area must be greater than zero' using errcode = '22023';
   end if;
 
@@ -64,8 +67,8 @@ begin
   v_land_type := nullif(btrim(p_property->>'land_type'), '');
 
   if v_property_type in ('land', 'agricultural_land') then
-    if v_ownership_type not in ('individual', 'shared')
-       or v_land_type not in ('residential', 'agricultural') then
+    if v_ownership_type is null or v_ownership_type not in ('individual', 'shared')
+       or v_land_type is null or v_land_type not in ('residential', 'agricultural') then
       raise exception 'Land listings require valid ownership and land classification' using errcode = '22023';
     end if;
   elsif v_ownership_type is not null or v_land_type is not null then
