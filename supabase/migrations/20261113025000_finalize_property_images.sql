@@ -36,6 +36,11 @@ begin
     raise exception 'A listing must contain between 1 and 8 images' using errcode = '22023';
   end if;
 
+  -- Restrict the dedicated public image bucket at the Storage boundary too.
+  update storage.buckets
+     set allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp']::text[]
+   where id = 'property-images';
+
   v_prefix := 'https://zmipxldmmfkfpsldvium.supabase.co/storage/v1/object/public/property-images/'
     || v_uid::text || '/' || p_property_id::text || '/';
 
@@ -65,7 +70,40 @@ begin
         and o.name = v_uid::text || '/' || p_property_id::text || '/' || v_filename
         and o.owner_id = v_uid::text
         and lower(coalesce(o.metadata->>'mimetype', '')) in ('image/jpeg', 'image/png', 'image/webp')
-        and coalesce((o.metadata->>'size')::bigint, 0) between 1 and 5242880
+        and coalesce(
+          case
+            when (o.metadata->>'size') ~ '^[0-9]+
+    ) into v_found;
+
+    if not v_found then
+      raise exception 'An uploaded image is missing, oversized, or has an unsupported type' using errcode = '22023';
+    end if;
+  end loop;
+
+  update public.properties
+     set image_urls = p_image_urls
+   where id = p_property_id
+     and owner_id = v_uid
+     and status = 'pending';
+
+  if not found then
+    raise exception 'Pending listing not found or not owned by the current user' using errcode = 'P0002';
+  end if;
+
+  return true;
+end;
+$function$;
+
+revoke all on function public.finalize_property_images(uuid, jsonb)
+  from public, anon, service_role;
+grant execute on function public.finalize_property_images(uuid, jsonb)
+  to authenticated;
+
+              then (o.metadata->>'size')::bigint
+            else null
+          end,
+          0
+        ) between 1 and 5242880
     ) into v_found;
 
     if not v_found then
