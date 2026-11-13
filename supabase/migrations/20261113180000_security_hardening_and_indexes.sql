@@ -89,6 +89,7 @@ create policy "Owners delete their pending images"
     and exists (
       select 1 from public.properties p
       where p.id = property_images.property_id
+        and p.owner_id = (select auth.uid())
         and p.status = 'pending'
     )
   );
