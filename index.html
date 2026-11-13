@@ -417,6 +417,7 @@ async function loadAdminActionLogs(){
 function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
 function applyLanguage(){
+ setProfileLabels();
  document.documentElement.lang=currentLanguage;
  document.documentElement.dir=currentLanguage==="ar"?"rtl":"ltr";
  document.title=currentLanguage==="ar"?"D-ESTATE | منصة رقمية تونسية للعقارات":"D-ESTATE | Direct Estate";
@@ -1202,6 +1203,7 @@ async function reviewProperty(id,nextStatus,currentStatus){
 
 db.auth.onAuthStateChange((_event,session)=>{
  currentUser=session?.user||null;
+ renderProfile();
  applyLanguage();
  if(!currentUser){const favoritesPanel=document.getElementById("favoritesPanel");if(favoritesPanel)favoritesPanel.classList.add("hidden");}
 
