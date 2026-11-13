@@ -34,9 +34,9 @@ begin
   if v_user_id is null then
     raise exception 'Authentication required' using errcode = '28000';
   end if;
-  if p_action not in ('contact', 'review', 'report')
-     or p_max_requests < 1
-     or p_window_seconds < 1
+  if p_action is null or p_action not in ('contact', 'review', 'report')
+     or p_max_requests is null or p_max_requests < 1
+     or p_window_seconds is null or p_window_seconds < 1
      or p_window_seconds > 86400 then
     raise exception 'Invalid rate limit configuration' using errcode = '22023';
   end if;
@@ -339,7 +339,8 @@ begin
   if not public.is_admin() then
     raise exception 'Administrator access required' using errcode = '42501';
   end if;
-  if p_limit < 1 or p_limit > 50 or p_offset < 0 or p_offset > 10000 then
+  if p_limit is null or p_offset is null
+     or p_limit < 1 or p_limit > 50 or p_offset < 0 or p_offset > 10000 then
     raise exception 'Invalid pagination values' using errcode = '22023';
   end if;
   if p_status is not null and p_status not in ('pending', 'reviewing', 'resolved', 'rejected') then
@@ -471,7 +472,8 @@ begin
   if not public.is_admin() then
     raise exception 'Administrator access required' using errcode = '42501';
   end if;
-  if p_limit < 1 or p_limit > 100 or p_offset < 0 or p_offset > 10000 then
+  if p_limit is null or p_offset is null
+     or p_limit < 1 or p_limit > 100 or p_offset < 0 or p_offset > 10000 then
     raise exception 'Invalid pagination values' using errcode = '22023';
   end if;
 
