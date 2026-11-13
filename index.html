@@ -646,7 +646,7 @@ function renderAdminProperties(){
   }else if(p.status==="published"){
    actions='<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'published\')">'+tr("reject")+'</button>';
   }
-  actions+='<button class="danger" type="button" onclick="deleteAdminProperty(\\''+safe(p.id)+'\\')">'+tr("deleteListing")+'</button>';
+  actions+='<button class="danger" type="button" onclick="deleteAdminProperty(\''+safe(p.id)+'\')">'+tr("deleteListing")+'</button>';
   return '<article class="admin-card">'+
    '<div class="admin-card-head"><h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3><span class="admin-state '+safe(p.status)+'">'+stateLabel+'</span></div>'+
    '<div class="meta">'+tr("location")+": "+loc+'</div>'+
