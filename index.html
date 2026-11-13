@@ -62,6 +62,16 @@ footer{background:var(--navy);color:white;text-align:center;padding:30px 15px;ma
 @media(max-width:600px){.admin-panel{padding:14px}.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-toolbar{grid-template-columns:1fr}.admin-heading{align-items:stretch}.admin-heading button{width:100%}}
 html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 @media(max-width:600px){header{justify-content:center}nav{justify-content:center}.hero h1{font-size:27px}}
+
+.rating-stars{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.rating-stars button{background:#f1f3f6;color:#9a6b12;font-size:25px;padding:5px 9px;line-height:1}
+.rating-stars button.selected{background:#fff1c9;color:#b77900}
+.review-item,.report-item{border:1px solid var(--border);border-radius:9px;padding:12px;margin:9px 0;background:#fff}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.card-actions button{flex:1;min-width:110px}
+.report-item small{color:var(--muted)}
+.admin-reports{margin-top:25px;border-top:1px solid var(--border);padding-top:20px}
+.admin-report-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 </style>
 </head>
 <body>
@@ -70,7 +80,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <nav>
   <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a>
   <button class="primary" id="languageButton" onclick="toggleLanguage()">English</button>
-  <button class="primary" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button>
+  <button class="primary" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button><button class="secondary" type="button" onclick="openReportModal()" id="headerReportButton">تقديم بلاغ / شكوى</button>
   <button class="secondary" onclick="openPublish()" data-i18n="addProperty">+ أضف عقارك</button>
  </nav>
 </header>
@@ -117,8 +127,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <button id="adminRefresh" class="secondary" type="button" onclick="loadAdminProperties()">تحديث البيانات</button>
  </div>
  <div id="adminStats" class="admin-stats">
-  <div class="admin-stat"><span id="adminTotalLabel">كل الإعلانات</span><strong id="adminTotal">0</strong></div>
-  <div class="admin-stat"><span id="adminPendingLabel">في الانتظار</span><strong id="adminPending">0</strong></div>
+  <div class="admin-stat"><span id="adminTotalLabel">كل الإعلانات</span><strong id="adminTotal">0</strong></div>  <div class="admin-stat"><span id="adminPendingLabel">في الانتظار</span><strong id="adminPending">0</strong></div>
   <div class="admin-stat"><span id="adminPublishedLabel">منشورة</span><strong id="adminPublished">0</strong></div>
   <div class="admin-stat"><span id="adminRejectedLabel">مرفوضة</span><strong id="adminRejected">0</strong></div>
  </div>
@@ -130,6 +139,8 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  </div>
  <div id="adminStatus" class="status" role="status" aria-live="polite"></div>
  <div id="pendingProperties" class="results"></div>
+ <div class="admin-reports"><h3 id="adminReportsTitle">البلاغات والشكاوى</h3><div id="adminReportsList"></div></div>
+
 </section>
 </main>
 <footer><div class="logo">DE<span>STATE</span></div><div data-i18n="footerText">منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</div><div>© DESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div></footer>
@@ -172,6 +183,26 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   </form>
  </div>
 </div>
+
+<div id="reviewModal" class="modal"><div class="modal-box">
+ <div class="modal-head"><h2 id="reviewModalTitle">تقييم المعلن</h2><button class="close" onclick="closeModal('reviewModal')">✕</button></div>
+ <div id="reviewSummary" class="status" aria-live="polite"></div><div id="reviewEligibility" class="small"></div><div id="reviewList"></div>
+ <form id="reviewForm" onsubmit="submitAdvertiserReview(event)">
+  <div class="field"><label id="ratingLabel">تقييمك من 1 إلى 5 نجوم</label><div id="ratingStars" class="rating-stars"></div></div>
+  <div class="field"><label for="reviewComment" id="reviewCommentLabel">تعليقك (150 حرفاً كحد أقصى)</label><textarea id="reviewComment" maxlength="150" rows="3"></textarea><div class="small"><span id="reviewCharCount">0</span>/150</div></div>
+  <button class="primary" id="submitReviewButton" type="submit" style="width:100%">إرسال التقييم</button>
+ </form>
+</div></div>
+<div id="reportModal" class="modal"><div class="modal-box">
+ <div class="modal-head"><h2 id="reportModalTitle">تقديم بلاغ أو شكوى</h2><button class="close" onclick="closeModal('reportModal')">✕</button></div>
+ <div class="notice" id="reportPrivacy">البلاغ سري ولا يظهر للعامة.</div>
+ <form id="reportForm" onsubmit="submitPlatformReport(event)">
+  <div class="field"><label for="reportType" id="reportTypeLabel">موضوع البلاغ</label><select id="reportType" required></select></div>
+  <div class="field"><label for="reportDetails" id="reportDetailsLabel">تفاصيل البلاغ</label><textarea id="reportDetails" maxlength="1000" rows="5" required></textarea><div class="small" id="reportLimit">حتى 1000 حرف</div></div>
+  <button class="primary" id="submitReportButton" type="submit" style="width:100%">إرسال البلاغ</button>
+ </form>
+ <div class="admin-reports"><h3 id="myReportsTitle">بلاغاتي السابقة</h3><div id="myReportsList"></div></div>
+</div></div>
 <script>
  const SUPABASE_URL="https://zmipxldmmfkfpsldvium.supabase.co";
 const SUPABASE_KEY="sb_publishable_ohUN940nP5SXpsFxlbnr8w_s3RMBidV";
@@ -206,6 +237,81 @@ const typeNames={house:"house",apartment:"apartment",land:"land",agricultural_la
 const advertiserNames={owner:"owner",broker:"broker",agency:"agency"};
 
 function tr(k){return translations[currentLanguage][k]||translations.ar[k]||k}
+
+function uiText(ar,en){return currentLanguage==="ar"?ar:en}
+let activeReviewPropertyId=null,selectedReviewRating=0,reportTarget={type:"other",propertyId:null,targetId:null};
+function renderRatingStars(){const box=document.getElementById("ratingStars");if(box)box.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=selectedReviewRating?'selected':'')+'" onclick="setReviewRating('+n+')">★</button>').join("")}
+function setReviewRating(n){selectedReviewRating=n;renderRatingStars()}
+function openAdvertiserReviews(id){
+ activeReviewPropertyId=id;selectedReviewRating=0;
+ document.getElementById("reviewSummary").textContent=uiText("جاري تحميل التقييمات...","Loading reviews...");
+ document.getElementById("reviewEligibility").textContent="";document.getElementById("reviewList").innerHTML="";
+ document.getElementById("reviewComment").value="";document.getElementById("reviewCharCount").textContent="0";
+ document.getElementById("reviewModalTitle").textContent=uiText("تقييم المعلن","Advertiser reviews");
+ document.getElementById("ratingLabel").textContent=uiText("تقييمك من 1 إلى 5 نجوم","Your rating (1–5 stars)");
+ document.getElementById("reviewCommentLabel").textContent=uiText("تعليقك (150 حرفاً كحد أقصى)","Your comment (max 150 characters)");
+ renderRatingStars();openModal("reviewModal");loadAdvertiserReviews(id);
+}
+async function loadAdvertiserReviews(id){
+ const {data,error}=await db.rpc("get_advertiser_reviews",{p_property_id:id});
+ if(error){document.getElementById("reviewSummary").textContent=uiText("تعذّر تحميل التقييمات.","Could not load reviews.");return}
+ const x=data||{},avg=x.average_rating==null?"—":Number(x.average_rating).toFixed(1);
+ document.getElementById("reviewSummary").textContent=uiText("المعدل: ","Average: ")+avg+" ★ · "+(x.review_count||0)+" "+uiText("تقييم","reviews");
+ document.getElementById("reviewEligibility").textContent=x.can_review?uiText("يمكنك التقييم لأنك تواصلت مع المعلن عبر DESTATE.","You can review because you contacted this advertiser through DESTATE."):uiText("التقييم متاح فقط بعد التواصل مع المعلن عبر زر الاتصال.","Reviews are available only after using the contact button.");
+ document.getElementById("reviewForm").classList.toggle("hidden",!x.can_review);
+ if(x.my_rating){selectedReviewRating=Number(x.my_rating);document.getElementById("reviewComment").value=x.my_comment||"";document.getElementById("reviewCharCount").textContent=String((x.my_comment||"").length);document.getElementById("submitReviewButton").textContent=uiText("تحديث تقييمي","Update my review")}
+ renderRatingStars();
+ const rows=Array.isArray(x.reviews)?x.reviews:[];
+ document.getElementById("reviewList").innerHTML=rows.length?rows.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString())+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p><button type="button" onclick="openReportModal(\'review\',\''+safe(id)+'\',\''+safe(r.id)+'\')">'+uiText("إبلاغ عن التعليق","Report comment")+'</button></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات بعد.","No reviews yet.")+'</p>';
+}
+document.addEventListener("input",e=>{if(e.target?.id==="reviewComment")document.getElementById("reviewCharCount").textContent=String(e.target.value.length)});
+async function submitAdvertiserReview(e){
+ e.preventDefault();if(!currentUser){openModal("loginModal");return}
+ const comment=document.getElementById("reviewComment").value.trim();
+ if(!selectedReviewRating){alert(uiText("اختر عدد النجوم أولاً.","Choose a star rating first."));return}
+ if(comment.length>150){alert(uiText("التعليق يتجاوز 150 حرفاً.","Comment exceeds 150 characters."));return}
+ const b=document.getElementById("submitReviewButton");b.disabled=true;
+ const {error}=await db.rpc("submit_advertiser_review",{p_property_id:activeReviewPropertyId,p_rating:selectedReviewRating,p_comment:comment});b.disabled=false;
+ if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):uiText("تعذّر إرسال التقييم: ","Could not submit review: ")+error.message);return}
+ alert(uiText("تم حفظ تقييمك.","Your review has been saved."));await loadAdvertiserReviews(activeReviewPropertyId);
+}
+function openReportModal(type="other",propertyId=null,targetId=null){
+ if(!currentUser){alert(uiText("سجّل الدخول لتقديم بلاغ.","Log in to submit a report."));openModal("loginModal");return}
+ reportTarget={type,propertyId,targetId};
+ document.getElementById("reportModalTitle").textContent=uiText("تقديم بلاغ أو شكوى","Submit a report or complaint");
+ document.getElementById("reportPrivacy").textContent=uiText("البلاغ سري ولا يظهر للعامة، وستراجعه الإدارة.","Reports are private and reviewed by the DESTATE team.");
+ document.getElementById("reportTypeLabel").textContent=uiText("موضوع البلاغ","Report category");
+ document.getElementById("reportDetailsLabel").textContent=uiText("تفاصيل البلاغ","Report details");
+ document.getElementById("reportLimit").textContent=uiText("حتى 1000 حرف","Up to 1000 characters");
+ document.getElementById("myReportsTitle").textContent=uiText("بلاغاتي السابقة","My previous reports");
+ document.getElementById("reportType").innerHTML=uiText('<option value="listing">إعلان مخالف أو احتيالي</option><option value="advertiser">شكوى ضد معلن</option><option value="review">تعليق مسيء</option><option value="technical">مشكلة تقنية</option><option value="other">شكوى أخرى</option>','<option value="listing">Misleading listing</option><option value="advertiser">Advertiser complaint</option><option value="review">Inappropriate review</option><option value="technical">Technical issue</option><option value="other">Other</option>');
+ document.getElementById("reportType").value=type;document.getElementById("reportDetails").value="";
+ document.getElementById("submitReportButton").textContent=uiText("إرسال البلاغ","Submit report");
+ openModal("reportModal");loadMyReports();
+}
+async function submitPlatformReport(e){
+ e.preventDefault();const type=document.getElementById("reportType").value,details=document.getElementById("reportDetails").value.trim();
+ if(["listing","advertiser","review"].includes(type)&&!reportTarget.propertyId){alert(uiText("للإبلاغ عن إعلان أو معلن، استعمل زر الإبلاغ الموجود على الإعلان.","Use the Report button on the relevant listing to report a listing or advertiser."));return}
+ if(!details||details.length>1000){alert(uiText("اكتب تفاصيل البلاغ (حتى 1000 حرف).","Enter details (up to 1000 characters)."));return}
+ const b=document.getElementById("submitReportButton");b.disabled=true;
+ const {error}=await db.rpc("submit_platform_report",{p_target_type:type,p_property_id:reportTarget.propertyId,p_target_id:reportTarget.targetId,p_details:details});b.disabled=false;
+ if(error){alert(uiText("تعذّر إرسال البلاغ: ","Could not submit report: ")+error.message);return}
+ alert(uiText("تم استلام بلاغك بسرية.","Your report was submitted privately."));document.getElementById("reportDetails").value="";await loadMyReports();
+}
+async function loadMyReports(){
+ const list=document.getElementById("myReportsList");if(!list||!currentUser)return;
+ const {data,error}=await db.rpc("my_platform_reports");if(error){list.textContent=uiText("تعذّر تحميل البلاغات.","Could not load reports.");return}
+ const rows=Array.isArray(data)?data:[];
+ list.innerHTML=rows.length?rows.map(r=>'<div class="report-item"><strong>'+safe(r.target_type)+'</strong><br><small>'+safe(r.status)+' · '+safe(new Date(r.created_at).toLocaleDateString())+'</small><p>'+safe(r.details)+'</p></div>').join(""):'<p class="small">'+uiText("لا توجد بلاغات سابقة.","No previous reports.")+'</p>';
+}
+async function loadAdminReports(){
+ const list=document.getElementById("adminReportsList");if(!list)return;
+ const {data,error}=await db.rpc("admin_list_platform_reports");if(error){list.textContent=uiText("تعذّر تحميل الشكاوى: ","Could not load reports: ")+error.message;return}
+ const rows=Array.isArray(data)?data:[];
+ list.innerHTML=rows.length?rows.map(r=>'<article class="report-item"><strong>'+safe(r.target_type)+'</strong> · '+safe(r.status)+'<small> · '+safe(new Date(r.created_at).toLocaleString())+'</small><p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>').join(""):'<p class="small">'+uiText("لا توجد بلاغات.","No reports.")+'</p>';
+}
+async function updateAdminReport(id,status){const {error}=await db.rpc("admin_update_platform_report",{p_report_id:id,p_status:status});if(error){alert(error.message);return}await loadAdminReports()}
+
 function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
 function applyLanguage(){
@@ -237,8 +343,7 @@ function toggleLanguage(){
 }
 function openModal(id){document.getElementById(id).style.display="block"}
 function closeModal(id){document.getElementById(id).style.display="none"}
-function openPublish(){
- openModal("publishModal");
+function openPublish(){ openModal("publishModal");
  document.getElementById("publishStatus").textContent=currentUser?tr("readyToPublish"):tr("loginBefore");
 }
 
@@ -357,8 +462,7 @@ async function uploadPropertyImages(files,propertyId){
  }
  return {urls,uploadedPaths};
 }
- async function searchProperties(){
- const results=document.getElementById("propertyResults");
+ async function searchProperties(){ const results=document.getElementById("propertyResults");
  results.innerHTML='<div class="empty">'+tr("loading")+'</div>';
 
  let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at").eq("status","published");
@@ -416,7 +520,7 @@ function displayProperties(items){
    '<div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div>'+
    '<div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
    '<p>'+safe((p.description||"").slice(0,150))+'</p>'+
-   '<button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button>'+
+   '<div class="card-actions"><button class="secondary" onclick="showContact(\\''+safe(p.id)+'\\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\\''+safe(p.id)+'\\')">'+uiText("تقييم المعلن","Rate advertiser")+'</button><button type="button" onclick="openReportModal(\\'listing\\',\\''+safe(p.id)+'\\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '</div></article>';
  }).join("");
 }
@@ -477,7 +581,6 @@ async function publishProperty(event){
 
  let paths=[];
  let createdPropertyId=null;
-
  try{
   if(land&&(!document.getElementById("pOwnership").value||!document.getElementById("pLandType").value)){
    throw new Error(tr("chooseType"));
@@ -584,6 +687,7 @@ async function loadAdminPanel(){
  panel.classList.remove("hidden");
  setAdminLabels();
  await loadAdminProperties();
+ await loadAdminReports();
 }
 
 async function loadAdminProperties(){
@@ -597,8 +701,7 @@ async function loadAdminProperties(){
   .select("id,title,description,property_type,governorate,city,price,area,availability_status,advertiser_type,ownership_type,land_type,image_urls,created_at,status")
   .order("created_at",{ascending:false});
 
- if(error){
-  status.textContent=tr("pendingError")+error.message;
+ if(error){  status.textContent=tr("pendingError")+error.message;
   console.error("Admin listings:",error);
   return;
  }
@@ -612,6 +715,7 @@ async function loadAdminProperties(){
  status.textContent="";
  setAdminLabels();
  renderAdminProperties();
+ loadAdminReports();
 }
 
 function renderAdminProperties(){
@@ -717,8 +821,7 @@ async function reviewProperty(id,nextStatus,currentStatus){
  }
  if(!data||!data.length){
   alert(tr("reviewNoRow"));
-  return;
- }
+  return; }
  alert(nextStatus==="published"?tr("approved"):tr("rejected"));
  await loadAdminProperties();
  if(nextStatus==="published")await searchProperties();
