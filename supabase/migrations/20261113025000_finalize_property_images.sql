@@ -63,7 +63,7 @@ begin
       from storage.objects o
       where o.bucket_id = 'property-images'
         and o.name = v_uid::text || '/' || p_property_id::text || '/' || v_filename
-        and o.owner = v_uid
+        and o.owner_id = v_uid::text
         and lower(coalesce(o.metadata->>'mimetype', '')) in ('image/jpeg', 'image/png', 'image/webp')
         and coalesce((o.metadata->>'size')::bigint, 0) between 1 and 5242880
     ) into v_found;
