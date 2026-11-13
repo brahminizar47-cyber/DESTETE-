@@ -65,7 +65,7 @@ using (sender_id <> (select auth.uid()) and exists (
   select 1 from public.property_conversations c
   where c.id=conversation_id and (select auth.uid()) in (c.buyer_id,c.seller_id)
 ))
-with check (sender_id <> (select auth.uid()) and exists (
+with check (sender_id <> (select auth.uid()) and read_at is not null and exists (
   select 1 from public.property_conversations c
   where c.id=conversation_id and (select auth.uid()) in (c.buyer_id,c.seller_id)
 ));
@@ -77,7 +77,7 @@ for select to authenticated using (recipient_id=(select auth.uid()));
 drop policy if exists "Users mark their own notifications read" on public.user_notifications;
 create policy "Users mark their own notifications read" on public.user_notifications
 for update to authenticated using (recipient_id=(select auth.uid()))
-with check (recipient_id=(select auth.uid()));
+with check (recipient_id=(select auth.uid()) and is_read=true);
 
 create or replace function public.start_property_conversation(p_property_id uuid,p_first_message text)
 returns uuid language plpgsql security definer set search_path=''
@@ -86,7 +86,7 @@ declare v_user uuid := auth.uid(); v_seller uuid; v_status text; v_conversation 
 begin
   if v_user is null then raise exception 'AUTH_REQUIRED'; end if;
   if p_first_message is null or char_length(btrim(p_first_message)) not between 1 and 3000 then raise exception 'INVALID_MESSAGE'; end if;
-  select p.owner_id,p.status into v_seller,v_status from public.properties p where p.id=p_property_id;
+  select p.owner_id,p.status into v_seller,v_status from public.properties p where p.id=p_property_id and p.expires_at > now();
   if not found or v_status <> 'published' then raise exception 'LISTING_UNAVAILABLE'; end if;
   if v_seller=v_user then raise exception 'CANNOT_MESSAGE_SELF'; end if;
   insert into public.property_conversations(property_id,buyer_id,seller_id)
