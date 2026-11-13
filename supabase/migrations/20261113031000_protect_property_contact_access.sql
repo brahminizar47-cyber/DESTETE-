@@ -9,16 +9,13 @@ revoke select (phone) on table public.properties from anon, authenticated;
 
 grant select (
   id,
-  owner_id,
   title,
   description,
   property_type,
   governorate,
   city,
-  address,
   price,
   area,
-  bedrooms,
   status,
   created_at,
   availability_status,
