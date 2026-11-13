@@ -107,3 +107,7 @@ revoke all on function public.create_property_with_contact(jsonb, text)
   from public, anon, service_role;
 grant execute on function public.create_property_with_contact(jsonb, text)
   to authenticated;
+
+-- The browser cleanup path may delete only the caller's own pending listing;
+-- the existing row-level DELETE policy enforces that ownership/status boundary.
+grant delete on table public.properties to authenticated;
