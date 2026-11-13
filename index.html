@@ -292,7 +292,7 @@ async function submitPlatformReport(e){
  if(["listing","advertiser","review"].includes(type)&&!reportTarget.propertyId){alert(uiText("للإبلاغ عن إعلان أو معلن، استعمل زر الإبلاغ الموجود على الإعلان.","Use the Report button on the relevant listing to report a listing or advertiser."));return}
  if(!details||details.length>1000){alert(uiText("اكتب تفاصيل البلاغ (حتى 1000 حرف).","Enter details (up to 1000 characters)."));return}
  const b=document.getElementById("submitReportButton");b.disabled=true;
- const {error}=await db.rpc("submit_platform_report",{p_target_type:type,p_property_id:reportTarget.propertyId,p_target_id:reportTarget.targetId,p_details:details});b.disabled=false;
+ const {error}=await db.rpc("submit_platform_report",{p_target_type:type,p_property_id:reportTarget.propertyId,p_target_id:type==="review"?reportTarget.targetId:null,p_details:details});b.disabled=false;
  if(error){alert(uiText("تعذّر إرسال البلاغ: ","Could not submit report: ")+error.message);return}
  alert(uiText("تم استلام بلاغك بسرية.","Your report was submitted privately."));document.getElementById("reportDetails").value="";await loadMyReports();
 }
@@ -317,6 +317,7 @@ function applyLanguage(){
  document.documentElement.dir=currentLanguage==="ar"?"rtl":"ltr";
  document.title=currentLanguage==="ar"?"DESTATE | العقارات في تونس":"DESTATE | Real Estate in Tunisia";
  document.getElementById("languageButton").textContent=currentLanguage==="ar"?"English":"العربية";
+ const reportButton=document.getElementById("headerReportButton");if(reportButton)reportButton.textContent=currentLanguage==="ar"?"تقديم بلاغ / شكوى":"Report / Complaint";
  document.querySelectorAll("[data-i18n]").forEach(el=>{
   const k=el.dataset.i18n;
   if(translations[currentLanguage][k])el.textContent=translations[currentLanguage][k];
@@ -710,7 +711,6 @@ async function loadAdminProperties(){
  status.textContent="";
  setAdminLabels();
  renderAdminProperties();
- loadAdminReports();
 }
 function renderAdminProperties(){
  const list=document.getElementById("pendingProperties");
