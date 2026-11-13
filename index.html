@@ -340,6 +340,7 @@ async function loadAdminReports(){
  const result=data&&typeof data==="object"?data:{};
  const rows=Array.isArray(result.items)?result.items:[];
  adminReportTotal=Number(result.total_count)||0;
+ if(adminReportPage>0&&adminReportPage*ADMIN_REPORT_PAGE_SIZE>=adminReportTotal){adminReportPage=Math.max(0,Math.ceil(adminReportTotal/ADMIN_REPORT_PAGE_SIZE)-1);return loadAdminReports()}
  list.innerHTML=rows.length?rows.map(r=>'<article class="report-item"><strong>'+safe(r.target_type)+'</strong> · '+safe(r.status)+'<small> · '+safe(new Date(r.created_at).toLocaleString())+'</small><p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>').join(""):'<p class="small">'+uiText("لا توجد بلاغات مطابقة.","No matching reports.")+'</p>';
  renderAdminReportsPagination();
 }
@@ -367,6 +368,10 @@ function adminAuditActionLabel(row){
  if(row.action==="report_status_changed")return uiText("تحديث حالة بلاغ","Report status updated");
  return safe(row.action);
 }
+function adminAuditStatusLabel(value){
+ const labels={pending:uiText("في الانتظار","Pending"),reviewing:uiText("قيد المراجعة","Reviewing"),resolved:uiText("تمت المعالجة","Resolved"),rejected:uiText("مرفوض","Rejected"),published:uiText("منشور","Published")};
+ return labels[value]||value||"";
+}
 function adminAuditDetails(row){
  const d=row.details||{};
  const title=d.title?String(d.title):"";
@@ -375,8 +380,8 @@ function adminAuditDetails(row){
  const previous=d.previous_status?String(d.previous_status):"";
  const parts=[];
  if(title)parts.push(title);
- if(from||to)parts.push((from||"—")+" → "+(to||"—"));
- if(previous)parts.push(uiText("الحالة السابقة: ","Previous status: ")+previous);
+ if(from||to)parts.push((adminAuditStatusLabel(from)||"—")+" → "+(adminAuditStatusLabel(to)||"—"));
+ if(previous)parts.push(uiText("الحالة السابقة: ","Previous status: ")+adminAuditStatusLabel(previous));
  if(d.target_type)parts.push(uiText("النوع: ","Type: ")+String(d.target_type));
  if(row.entity_id)parts.push(String(row.entity_id));
  return parts.map(safe).join(" · ");
@@ -413,12 +418,14 @@ function applyLanguage(){
  document.getElementById("publishStatus").textContent=currentUser?tr("readyToPublish"):tr("loginBefore");
  if(lastProperties.length)displayProperties(lastProperties);
  renderPublicPagination();
+ const adminPanel=document.getElementById("adminPanel");
+ if(adminPanel&&!adminPanel.classList.contains("hidden"))setAdminLabels();
 }
 function toggleLanguage(){
  currentLanguage=currentLanguage==="ar"?"en":"ar";
  localStorage.setItem("destate_language",currentLanguage);
  applyLanguage();
- if(!document.getElementById("adminPanel").classList.contains("hidden"))loadAdminProperties();
+ if(!document.getElementById("adminPanel").classList.contains("hidden")){loadAdminProperties();loadAdminReports();loadAdminActionLogs();}
 }
 function openModal(id){document.getElementById(id).style.display="block"}
 function closeModal(id){document.getElementById(id).style.display="none"}
