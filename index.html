@@ -333,6 +333,7 @@ function applyLanguage(){
  document.getElementById("authStatus").textContent=currentUser?tr("loggedIn")+currentUser.email:tr("loginFree");
  document.getElementById("publishStatus").textContent=currentUser?tr("readyToPublish"):tr("loginBefore");
  if(lastProperties.length)displayProperties(lastProperties);
+ renderPublicPagination();
 }
 function toggleLanguage(){
  currentLanguage=currentLanguage==="ar"?"en":"ar";
