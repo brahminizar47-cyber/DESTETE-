@@ -101,3 +101,9 @@ begin
   return v_property_id;
 end;
 $function$;
+
+-- SECURITY DEFINER RPC: only signed-in users may submit a listing.
+revoke all on function public.create_property_with_contact(jsonb, text)
+  from public, anon, service_role;
+grant execute on function public.create_property_with_contact(jsonb, text)
+  to authenticated;
