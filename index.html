@@ -661,11 +661,9 @@ function displayProperties(items){
   return '<article class="property">'+gallery+
    '<div class="property-content">'+
    '<h3>'+safe(p.title)+'</h3>'+
-   '<span class="tag">'+safe(tr(typeNames[p.property_type]||"propertyType"))+'</span>'+
-   '<span class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</span>'+
-   '<div class="meta">📍 '+safe(location)+'</div>'+
-   '<div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div>'+
-   '<div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
+   '<div class="meta"><strong>'+uiText("نوع العقار: ","Property type: ")+'</strong>'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+'</div>'+
+   '<div class="meta"><strong>'+uiText("المساحة: ","Area: ")+'</strong>'+safe(p.area!==null&&p.area!==undefined&&p.area!==""?Number(p.area).toLocaleString():tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
+   '<div class="meta"><strong>'+uiText("نوع المعلن: ","Advertiser: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
    '<p>'+safe((p.description||"").slice(0,150))+'</p>'+
    '<div class="card-actions"><button type="button" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المعلن","Rate advertiser")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '</div></article>';
