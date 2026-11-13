@@ -13,7 +13,7 @@
 :root{--navy:#102b46;--blue:#1769aa;--gold:#e8ad45;--bg:#f4f6f9;--muted:#687789;--border:#e1e6ed}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;background:var(--bg);color:#182536}
 header{background:var(--navy);color:white;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-.logo{font-size:27px;font-weight:900;letter-spacing:2px}.logo span{color:var(--gold)}
+.logo{font-size:27px;font-weight:900;letter-spacing:2px;line-height:1.1}.logo span{color:var(--gold)}.logo small{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;color:#e3edf6;margin-top:4px}
 nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}nav a{color:white;text-decoration:none;font-size:14px}
 button{border:0;border-radius:8px;padding:11px 16px;cursor:pointer;font-weight:bold}button:disabled{opacity:.5;cursor:not-allowed}
 .primary{background:var(--gold);color:#182536}.secondary{background:var(--blue);color:white}
@@ -84,7 +84,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 </head>
 <body>
 <header>
- <div class="logo">D-<span>ESTATE</span></div>
+ <div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div>
  <nav>
   <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a>
   <button class="primary" id="languageButton" onclick="toggleLanguage()">English</button>
@@ -170,7 +170,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 
 </section>
 </main>
-<footer><div class="logo">D-<span>ESTATE</span></div><div data-i18n="footerText">منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</div><div>© D-ESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div></footer>
+<footer><div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div><div data-i18n="footerText">منصة عقارية تونسية تجمع المعلنين والباحثين عن العقارات</div><div>© D-ESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div></footer>
 <div id="propertyDetailsModal" class="modal"><div class="modal-box"><div class="modal-head"><h2 id="detailTitle">تفاصيل العقار</h2><button class="close" onclick="closeModal('propertyDetailsModal')">✕</button></div><div id="propertyDetailsContent"></div></div></div>
 <div id="compareModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>مقارنة العقارات</h2><button class="close" onclick="closeModal('compareModal')">✕</button></div><div id="compareResults"></div></div></div>
 <div id="loginModal" class="modal">
