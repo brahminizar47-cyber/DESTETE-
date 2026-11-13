@@ -1170,6 +1170,16 @@ db.auth.onAuthStateChange((_event,session)=>{
  setTimeout(()=>{loadAdminPanel();loadMyPropertyStats()},0);
 });
 
+window.addEventListener("storage",event=>{
+ if(event.key==="destate_language"&&event.newValue&&event.newValue!==currentLanguage){
+  currentLanguage=event.newValue==="en"?"en":"ar";
+  applyLanguage();
+ }
+});
+window.addEventListener("pageshow",()=>{
+ const saved=localStorage.getItem("destate_language")||"ar";
+ if(saved!==currentLanguage){currentLanguage=saved==="en"?"en":"ar";applyLanguage();}
+});
 applyLanguage();
 updateFilters();
 updatePublishFields();
