@@ -302,9 +302,13 @@ $function$;
 revoke all on function private.capture_admin_property_action()
   from public, anon, authenticated;
 
-drop trigger if exists destate_admin_action_audit on public.properties;
-create trigger destate_admin_action_audit
-after update of status or delete on public.properties
+drop trigger if exists destate_admin_action_audit_update on public.properties;
+drop trigger if exists destate_admin_action_audit_delete on public.properties;
+create trigger destate_admin_action_audit_update
+after update of status on public.properties
+for each row execute function private.capture_admin_property_action();
+create trigger destate_admin_action_audit_delete
+after delete on public.properties
 for each row execute function private.capture_admin_property_action();
 
 -- Add filtered, bounded pagination for the admin reports queue.
