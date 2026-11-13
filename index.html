@@ -311,12 +311,12 @@ document.getElementById("pImages").addEventListener("change",function(){
  renderImagePreviews();
 });
 
-async function uploadPropertyImages(files){
+async function uploadPropertyImages(files,propertyId){
  const urls=[],uploadedPaths=[];
  for(const file of files){
   const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"}[file.type];
   const name=crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2);
-  const path=currentUser.id+"/"+Date.now()+"-"+name+"."+ext;
+  const path=currentUser.id+"/"+propertyId+"/"+name+"."+ext;
   const {error}=await db.storage.from(BUCKET).upload(path,file,{
    cacheControl:"3600",upsert:false,contentType:file.type
   });
@@ -448,14 +448,12 @@ async function publishProperty(event){
  status.textContent=tr("pleaseWait");
 
  let paths=[];
+ let createdPropertyId=null;
 
  try{
   if(land&&(!document.getElementById("pOwnership").value||!document.getElementById("pLandType").value)){
    throw new Error(tr("chooseType"));
   }
-
-  const uploaded=await uploadPropertyImages(files);
-  paths=uploaded.uploadedPaths;
 
   const payload={
    title:document.getElementById("pTitle").value.trim(),
@@ -464,11 +462,11 @@ async function publishProperty(event){
    city:document.getElementById("pCity").value.trim(),
    price:Number(document.getElementById("pPrice").value),
    area:Number(document.getElementById("pArea").value),
-   ownership_type:document.getElementById("pOwnership").value||null,
+   ownership_type:land?document.getElementById("pOwnership").value:null,
    land_type:land?document.getElementById("pLandType").value:null,
    advertiser_type:document.getElementById("pAdvertiser").value,
    description:document.getElementById("pDescription").value.trim(),
-   image_urls:uploaded.urls
+   image_urls:[]
   };
 
   const {data:propertyId,error}=await db.rpc("create_property_with_contact",{
@@ -477,8 +475,20 @@ async function publishProperty(event){
   });
 
   if(error||!propertyId){
-   await db.storage.from(BUCKET).remove(paths);
    throw new Error(tr("saveError")+(error?.message||"No property ID returned"));
+  }
+  createdPropertyId=propertyId;
+
+  const uploaded=await uploadPropertyImages(files,createdPropertyId);
+  paths=uploaded.uploadedPaths;
+
+  const {error:finalizeError}=await db.rpc("finalize_property_images",{
+   p_property_id:createdPropertyId,
+   p_image_urls:uploaded.urls
+  });
+  if(finalizeError){
+   await db.storage.from(BUCKET).remove(paths);
+   throw new Error(tr("saveError")+finalizeError.message);
   }
 
   alert(tr("publishSuccess"));
@@ -490,6 +500,12 @@ async function publishProperty(event){
 
  }catch(e){
   console.error(e);
+  if(createdPropertyId){
+   if(paths.length)await db.storage.from(BUCKET).remove(paths);
+   const {error:cleanupError}=await db.from("properties").delete()
+    .eq("id",createdPropertyId).eq("status","pending");
+   if(cleanupError)console.error("Pending listing cleanup failed:",cleanupError.message);
+  }
   alert(e.message||tr("publishError"));
   status.textContent=tr("publishFailed");
  }finally{
