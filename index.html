@@ -77,13 +77,16 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 .admin-audit-item{border:1px solid var(--border);border-radius:9px;padding:11px;margin:8px 0;background:#fff;font-size:13px}
  .admin-audit-item small{display:block;color:var(--muted);margin-top:5px}
 .compare-toolbar{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin:12px 0}.compare-toolbar.visible{display:flex}.owner-listing{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}.owner-listing-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.owner-listing-stats span{background:#f5f7fa;padding:9px;border-radius:8px;font-size:12px}.detail-gallery{display:flex;gap:8px;overflow-x:auto;margin:12px 0}.detail-gallery img{height:180px;min-width:75%;object-fit:cover;border-radius:8px}.compare-table{width:100%;border-collapse:collapse;margin-top:12px}.compare-table th,.compare-table td{border:1px solid var(--border);padding:9px;text-align:start;font-size:13px}.compare-table th{background:#f5f7fa}.detail-history{margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
+#favoritesPanel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}
+#favoritesPanel .admin-heading{margin-bottom:12px}
+#favoritesPanel .admin-heading .section-title{margin:0}
 </style>
 </head>
 <body>
 <header>
  <div class="logo">DE<span>STATE</span></div>
  <nav>
-  <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a>
+  <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a><button class="secondary" id="favoritesNavButton" type="button" onclick="openFavorites()" style="display:none">مفضلتي</button>
   <button class="primary" id="languageButton" onclick="toggleLanguage()">English</button>
   <button class="primary" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button><button class="secondary" type="button" onclick="openReportModal()" id="headerReportButton">تقديم بلاغ / شكوى</button>
   <button class="secondary" onclick="openPublish()" data-i18n="addProperty">+ أضف عقارك</button>
@@ -125,6 +128,11 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <section id="listings" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
+</section>
+<section id="favoritesPanel" class="hidden" style="margin-top:35px">
+ <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
+ <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
+ <div id="favoritesResults" class="results"></div>
 </section>
 <section id="myPropertiesPanel" class="hidden" style="margin-top:35px"><h2 class="section-title" id="myPropertiesTitle">إعلاناتي وإحصائياتي</h2><div id="myPropertiesList"></div></section>
 <section id="adminPanel" class="admin-panel hidden">
@@ -408,6 +416,9 @@ function applyLanguage(){
  document.title=currentLanguage==="ar"?"DESTATE | العقارات في تونس":"DESTATE | Real Estate in Tunisia";
  document.getElementById("languageButton").textContent=currentLanguage==="ar"?"English":"العربية";
  const reportButton=document.getElementById("headerReportButton");if(reportButton)reportButton.textContent=currentLanguage==="ar"?"تقديم بلاغ / شكوى":"Report / Complaint";
+ const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser?"inline-block":"none";}
+ const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
+ const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("إغلاق","Close");
  document.querySelectorAll("[data-i18n]").forEach(el=>{
   const k=el.dataset.i18n;
   if(translations[currentLanguage][k])el.textContent=translations[currentLanguage][k];
@@ -445,6 +456,8 @@ async function refreshUser(){
  applyLanguage();
  await loadAdminPanel();
  await loadMyPropertyStats();
+ const favoritesPanel=document.getElementById("favoritesPanel");
+ if(favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
 }
 async function signUp(){
  const email=document.getElementById("authEmail").value.trim();
@@ -681,7 +694,63 @@ async function toggleFavorite(id){
   alert(uiText("تمت إضافة العقار إلى المفضّلة.","Added to favorites."));
  }
  await loadMyPropertyStats();
+ const favoritesPanel=document.getElementById("favoritesPanel");
+ if(favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
 }
+
+
+async function openFavorites(){
+ if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
+ const panel=document.getElementById("favoritesPanel");
+ panel.classList.remove("hidden");
+ await loadFavoriteProperties();
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeFavorites(){document.getElementById("favoritesPanel").classList.add("hidden")}
+
+async function loadFavoriteProperties(){
+ const panel=document.getElementById("favoritesPanel");
+ const status=document.getElementById("favoritesStatus");
+ const list=document.getElementById("favoritesResults");
+ if(!panel||!status||!list)return;
+ if(!currentUser){panel.classList.add("hidden");list.innerHTML="";return}
+ status.textContent=uiText("جاري تحميل العقارات المحفوظة...","Loading saved properties...");
+ list.innerHTML="";
+ const {data:favorites,error}=await db.from("property_favorites").select("property_id").eq("user_id",currentUser.id).order("created_at",{ascending:false});
+ if(error){status.textContent=uiText("تعذّر تحميل المفضّلة. حاول مرة أخرى.","Could not load favorites. Please try again.");console.error("Favorites lookup failed:",error.message);return}
+ const ids=(favorites||[]).map(x=>x.property_id).filter(Boolean);
+ if(!ids.length){status.textContent=uiText("لم تحفظ أي عقار بعد. اضغط على «حفظ» في الإعلان لإضافته هنا.","You have not saved any properties yet. Select Save on a listing to add it here.");return}
+ const {data:properties,error:propertiesError}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,image_urls,created_at,expires_at").in("id",ids).eq("status","published").gt("expires_at",new Date().toISOString());
+ if(propertiesError){status.textContent=uiText("تعذّر تحميل تفاصيل العقارات المحفوظة.","Could not load saved property details.");console.error("Saved property details failed:",propertiesError.message);return}
+ const byId=new Map((properties||[]).map(p=>[String(p.id),p]));
+ const items=ids.map(id=>byId.get(String(id))).filter(Boolean);
+ status.textContent=items.length?uiText("العقارات المتاحة المحفوظة: ","Available saved properties: ")+items.length:uiText("لا توجد عقارات محفوظة متاحة حالياً. قد تكون بعض الإعلانات انتهت أو لم تعد منشورة.","No saved properties are currently available. Some listings may have expired or been unpublished.");
+ if(!items.length)return;
+ list.innerHTML=items.map(p=>{
+  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+  const gallery=images.length?'<div class="property-gallery">'+images.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':'<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
+  const location=(currentLanguage==="en"?(govEnglish[p.governorate]||p.governorate):p.governorate)+" "+(p.city||"");
+  return '<article class="property">'+gallery+'<div class="property-content"><h3>'+safe(p.title)+'</h3><span class="tag">'+safe(tr(typeNames[p.property_type]||"propertyType"))+'</span><span class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</span><div class="meta">📍 '+safe(location)+'</div><div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div><p>'+safe((p.description||"").slice(0,150))+'</p><div class="card-actions"><button type="button" data-fav-action="details" data-property-id="'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" data-fav-action="share" data-property-id="'+safe(p.id)+'">'+uiText("مشاركة","Share")+'</button><button type="button" data-fav-action="remove" data-property-id="'+safe(p.id)+'">'+uiText("إزالة من المفضّلة","Remove")+'</button><button class="secondary" type="button" data-fav-action="contact" data-property-id="'+safe(p.id)+'">'+tr("contact")+'</button></div></div></article>';
+ }).join("");
+ list.querySelectorAll("[data-fav-action]").forEach(button=>{
+  button.addEventListener("click",()=>{
+   const id=button.dataset.propertyId;
+   const action=button.dataset.favAction;
+   if(action==="details")openPropertyDetails(id);
+   else if(action==="share")shareProperty(id);
+   else if(action==="remove")removeFavorite(id);
+   else if(action==="contact")showContact(id);
+  });
+ });
+}
+async function removeFavorite(id){
+ if(!currentUser)return;
+ const {error}=await db.from("property_favorites").delete().eq("user_id",currentUser.id).eq("property_id",id);
+ if(error){alert(uiText("تعذّرت إزالة العقار من المفضّلة: ","Could not remove this property: ")+error.message);return}
+ await loadFavoriteProperties();
+ await loadMyPropertyStats();
+}
+
 function getVisitorId(){
  let id=localStorage.getItem("destate_visitor_id");
  if(!id){id=crypto.randomUUID();localStorage.setItem("destate_visitor_id",id)}
@@ -1053,6 +1122,8 @@ async function reviewProperty(id,nextStatus,currentStatus){
 
 db.auth.onAuthStateChange((_event,session)=>{
  currentUser=session?.user||null;
+ applyLanguage();
+ if(!currentUser){const favoritesPanel=document.getElementById("favoritesPanel");if(favoritesPanel)favoritesPanel.classList.add("hidden");}
 
  const a=document.getElementById("authStatus");
  const p=document.getElementById("publishStatus");
