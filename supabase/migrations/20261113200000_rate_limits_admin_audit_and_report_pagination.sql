@@ -1,18 +1,19 @@
 -- DESTATE abuse protection, private admin audit trail, and paginated report review.
 -- Additive migration: no existing user content is removed.
 
--- Per-user/action counters. The private schema is not exposed through the Data API.
-create table if not exists private.action_rate_limits (
+-- Private per-user/action event history for true sliding-window rate limits.
+create table if not exists private.action_rate_events (
+  id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   action text not null check (action in ('contact', 'review', 'report')),
-  window_started_at timestamptz not null,
-  request_count integer not null check (request_count >= 0),
-  updated_at timestamptz not null default now(),
-  primary key (user_id, action)
+  occurred_at timestamptz not null default now()
 );
 
-alter table private.action_rate_limits enable row level security;
-revoke all on table private.action_rate_limits from public, anon, authenticated;
+create index if not exists action_rate_events_user_action_time_idx
+  on private.action_rate_events(user_id, action, occurred_at desc);
+
+alter table private.action_rate_events enable row level security;
+revoke all on table private.action_rate_events from public, anon, authenticated;
 
 create or replace function private.enforce_action_rate_limit(
   p_action text,
@@ -28,7 +29,7 @@ as $function$
 declare
   v_user_id uuid := auth.uid();
   v_now timestamptz := clock_timestamp();
-  v_count integer;
+  v_count bigint;
 begin
   if v_user_id is null then
     raise exception 'Authentication required' using errcode = '28000';
@@ -40,31 +41,34 @@ begin
     raise exception 'Invalid rate limit configuration' using errcode = '22023';
   end if;
 
-  insert into private.action_rate_limits as current_limit
-    (user_id, action, window_started_at, request_count, updated_at)
-  values
-    (v_user_id, p_action, v_now, 1, v_now)
-  on conflict (user_id, action) do update
-  set
-    window_started_at = case
-      when current_limit.window_started_at <= v_now - make_interval(secs => p_window_seconds)
-      then v_now else current_limit.window_started_at end,
-    request_count = case
-      when current_limit.window_started_at <= v_now - make_interval(secs => p_window_seconds)
-      then 1 else current_limit.request_count + 1 end,
-    updated_at = v_now
-  returning request_count into v_count;
+  -- Serialize requests for this user/action so parallel calls cannot bypass the limit.
+  perform pg_advisory_xact_lock(hashtextextended(v_user_id::text || ':' || p_action, 0));
 
-  if v_count > p_max_requests then
+  select count(*) into v_count
+  from private.action_rate_events e
+  where e.user_id = v_user_id
+    and e.action = p_action
+    and e.occurred_at > v_now - make_interval(secs => p_window_seconds);
+
+  if v_count >= p_max_requests then
     raise exception 'RATE_LIMITED:%', p_action using errcode = 'P0001';
   end if;
+
+  -- Retain only a short diagnostic window; no request content is stored.
+  delete from private.action_rate_events e
+  where e.user_id = v_user_id
+    and e.action = p_action
+    and e.occurred_at <= v_now - interval '2 days';
+
+  insert into private.action_rate_events(user_id, action, occurred_at)
+  values (v_user_id, p_action, v_now);
 end;
 $function$;
 
 revoke all on function private.enforce_action_rate_limit(text, integer, integer)
   from public, anon, authenticated;
 
--- Limit successful contact reveals to 10 per user per rolling hour.
+-- Limit successful contact reveals to 10 per user in any one-hour window.
 create or replace function public.get_property_contact(p_property_id uuid)
 returns text
 language plpgsql
@@ -102,7 +106,7 @@ begin
 end;
 $function$;
 
--- Limit review submissions/edits to 5 per user per rolling day.
+-- Limit review submissions/edits to 5 per user in any 24-hour window.
 create or replace function public.submit_advertiser_review(
   p_property_id uuid,
   p_rating smallint,
@@ -166,7 +170,7 @@ begin
 end;
 $function$;
 
--- Limit complaint submissions to 5 per user per rolling hour.
+-- Limit complaint submissions to 5 per user in any one-hour window.
 create or replace function public.submit_platform_report(
   p_target_type text,
   p_property_id uuid default null,
