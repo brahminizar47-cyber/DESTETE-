@@ -82,3 +82,68 @@ $$;
 
 revoke all on function public.get_followed_user_profile(uuid) from public, anon;
 grant execute on function public.get_followed_user_profile(uuid) to authenticated;
+
+
+-- Return a safe display name alongside each followed account in the list.
+create or replace function public.get_followed_users_list()
+returns table (
+  advertiser_id uuid,
+  display_name text,
+  advertiser_type text,
+  listing_count bigint,
+  latest_listing_title text,
+  governorate text,
+  city text,
+  followed_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user uuid := auth.uid();
+begin
+  if v_user is null then
+    raise exception 'AUTH_REQUIRED';
+  end if;
+
+  return query
+  select
+    f.advertiser_id,
+    coalesce(
+      nullif(btrim(u.raw_user_meta_data ->> 'display_name'), ''),
+      nullif(btrim(u.raw_user_meta_data ->> 'full_name'), ''),
+      nullif(btrim(u.raw_user_meta_data ->> 'name'), ''),
+      'DESTATE user'
+    )::text,
+    coalesce(latest.advertiser_type, 'owner')::text,
+    coalesce(stats.listing_count, 0)::bigint,
+    latest.title::text,
+    latest.governorate::text,
+    latest.city::text,
+    f.created_at
+  from public.advertiser_follows f
+  join auth.users u on u.id = f.advertiser_id
+  left join lateral (
+    select count(*)::bigint as listing_count
+    from public.properties p
+    where p.owner_id = f.advertiser_id
+      and p.status = 'published'
+      and p.expires_at > now()
+  ) stats on true
+  left join lateral (
+    select p.advertiser_type, p.title, p.governorate, p.city
+    from public.properties p
+    where p.owner_id = f.advertiser_id
+      and p.status = 'published'
+      and p.expires_at > now()
+    order by p.created_at desc
+    limit 1
+  ) latest on true
+  where f.follower_id = v_user
+  order by f.created_at desc;
+end;
+$$;
+
+revoke all on function public.get_followed_users_list() from public, anon;
+grant execute on function public.get_followed_users_list() to authenticated;
