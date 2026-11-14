@@ -892,15 +892,19 @@ document.getElementById("pImages").addEventListener("change",function(){
 async function signPropertyImages(properties){
  const items=Array.isArray(properties)?properties:[properties];
  const paths=[...new Set(items.flatMap(p=>Array.isArray(p.image_urls)?p.image_urls:[]).filter(x=>typeof x==="string"&&x.length>0))];
- if(!paths.length){items.forEach(p=>p.signed_image_urls=[]);return items;}
- const {data,error}=await db.storage.from(BUCKET).createSignedUrls(paths,600);
- if(error)throw new Error(uiText("تعذّر تحميل صور العقارات: ","Could not load property images: ")+error.message);
  const signed=new Map();
- (data||[]).forEach((item,index)=>{
-  const path=paths[index];
-  if(path&&item?.signedUrl&&!item?.error)signed.set(path,item.signedUrl);
+ for(const path of paths){
+  const {data,error}=await db.storage.from(BUCKET).createSignedUrl(path,600);
+  if(error||!data?.signedUrl){
+   console.error("Property image signing failed:",{path,error:error?.message||"No signed URL returned"});
+   continue;
+  }
+  signed.set(path,data.signedUrl);
+ }
+ items.forEach(p=>{
+  p.signed_image_urls=(Array.isArray(p.image_urls)?p.image_urls:[])
+   .map(path=>signed.get(path)||"").filter(Boolean);
  });
- items.forEach(p=>{p.signed_image_urls=(Array.isArray(p.image_urls)?p.image_urls:[]).map(path=>signed.get(path)||"").filter(Boolean);});
  return items;
 }
 async function uploadPropertyImages(files,propertyId){
