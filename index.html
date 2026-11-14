@@ -150,15 +150,15 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المستخدمون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
 </div></section>
 <section id="publicUserPanel" class="profile-panel hidden" aria-live="polite">
- <div class="admin-heading"><div><h2 class="section-title" id="publicUserName">ملف المستخدم</h2><p class="small" id="publicUserRole"></p></div><button type="button" onclick="closePublicUserProfile()">إغلاق</button></div>
+ <div class="admin-heading"><div><h2 class="section-title" id="publicUserName">ملف المستخدم</h2><p class="small" id="publicUserRole"></p></div><button type="button" onclick="closePublicUserProfile()" id="publicUserCloseButton">إغلاق</button></div>
  <div id="publicUserStatus" class="status" role="status"></div>
  <div class="profile-grid">
-  <div class="profile-info"><span>التقييم العام</span><strong id="publicUserAverage">—</strong></div>
-  <div class="profile-info"><span>عدد التقييمات</span><strong id="publicUserCount">0</strong></div>
-  <div class="profile-info"><span>الإعلانات المنشورة</span><strong id="publicUserListingsCount">0</strong></div>
+  <div class="profile-info"><span id="publicUserAverageLabel">التقييم العام</span><strong id="publicUserAverage">—</strong></div>
+  <div class="profile-info"><span id="publicUserCountLabel">عدد التقييمات</span><strong id="publicUserCount">0</strong></div>
+  <div class="profile-info"><span id="publicUserListingsCountLabel">الإعلانات المنشورة</span><strong id="publicUserListingsCount">0</strong></div>
  </div>
- <div class="profile-section"><h3>إعلانات المستخدم</h3><div id="publicUserListings" class="results"></div></div>
- <div class="profile-section"><h3>تقييمات المستخدم وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
+ <div class="profile-section"><h3 id="publicUserListingsTitle">إعلانات المستخدم</h3><div id="publicUserListings" class="results"></div></div>
+ <div class="profile-section"><h3 id="publicUserReviewsTitle">تقييمات المستخدم وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
  
 </section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
@@ -572,14 +572,18 @@ function setProfileLabels(){
  Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
-let activePublicUserId=null;
 async function openPublicUserProfile(propertyId){
  if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة ملف المستخدم وتقييماته.","Log in to view user profiles and reviews."));openModal("loginModal");return}
  if(!propertyId){alert(uiText("تعذّر فتح ملف المستخدم.","Could not open this user profile."));return}
- activePublicUserId=null;
  const panel=document.getElementById("publicUserPanel"),status=document.getElementById("publicUserStatus");
  document.getElementById("profilePanel").classList.add("hidden");panel.classList.remove("hidden");
  document.getElementById("publicUserName").textContent=uiText("ملف المستخدم","User profile");
+ document.getElementById("publicUserCloseButton").textContent=uiText("إغلاق","Close");
+ document.getElementById("publicUserAverageLabel").textContent=uiText("التقييم العام","Overall rating");
+ document.getElementById("publicUserCountLabel").textContent=uiText("عدد التقييمات","Number of reviews");
+ document.getElementById("publicUserListingsCountLabel").textContent=uiText("الإعلانات المنشورة","Published listings");
+ document.getElementById("publicUserListingsTitle").textContent=uiText("إعلانات المستخدم","User listings");
+ document.getElementById("publicUserReviewsTitle").textContent=uiText("تقييمات المستخدم وآراء الآخرين","User ratings and reviews");
  document.getElementById("publicUserRole").textContent="";
  document.getElementById("publicUserAverage").textContent="—";
  document.getElementById("publicUserCount").textContent="0";
@@ -607,7 +611,7 @@ async function openPublicUserProfile(propertyId){
  document.getElementById("publicUserReviews").innerHTML=reviews.length?reviews.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات أو آراء منشورة بعد.","No published reviews yet.")+'</p>';
 
 }
-function closePublicUserProfile(){document.getElementById("publicUserPanel").classList.add("hidden");activePublicUserId=null}
+function closePublicUserProfile(){document.getElementById("publicUserPanel").classList.add("hidden")}
 function openProfile(){
  if(!currentUser){openModal("loginModal");return}
  renderProfile();setProfileLabels();
