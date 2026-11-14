@@ -115,7 +115,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <div id="landField" class="hidden"><label data-i18n="landNature">صبغة الأرض</label><select id="landType"><option value="" data-i18n="all">الكل</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
   <div><label data-i18n="maxPrice">السعر الأقصى (دينار)</label><input id="maxPrice" type="number" placeholder="200000"></div>
   <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" placeholder="100"></div>
-  <div><label data-i18n="advertiserType">نوع المعلن</label><select id="advertiserFilter"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
+  <div><label data-i18n="advertiserType">صفة المستخدم</label><select id="advertiserFilter"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
  </div>
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
@@ -141,12 +141,12 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <button class="account-tile" type="button" onclick="showAccountTab('messages')">💬 <span id="accountMessagesCount" class="count">0</span><strong id="accountMessagesLabel">رسائلي</strong></button>
 <button class="account-tile" type="button" onclick="goToMyListings()">🏠<strong id="accountListingsLabel">إعلاناتي</strong></button>
 <button class="account-tile" type="button" onclick="goToFavorites()">♡<strong id="accountFavoritesLabel">المفضّلة</strong></button>
-<button class="account-tile" type="button" onclick="showAccountTab('following')">👥 <span id="accountFollowingCount" class="count">0</span><strong id="accountFollowingLabel">متابعة المعلنين</strong></button>
+<button class="account-tile" type="button" onclick="showAccountTab('following')">👥 <span id="accountFollowingCount" class="count">0</span><strong id="accountFollowingLabel">متابعة المستخدمين</strong></button>
 </div>
-<div class="account-toolbar"><button type="button" class="secondary" onclick="showAccountTab('notifications')" id="accountShowNotifications">الإشعارات</button><button type="button" class="secondary" onclick="showAccountTab('messages')" id="accountShowMessages">الرسائل الواردة</button><button type="button" class="secondary" onclick="showAccountTab('following')" id="accountShowFollowing">متابعة المعلنين</button></div>
+<div class="account-toolbar"><button type="button" class="secondary" onclick="showAccountTab('notifications')" id="accountShowNotifications">الإشعارات</button><button type="button" class="secondary" onclick="showAccountTab('messages')" id="accountShowMessages">الرسائل الواردة</button><button type="button" class="secondary" onclick="showAccountTab('following')" id="accountShowFollowing">متابعة المستخدمين</button></div>
 <div id="accountNotificationsView"><h3 id="accountNotificationsHeading">إشعاراتي</h3><div id="accountNotificationsList" class="account-list"></div></div>
 <div id="accountMessagesView" class="hidden"><h3 id="accountMessagesHeading">محادثاتي</h3><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
-<div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المعلنون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
+<div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المستخدمون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
 </div></section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
@@ -180,7 +180,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
     <option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="reviewing">قيد المراجعة</option><option value="resolved">تمت المعالجة</option><option value="rejected">مرفوض</option>
    </select>
    <select id="adminReportType" onchange="adminReportPage=0;loadAdminReports()">
-    <option value="all">كل الأنواع</option><option value="listing">إعلان</option><option value="advertiser">معلن</option><option value="review">تقييم</option><option value="technical">تقني</option><option value="other">أخرى</option>
+    <option value="all">كل الأنواع</option><option value="listing">إعلان</option><option value="advertiser">مستخدم</option><option value="review">تقييم</option><option value="technical">تقني</option><option value="other">أخرى</option>
    </select>
    <button class="secondary" type="button" onclick="adminReportPage=0;loadAdminReports()">بحث</button>
   </div>
@@ -201,6 +201,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <div class="modal-box">
   <div class="modal-head"><h2 data-i18n="accountTitle">حساب D-ESTATE</h2><button class="close" onclick="closeModal('loginModal')">✕</button></div>
   <p id="authStatus" class="small"></p>
+  <div class="field"><label data-i18n="displayName">الاسم</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name"></div>
   <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email"></div>
   <div class="field"><label data-i18n="password">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password"></div>
   <label class="legal-consent"><input id="legalConsent" type="checkbox"><span><span data-i18n="legalConsentText">أوافق على شروط الاستخدام وسياسة الخصوصية</span> — <a href="/legal.html#terms" target="_blank" rel="noopener" data-i18n="legalTermsLink">شروط الاستخدام</a> · <a href="/legal.html#privacy" target="_blank" rel="noopener" data-i18n="legalPrivacyLink">سياسة الخصوصية</a></span></label>
@@ -229,7 +230,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
    <div class="field"><label data-i18n="areaSqm">المساحة بالمتر المربع</label><input id="pArea" type="number" min="1" required></div>
    <div class="field" id="publishOwnershipField"><label data-i18n="ownershipType">نوع الملكية</label><select id="pOwnership" required><option value="" data-i18n="choose">اختر</option><option value="individual" data-i18n="individual">فردية</option><option value="shared" data-i18n="shared">مشتركة</option></select></div>
    <div class="field hidden" id="publishLandTypeField"><label data-i18n="landNature">صبغة الأرض</label><select id="pLandType"><option value="" data-i18n="choose">اختر</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
-   <div class="field"><label data-i18n="advertiserType">نوع المعلن</label><select id="pAdvertiser" required><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
+   <div class="field"><label data-i18n="advertiserType">صفة المستخدم</label><select id="pAdvertiser" required><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
    <div class="field"><label data-i18n="phone">رقم الهاتف</label><input id="pPhone" type="tel" required maxlength="30"></div>
    <div class="field"><label data-i18n="description">وصف العقار</label><textarea id="pDescription" maxlength="3000"></textarea></div>
    <div class="field"><label data-i18n="propertyPhotos">صور العقار (من 1 إلى 8 صور)</label><input id="pImages" type="file" accept="image/jpeg,image/png,image/webp" multiple required><div class="upload-info" data-i18n="photoRules">الصيغ المقبولة JPG وPNG وWebP، بحد أقصى 5 ميغابايت للصورة.</div><div id="imagePreview" class="image-grid"></div></div>
@@ -239,7 +240,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 </div>
 
 <div id="reviewModal" class="modal"><div class="modal-box">
- <div class="modal-head"><h2 id="reviewModalTitle">تقييم المعلن</h2><button class="close" onclick="closeModal('reviewModal')">✕</button></div>
+ <div class="modal-head"><h2 id="reviewModalTitle">تقييم المستخدم</h2><button class="close" onclick="closeModal('reviewModal')">✕</button></div>
  <div id="reviewSummary" class="status" aria-live="polite"></div><div id="reviewEligibility" class="small"></div><div id="reviewList"></div>
  <form id="reviewForm" onsubmit="submitAdvertiserReview(event)">
   <div class="field"><label id="ratingLabel">تقييمك من 1 إلى 5 نجوم</label><div id="ratingStars" class="rating-stars"></div></div>
@@ -269,19 +270,19 @@ let compareItems=[];let openedSharedPropertyId=null;
 const translations={
 ar:{
 home:"الرئيسية",search:"البحث",listings:"العقارات",login:"دخول / حساب جديد",addProperty:"+ أضف عقارك",heroTitle:"عقارك، فرصتك، تواصلك المباشر",heroText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",heroText2:"ابحث عن عقارك في جميع أنحاء تونس",
-searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"صبغة الأرض",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"نوع المعلن",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",
+searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"صبغة الأرض",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"صفة المستخدم",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",
 searchNow:"ابحث الآن",resetSearch:"إعادة ضبط البحث",browseByType:"تصفح حسب النوع",houses:"منازل",apartments:"شقق",residentialLands:"أراضي سكنية",agriculturalLands:"أراضي فلاحية",commercialProperties:"محلات تجارية",latestProperties:"أحدث العقارات",footerText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",copyright:"جميع الحقوق محفوظة",
-accountTitle:"حساب D-ESTATE",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب جديد",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
-loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"اتصل بالمعلن",notSpecified:"غير محددة",advertiser:"معلن",loginRequired:"للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المعلن. حاول مرة أخرى لاحقاً.",contactNumber:"رقم هاتف المعلن: ",
+accountTitle:"حساب D-ESTATE",displayName:"الاسم",enterName:"اكتب اسمك أولاً.",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب جديد",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
+loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"تواصل مع المستخدم",notSpecified:"غير محددة",advertiser:"مستخدم",loginRequired:"للاتصال بالمستخدم، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المستخدم. حاول مرة أخرى لاحقاً.",contactNumber:"رقم هاتف المستخدم: ",
 enterEmailPassword:"اكتب البريد الإلكتروني وكلمة مرور من 12 حرفاً على الأقل.",accountCreated:"تم إرسال طلب إنشاء الحساب. تفقد بريدك الإلكتروني إذا طُلب التأكيد.",signedIn:"تم تسجيل الدخول.",signedOut:"تم تسجيل الخروج.",mustLogin:"يلزمك تسجيل الدخول قبل نشر إعلان.",chooseAtLeastOne:"يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.",tooManyImages:"يمكنك اختيار 8 صور كحد أقصى.",badFormat:"صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.",tooLarge:"حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.",uploading:"جاري رفع الصور والنشر...",pleaseWait:"يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.",uploadError:"تعذر رفع الصور: ",saveError:"لم يتم حفظ الإعلان: ",publishSuccess:"تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.",publishFailed:"لم يكتمل النشر. راجع رسالة الخطأ.",publishError:"حدث خطأ أثناء النشر.",checkPhotos:"تأكد من صيغة الصور وحجمها قبل النشر.",loggedIn:"أنت مسجل الدخول: ",readyToPublish:"أنت مسجل الدخول. يمكنك إعداد إعلانك.",loginBefore:"يلزمك تسجيل الدخول قبل نشر إعلان.",
 adminTitle:"لوحة الإدارة",adminIntro:"إدارة جميع الإعلانات ومراجعة حالتها من مكان واحد.",adminChecking:"جاري التحقق من صلاحيات الإدارة...",adminLoading:"جاري تحميل بيانات الإعلانات...",adminRefresh:"تحديث البيانات",adminTotal:"كل الإعلانات",adminPending:"في الانتظار",adminPublished:"منشورة",adminRejected:"مرفوضة",adminSearch:"ابحث بالعنوان أو المدينة أو رقم الإعلان",adminFilterAll:"كل الحالات",adminEmptyAll:"لا توجد إعلانات حالياً.",adminEmptyFilter:"لا توجد إعلانات بهذه الحالة أو بهذه الكلمات.",statusPending:"في الانتظار",statusPublished:"منشور",statusRejected:"مرفوض",approve:"موافقة ونشر",reject:"رفض الإعلان",republish:"إعادة النشر",deleteListing:"حذف الإعلان",deleteConfirm:"هل أنت متأكد من حذف هذا الإعلان نهائياً؟ سيتم حذف صوره أيضاً.",deleted:"تم حذف الإعلان وصوره بنجاح.",deleteError:"تعذّر حذف الإعلان: ",deleteImagesError:"تعذّر حذف صور الإعلان، لم يتم حذف الإعلان: ",deletePartialError:"تم حذف الإعلان، لكن تعذّر حذف بعض الصور من التخزين: ",location:"الموقع",pendingError:"تعذّر تحميل الإعلانات: ",approveConfirm:"هل تريد الموافقة على الإعلان ونشره؟",rejectConfirm:"هل تريد رفض هذا الإعلان؟",republishConfirm:"هل تريد إعادة نشر هذا الإعلان؟",approved:"تم نشر الإعلان بنجاح.",rejected:"تم رفض الإعلان.",reviewError:"تعذّر تحديث الإعلان: ",reviewNoRow:"لم يتم تحديث الإعلان. ربما تمت مراجعته من قبل.",areaUnit:"م²",chooseType:"اختر نوع العقار"
 },
 en:{
 home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian digital platform connecting property owners with property seekers",heroText2:"Find your property anywhere in Tunisia",
-searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"Advertiser Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
+searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"User Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
 searchNow:"Search Now",resetSearch:"Reset Search",browseByType:"Browse by Type",houses:"Houses",apartments:"Apartments",residentialLands:"Residential Lands",agriculturalLands:"Agricultural Lands",commercialProperties:"Commercial Properties",latestProperties:"Latest Properties",footerText:"A Tunisian digital platform connecting property owners with property seekers",copyright:"All rights reserved",
-accountTitle:"D-ESTATE Account",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create New Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
-loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact Advertiser",notSpecified:"Not specified",advertiser:"Advertiser",loginRequired:"Please create a free account or log in to contact the advertiser.",contactError:"Could not retrieve the advertiser's phone number. Please try again later.",contactNumber:"Advertiser phone: ",
+accountTitle:"D-ESTATE Account",displayName:"Name",enterName:"Please enter your name.",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create New Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
+loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact User",notSpecified:"Not specified",advertiser:"Advertiser",loginRequired:"Please create a free account or log in to contact the advertiser.",contactError:"Could not retrieve the advertiser's phone number. Please try again later.",contactNumber:"User phone: ",
 enterEmailPassword:"Enter your email and a password of at least 12 characters.",accountCreated:"Your registration request was sent. Check your email if confirmation is required.",signedIn:"You are now logged in.",signedOut:"You have been logged out.",mustLogin:"Please log in before publishing a listing.",chooseAtLeastOne:"Choose at least one image and no more than 8.",tooManyImages:"You can choose a maximum of 8 images.",badFormat:"Unsupported format. Use JPG, PNG or WebP.",tooLarge:"Each image must be no larger than 5 MB.",uploading:"Uploading images and publishing...",pleaseWait:"Please wait. Do not close the page while images are uploading.",uploadError:"Image upload failed: ",saveError:"Listing could not be saved: ",publishSuccess:"Images uploaded and listing submitted for review. It will appear after approval.",publishFailed:"Publishing was not completed. Check the error message.",publishError:"An error occurred while publishing.",checkPhotos:"Check the image formats and sizes before publishing.",loggedIn:"Logged in as: ",readyToPublish:"You are logged in. You can prepare your listing.",loginBefore:"Please log in before publishing a listing.",
 adminTitle:"Admin Dashboard",adminIntro:"Manage every listing and review its status in one place.",adminChecking:"Checking administrator permissions...",adminLoading:"Loading listing data...",adminRefresh:"Refresh data",adminTotal:"All listings",adminPending:"Pending",adminPublished:"Published",adminRejected:"Rejected",adminSearch:"Search by title, city or listing ID",adminFilterAll:"All statuses",adminEmptyAll:"There are no listings yet.",adminEmptyFilter:"No listings match this status or search.",statusPending:"Pending",statusPublished:"Published",statusRejected:"Rejected",approve:"Approve & Publish",reject:"Reject listing",republish:"Republish",deleteListing:"Delete listing",deleteConfirm:"Permanently delete this listing? Its photos will also be deleted.",deleted:"Listing and photos deleted successfully.",deleteError:"Could not delete listing: ",deleteImagesError:"Could not delete the listing photos. The listing was not deleted: ",deletePartialError:"The listing was deleted, but some photos could not be removed from storage: ",location:"Location",pendingError:"Could not load listings: ",approveConfirm:"Approve and publish this listing?",rejectConfirm:"Reject this listing?",republishConfirm:"Republish this listing?",approved:"Listing published successfully.",rejected:"Listing rejected.",reviewError:"Could not update listing: ",reviewNoRow:"No listing was updated. It may already have been reviewed.",areaUnit:"m²",chooseType:"Choose property type"
 }
@@ -301,7 +302,7 @@ function openAdvertiserReviews(id){
  document.getElementById("reviewSummary").textContent=uiText("جاري تحميل التقييمات...","Loading reviews...");
  document.getElementById("reviewEligibility").textContent="";document.getElementById("reviewList").innerHTML="";
  document.getElementById("reviewComment").value="";document.getElementById("reviewCharCount").textContent="0";
- document.getElementById("reviewModalTitle").textContent=uiText("تقييم المعلن","Advertiser reviews");
+ document.getElementById("reviewModalTitle").textContent=uiText("تقييم المستخدم","User reviews");
  document.getElementById("ratingLabel").textContent=uiText("تقييمك من 1 إلى 5 نجوم","Your rating (1–5 stars)");
  document.getElementById("reviewCommentLabel").textContent=uiText("تعليقك (150 حرفاً كحد أقصى)","Your comment (max 150 characters)");
  renderRatingStars();openModal("reviewModal");loadAdvertiserReviews(id);
@@ -311,7 +312,7 @@ async function loadAdvertiserReviews(id){
  if(error){document.getElementById("reviewSummary").textContent=uiText("تعذّر تحميل التقييمات.","Could not load reviews.");return}
  const x=data||{},avg=x.average_rating==null?"—":Number(x.average_rating).toFixed(1);
  document.getElementById("reviewSummary").textContent=uiText("المعدل: ","Average: ")+avg+" ★ · "+(x.review_count||0)+" "+uiText("تقييم","reviews");
- document.getElementById("reviewEligibility").textContent=x.can_review?uiText("يمكنك التقييم لأنك تواصلت مع المعلن عبر D-ESTATE.","You can review because you contacted this advertiser through D-ESTATE."):uiText("التقييم متاح فقط بعد التواصل مع المعلن عبر زر الاتصال.","Reviews are available only after using the contact button.");
+ document.getElementById("reviewEligibility").textContent=x.can_review?uiText("يمكنك التقييم لأنك تواصلت مع المستخدم عبر D-ESTATE.","You can review because you contacted this advertiser through D-ESTATE."):uiText("التقييم متاح فقط بعد التواصل مع المستخدم عبر زر الاتصال.","Reviews are available only after using the contact button.");
  document.getElementById("reviewForm").classList.toggle("hidden",!x.can_review);
  if(x.my_rating){selectedReviewRating=Number(x.my_rating);document.getElementById("reviewComment").value=x.my_comment||"";document.getElementById("reviewCharCount").textContent=String((x.my_comment||"").length);document.getElementById("submitReviewButton").textContent=uiText("تحديث تقييمي","Update my review")}
  renderRatingStars();
@@ -338,14 +339,14 @@ function openReportModal(type="other",propertyId=null,targetId=null){
  document.getElementById("reportDetailsLabel").textContent=uiText("تفاصيل البلاغ","Report details");
  document.getElementById("reportLimit").textContent=uiText("حتى 1000 حرف","Up to 1000 characters");
  document.getElementById("myReportsTitle").textContent=uiText("بلاغاتي السابقة","My previous reports");
- document.getElementById("reportType").innerHTML=uiText('<option value="listing">إعلان مخالف أو احتيالي</option><option value="advertiser">شكوى ضد معلن</option><option value="review">تعليق مسيء</option><option value="technical">مشكلة تقنية</option><option value="other">شكوى أخرى</option>','<option value="listing">Misleading listing</option><option value="advertiser">Advertiser complaint</option><option value="review">Inappropriate review</option><option value="technical">Technical issue</option><option value="other">Other</option>');
+ document.getElementById("reportType").innerHTML=uiText('<option value="listing">إعلان مخالف أو احتيالي</option><option value="advertiser">شكوى ضد مستخدم</option><option value="review">تعليق مسيء</option><option value="technical">مشكلة تقنية</option><option value="other">شكوى أخرى</option>','<option value="listing">Misleading listing</option><option value="advertiser">Advertiser complaint</option><option value="review">Inappropriate review</option><option value="technical">Technical issue</option><option value="other">Other</option>');
  document.getElementById("reportType").value=type;document.getElementById("reportDetails").value="";
  document.getElementById("submitReportButton").textContent=uiText("إرسال البلاغ","Submit report");
  openModal("reportModal");loadMyReports();
 }
 async function submitPlatformReport(e){
  e.preventDefault();const type=document.getElementById("reportType").value,details=document.getElementById("reportDetails").value.trim();
- if(["listing","advertiser","review"].includes(type)&&!reportTarget.propertyId){alert(uiText("للإبلاغ عن إعلان أو معلن، استعمل زر الإبلاغ الموجود على الإعلان.","Use the Report button on the relevant listing to report a listing or advertiser."));return}
+ if(["listing","advertiser","review"].includes(type)&&!reportTarget.propertyId){alert(uiText("للإبلاغ عن إعلان أو مستخدم، استعمل زر الإبلاغ الموجود على الإعلان.","Use the Report button on the relevant listing to report a listing or advertiser."));return}
  if(!details||details.length>1000){alert(uiText("اكتب تفاصيل البلاغ (حتى 1000 حرف).","Enter details (up to 1000 characters)."));return}
  const b=document.getElementById("submitReportButton");b.disabled=true;
  const {error}=await db.rpc("submit_platform_report",{p_target_type:type,p_property_id:reportTarget.propertyId,p_target_id:type==="review"?reportTarget.targetId:null,p_details:details});b.disabled=false;
@@ -484,17 +485,21 @@ async function refreshUser(){
  if(favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
 }
 async function signUp(){
+ const displayName=document.getElementById("authDisplayName").value.trim();
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
  const accepted=document.getElementById("legalConsent").checked;
+ if(!displayName){alert(tr("enterName"));document.getElementById("authDisplayName").focus();return}
  if(!email||password.length<12){alert(tr("enterEmailPassword"));return}
  if(!accepted){alert(tr("legalConsentRequired"));return}
  const {error}=await db.auth.signUp({email,password,options:{data:{
+  display_name:displayName,
   accepted_terms_version:"2026-11-13-v1",
   accepted_privacy_version:"2026-11-13-v1"
  }}});
  if(error){alert(error.message);return}
  await refreshUser();
+ document.getElementById("authDisplayName").value="";
  alert(tr("accountCreated"));
 }
 async function signIn(){
@@ -549,7 +554,7 @@ function renderProfile(){
 function setProfileLabels(){
  const labels={profileTitle:uiText("حسابي الشخصي","My Profile"),profileIntro:uiText("إدارة معلومات حسابك وإعداداتك","Manage your account information and settings"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات","Edit information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileShortcutsTitle:uiText("اختصارات حسابك","Account shortcuts"),profileListingsButton:uiText("إعلاناتي وإحصائياتي","My listings & statistics"),profileFavoritesButton:uiText("قائمة المفضّلة","Favorites list"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profileSignOutButton:uiText("تسجيل الخروج","Sign out"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
  Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
- const accountLabels={accountCenterTitle:uiText("مركزك الشخصي","Your account hub"),accountNotificationsLabel:uiText("إشعاراتي","Notifications"),accountMessagesLabel:uiText("رسائلي","Messages"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFavoritesLabel:uiText("قائمة المفضّلة","Favorites list"),accountShowNotifications:uiText("الإشعارات","Notifications"),accountShowMessages:uiText("الرسائل الواردة","Inbox"),accountNotificationsHeading:uiText("إشعاراتي","Notifications"),accountMessagesHeading:uiText("محادثاتي","Conversations"),accountFollowingLabel:uiText("متابعة المعلنين","Following advertisers"),accountShowFollowing:uiText("متابعة المعلنين","Following advertisers"),accountFollowingHeading:uiText("المعلنون الذين أتابعهم","Advertisers you follow")};
+ const accountLabels={accountCenterTitle:uiText("مركزك الشخصي","Your account hub"),accountNotificationsLabel:uiText("إشعاراتي","Notifications"),accountMessagesLabel:uiText("رسائلي","Messages"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFavoritesLabel:uiText("قائمة المفضّلة","Favorites list"),accountShowNotifications:uiText("الإشعارات","Notifications"),accountShowMessages:uiText("الرسائل الواردة","Inbox"),accountNotificationsHeading:uiText("إشعاراتي","Notifications"),accountMessagesHeading:uiText("محادثاتي","Conversations"),accountFollowingLabel:uiText("المستخدمون الذين أتابعهم","Users I follow"),accountShowFollowing:uiText("متابعة المستخدمين","Following users"),accountFollowingHeading:uiText("المستخدمون الذين أتابعهم","Users you follow")};
  Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
@@ -601,8 +606,8 @@ function showAccountTab(tab){
 async function followAdvertiser(propertyId){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
  const {error}=await db.rpc("follow_advertiser_from_property",{p_property_id:propertyId});
- if(error){alert(uiText("تعذّرت متابعة المعلن. حاول مرة أخرى.","Could not follow this advertiser. Please try again."));console.error(error);return}
- alert(uiText("أصبحت تتابع هذا المعلن.","You are now following this advertiser."));
+ if(error){alert(uiText("تعذّرت متابعة المستخدم. حاول مرة أخرى.","Could not follow this user. Please try again."));console.error(error);return}
+ alert(uiText("أصبحت تتابع هذا المستخدم.","You are now following this user."));
  await loadAccountFollowing();
 }
 async function unfollowAdvertiser(advertiserId){
@@ -620,7 +625,7 @@ async function loadAccountFollowing(){
  if(error){list.innerHTML='<div class="status">'+uiText("قائمة المتابعة غير متاحة بعد. يلزم تحديث قاعدة البيانات.","Following is not available yet. Apply the database migration first.")+'</div>';if(count)count.textContent="0";return}
  const rows=data||[];
  if(count)count.textContent=rows.length;
- if(!rows.length){list.innerHTML='<div class="empty">'+uiText("لم تتابع أي معلن بعد. اضغط «متابعة المعلن» في أحد الإعلانات.","You are not following any advertisers yet. Select Follow advertiser on a listing.")+'</div>';return}
+ if(!rows.length){list.innerHTML='<div class="empty">'+uiText("لا تتابع أي مستخدم حالياً. يمكنك متابعة صاحب أي إعلان.","You are not following any users yet. You can follow a listing owner.")+'</div>';return}
  list.innerHTML=rows.map(row=>{
   const kind=tr(advertiserNames[row.advertiser_type]||"advertiser");
   const location=[row.governorate,row.city].filter(Boolean).join(" · ");
@@ -656,7 +661,7 @@ async function loadAccountConversations(){
  list.innerHTML='<div class="small">'+uiText("جاري تحميل المحادثات...","Loading conversations...")+'</div>';
  const {data,error}=await db.from("property_conversations").select("id,property_id,buyer_id,seller_id,last_message_at,properties(title)").order("last_message_at",{ascending:false}).limit(50);
  if(error){list.innerHTML='<div class="status">'+uiText("الرسائل غير متاحة بعد. يلزم تطبيق تحديث قاعدة البيانات.","Messaging is not available yet. Apply the database migration first.")+'</div>';document.getElementById("accountMessagesCount").textContent="0";return}
- if(!data||!data.length){list.innerHTML='<div class="empty">'+uiText("ما عندك حتى محادثة. افتح إعلاناً واضغط راسل المعلن.","No conversations yet. Open a listing and message its advertiser.")+'</div>';document.getElementById("accountMessagesCount").textContent="0";return}
+ if(!data||!data.length){list.innerHTML='<div class="empty">'+uiText("ما عندك حتى محادثة. افتح إعلاناً واضغط راسل المستخدم.","No conversations yet. Open a listing and message its advertiser.")+'</div>';document.getElementById("accountMessagesCount").textContent="0";return}
  const ids=data.map(c=>c.id);
  const {data:unreadRows}=await db.from("property_messages").select("conversation_id").in("conversation_id",ids).neq("sender_id",currentUser.id).is("read_at",null);
  const counts={};(unreadRows||[]).forEach(m=>counts[m.conversation_id]=(counts[m.conversation_id]||0)+1);
@@ -695,7 +700,7 @@ async function sendConversationReply(event){
 }
 async function startPropertyConversation(propertyId){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
- const body=prompt(uiText("اكتب أول رسالة للبائع:","Write your first message to the advertiser:"));
+ const body=prompt(uiText("اكتب أول رسالة للمستخدم:","Write your first message to the user:"));
  if(!body||!body.trim())return;
  const {data,error}=await db.rpc("start_property_conversation",{p_property_id:propertyId,p_first_message:body.trim()});
  if(error){alert(uiText("تعذّر بدء المحادثة: ","Could not start conversation: ")+error.message);return}
@@ -854,9 +859,9 @@ function displayProperties(items){
    '<h3>'+safe(p.title)+'</h3>'+
    '<div class="meta"><strong>'+uiText("نوع العقار: ","Property type: ")+'</strong>'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+'</div>'+
    '<div class="meta"><strong>'+uiText("المساحة: ","Area: ")+'</strong>'+safe(p.area!==null&&p.area!==undefined&&p.area!==""?Number(p.area).toLocaleString():tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
-   '<div class="meta"><strong>'+uiText("نوع المعلن: ","Advertiser: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
+   '<div class="meta"><strong>'+uiText("صفة المستخدم: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
    '<p>'+safe((p.description||"").slice(0,150))+'</p>'+
-   '<div class="card-actions"><button type="button" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser('+safe(p.id)+')">'+uiText("متابعة المعلن","Follow advertiser")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المعلن","Rate advertiser")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
+   '<div class="card-actions"><button type="button" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow advertiser")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate advertiser")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '</div></article>';
  }).join("");
 }
@@ -884,7 +889,7 @@ function openCompareModal(){
   [uiText("المساحة","Area"),p=>(p.area||"—")+" m²"],
   [uiText("النوع","Type"),p=>tr(typeNames[p.property_type]||p.property_type)],
   [uiText("الموقع","Location"),p=>[p.governorate,p.city].filter(Boolean).join(" - ")],
-  [uiText("نوع المعلن","Advertiser"),p=>tr(advertiserNames[p.advertiser_type]||p.advertiser_type)]
+  [uiText("صفة المستخدم","Advertiser"),p=>tr(advertiserNames[p.advertiser_type]||p.advertiser_type)]
  ];
  document.getElementById("compareResults").innerHTML='<table class="compare-table"><thead><tr><th>'+uiText("المعيار","Feature")+'</th>'+compareItems.map(p=>'<th>'+safe(p.title)+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr><th>'+r[0]+'</th>'+compareItems.map(p=>'<td>'+safe(String(r[1](p)??"—"))+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
  openModal("compareModal");
@@ -982,7 +987,7 @@ async function openPropertyDetails(id){
  document.getElementById("detailTitle").textContent=p.title;
  const imgs=Array.isArray(p.image_urls)?p.image_urls:[];
  const gallery=imgs.length?'<div class="detail-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':"";
- box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p><p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("راسل المعلن","Message advertiser")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p><p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("راسل المستخدم","Message user")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
  const {error:viewError}=await db.rpc("record_property_view",{p_property_id:p.id,p_visitor_id:getVisitorId()});
  if(viewError)console.warn("View tracking unavailable:",viewError.message);
  const history=await db.rpc("get_property_price_history",{p_property_id:p.id});
@@ -1170,7 +1175,7 @@ function setAdminLabels(){
  }
  const reportType=document.getElementById("adminReportType");
  if(reportType){
-  const labels={all:uiText("كل الأنواع","All types"),listing:uiText("إعلان","Listing"),advertiser:uiText("معلن","Advertiser"),review:uiText("تقييم","Review"),technical:uiText("تقني","Technical"),other:uiText("أخرى","Other")};
+  const labels={all:uiText("كل الأنواع","All types"),listing:uiText("إعلان","Listing"),advertiser:uiText("مستخدم","Advertiser"),review:uiText("تقييم","Review"),technical:uiText("تقني","Technical"),other:uiText("أخرى","Other")};
   Array.from(reportType.options).forEach(o=>{o.textContent=labels[o.value]||o.value});
  }
  const searchButton=document.querySelector(".admin-report-toolbar button");
