@@ -1475,6 +1475,8 @@ async function reviewProperty(id,nextStatus,currentStatus){
 
 db.auth.onAuthStateChange((_event,session)=>{
  currentUser=session?.user||null;
+ const authNavButton=document.getElementById("authNavButton");
+ if(authNavButton)authNavButton.style.display=currentUser?"none":"";
  renderProfile();
  applyLanguage();
  if(!currentUser){const favoritesPanel=document.getElementById("favoritesPanel");if(favoritesPanel)favoritesPanel.classList.add("hidden");}
