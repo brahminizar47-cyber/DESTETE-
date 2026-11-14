@@ -650,6 +650,7 @@ async function openPublicUserProfile(propertyId){
  const {data,error}=await db.rpc("get_public_user_profile",{p_property_id:propertyId});
  if(error||!data){status.textContent=uiText("تعذّر تحميل الملف الشخصي. قد لا يملك هذا المعلن إعلانات منشورة.","Could not load this profile. This user may have no published listings.");return}
  const profile=data.profile||{},listings=Array.isArray(data.listings)?data.listings:[],reviews=Array.isArray(data.reviews)?data.reviews:[];
+ try{await signPropertyImages(listings);}catch(e){console.error("Profile images:",e);}
  document.getElementById("publicUserName").textContent=profile.display_name||uiText("عضو DESTATE","DESTATE user");
  const roleNames={owner:uiText("مالك العقار","Property owner"),broker:uiText("وسيط مستقل","Independent broker"),agency:uiText("وكالة عقارية","Real-estate agency")};
  document.getElementById("publicUserRole").textContent=roleNames[profile.advertiser_type]||"";
@@ -658,7 +659,7 @@ async function openPublicUserProfile(propertyId){
  document.getElementById("publicUserListingsCount").textContent=String(listings.length);
  status.textContent="";
  document.getElementById("publicUserListings").innerHTML=listings.length?listings.map(p=>{
-  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+  const images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
   const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" style="width:100%;height:150px;object-fit:cover">':"";
   return '<article class="property">'+photo+'<div class="property-content"><h3>'+safe(p.title)+'</h3><div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+'</div><div class="meta">'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+' · '+safe(p.area??"—")+' '+tr("areaUnit")+'</div><div class="meta">'+uiText("تقييم الإعلان: ","Listing rating: ")+(p.rating_average==null?"—":Number(p.rating_average).toFixed(1)+" ★")+' · '+Number(p.rating_count||0)+' '+uiText("تقييماً","reviews")+'</div><button type="button" class="secondary" onclick="openPropertyReviews(\''+safe(p.id)+'\')">'+uiText("التقييمات والآراء","Ratings & reviews")+'</button><p>'+safe(p.description||"")+'</p><button type="button" class="secondary" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("عرض الإعلان","View listing")+'</button></div></article>';
  }).join(""):'<div class="empty">'+uiText("لا توجد إعلانات منشورة حالياً.","No published listings yet.")+'</div>';
@@ -888,6 +889,16 @@ document.getElementById("pImages").addEventListener("change",function(){
  renderImagePreviews();
 });
 
+async function signPropertyImages(properties){
+ const items=Array.isArray(properties)?properties:[properties];
+ const paths=[...new Set(items.flatMap(p=>Array.isArray(p.image_urls)?p.image_urls:[]).filter(x=>typeof x==="string"&&x.length>0))];
+ if(!paths.length){items.forEach(p=>p.signed_image_urls=[]);return items;}
+ const {data,error}=await db.storage.from(BUCKET).createSignedUrls(paths,600);
+ if(error)throw new Error(uiText("تعذّر تحميل صور العقارات: ","Could not load property images: ")+error.message);
+ const signed=new Map((data||[]).filter(x=>x.path&&x.signedUrl).map(x=>[x.path,x.signedUrl]));
+ items.forEach(p=>{p.signed_image_urls=(Array.isArray(p.image_urls)?p.image_urls:[]).map(path=>signed.get(path)||"").filter(Boolean);});
+ return items;
+}
 async function uploadPropertyImages(files,propertyId){
  const urls=[],uploadedPaths=[];
  for(const file of files){
@@ -902,7 +913,7 @@ async function uploadPropertyImages(files,propertyId){
    throw new Error(tr("uploadError")+error.message);
   }
   uploadedPaths.push(path);
-  urls.push(db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
+  urls.push(path);
  }
  return {urls,uploadedPaths};
 }
@@ -938,6 +949,7 @@ async function uploadPropertyImages(files,propertyId){
 
  publicTotal=count||0;
  lastProperties=data||[];
+ try{await signPropertyImages(lastProperties);}catch(e){console.error("Listing images:",e);}
  displayProperties(lastProperties);
  renderPublicPagination();
  const sharedId=new URLSearchParams(window.location.search).get("property");
@@ -962,7 +974,7 @@ function displayProperties(items){
  }
 
  results.innerHTML=items.map(p=>{
-  const imgs=Array.isArray(p.image_urls)?p.image_urls:[];
+  const imgs=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
   const gallery=imgs.length
    ?'<div class="property-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>'
    :'<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
@@ -1075,12 +1087,13 @@ async function loadFavoriteProperties(){
  if(!ids.length){status.textContent=uiText("لم تحفظ أي عقار بعد. اضغط على «حفظ» في الإعلان لإضافته هنا.","You have not saved any properties yet. Select Save on a listing to add it here.");return}
  const {data:properties,error:propertiesError}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,image_urls,created_at,expires_at").in("id",ids).eq("status","published").gt("expires_at",new Date().toISOString());
  if(propertiesError){status.textContent=uiText("تعذّر تحميل تفاصيل العقارات المحفوظة.","Could not load saved property details.");console.error("Saved property details failed:",propertiesError.message);return}
+ try{await signPropertyImages(properties||[]);}catch(e){console.error("Favorite images:",e);}
  const byId=new Map((properties||[]).map(p=>[String(p.id),p]));
  const items=ids.map(id=>byId.get(String(id))).filter(Boolean);
  status.textContent=items.length?uiText("العقارات المتاحة المحفوظة: ","Available saved properties: ")+items.length:uiText("لا توجد عقارات محفوظة متاحة حالياً. قد تكون بعض الإعلانات انتهت أو لم تعد منشورة.","No saved properties are currently available. Some listings may have expired or been unpublished.");
  if(!items.length)return;
  list.innerHTML=items.map(p=>{
-  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+  const images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
   const gallery=images.length?'<div class="property-gallery">'+images.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':'<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
   const location=(currentLanguage==="en"?(govEnglish[p.governorate]||p.governorate):p.governorate)+" "+(p.city||"");
   return '<article class="property">'+gallery+'<div class="property-content"><h3>'+safe(p.title)+'</h3><span class="tag">'+safe(tr(typeNames[p.property_type]||"propertyType"))+'</span><span class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</span><div class="meta">📍 '+safe(location)+'</div><div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div><p>'+safe((p.description||"").slice(0,150))+'</p><div class="card-actions"><button type="button" data-fav-action="details" data-property-id="'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" data-fav-action="share" data-property-id="'+safe(p.id)+'">'+uiText("مشاركة","Share")+'</button><button type="button" data-fav-action="remove" data-property-id="'+safe(p.id)+'">'+uiText("إزالة من المفضّلة","Remove")+'</button><button class="secondary" type="button" data-fav-action="contact" data-property-id="'+safe(p.id)+'">'+tr("contact")+'</button></div></div></article>';
@@ -1116,7 +1129,8 @@ async function openPropertyDetails(id){
  const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
  if(error||!p){box.textContent=uiText("العقار غير متوفر حالياً.","This property is currently unavailable.");return}
  document.getElementById("detailTitle").textContent=p.title;
- const imgs=Array.isArray(p.image_urls)?p.image_urls:[];
+ try{await signPropertyImages(p);}catch(e){console.error("Detail images:",e);}
+ const imgs=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
  const gallery=imgs.length?'<div class="detail-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':"";
  box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p>'+(p.land_type?'<p class="tag">'+uiText("الصبغة العقارية: ","Land classification: ")+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</p>':'')+(p.ownership_type?'<p class="tag">'+uiText("نوع الملكية: ","Ownership type: ")+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</p>':'')+'<p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+uiText("الهاتف","Phone")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("رسالة","Message")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
  const {error:viewError}=await db.rpc("record_property_view",{p_property_id:p.id,p_visitor_id:getVisitorId()});
@@ -1353,6 +1367,7 @@ async function loadAdminProperties(){
  }
 
  adminProperties=data||[];
+ try{await signPropertyImages(adminProperties);}catch(e){console.error("Admin images:",e);}
  const count=(state)=>adminProperties.filter(p=>p.status===state).length;
  document.getElementById("adminTotal").textContent=adminProperties.length;
  document.getElementById("adminPending").textContent=count("pending");
@@ -1410,20 +1425,8 @@ async function deleteAdminProperty(id){
  if(!property)return;
  if(!confirm(tr("deleteConfirm")))return;
 
- const imageUrls=Array.isArray(property.image_urls)?property.image_urls:[];
- const paths=[];
- const marker="/storage/v1/object/public/"+BUCKET+"/";
- for(const imageUrl of imageUrls){
-  try{
-   const parsed=new URL(imageUrl);
-   if(parsed.origin!==SUPABASE_URL||!parsed.pathname.includes(marker))continue;
-   const path=decodeURIComponent(parsed.pathname.split(marker).slice(1).join(marker));
-   const segments=path.split("/");
-   if(segments.length>=3&&segments[1]===String(id)&&!paths.includes(path))paths.push(path);
-  }catch(e){
-   console.warn("Skipping invalid property image URL",imageUrl);
-  }
- }
+ const paths=(Array.isArray(property.image_urls)?property.image_urls:[])
+  .filter(path=>typeof path==="string"&&path.startsWith(String(currentUser?.id||"")+"/"+String(id)+"/"));
 
  if(paths.length){
   const {error:imageError}=await db.storage.from(BUCKET).remove(paths);
