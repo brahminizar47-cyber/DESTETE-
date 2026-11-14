@@ -59,6 +59,7 @@ begin
     'listings', coalesce((
       select jsonb_agg(
         jsonb_build_object(
+          'id', p.id,
           'title', p.title,
           'description', p.description,
           'property_type', p.property_type,
