@@ -647,7 +647,7 @@ async function loadAccountFollowing(){
  const count=document.getElementById("accountFollowingCount");
  if(!list||!currentUser)return;
  list.innerHTML='<div class="small">'+uiText("جاري تحميل قائمة المتابعة...","Loading followed advertisers...")+'</div>';
- const {data,error}=await db.rpc("get_followed_advertisers");
+ const {data,error}=await db.rpc("get_followed_users_list");
  if(error){list.innerHTML='<div class="status">'+uiText("قائمة المتابعة غير متاحة بعد. يلزم تحديث قاعدة البيانات.","Following is not available yet. Apply the database migration first.")+'</div>';if(count)count.textContent="0";return}
  const rows=data||[];
  if(count)count.textContent=rows.length;
@@ -659,7 +659,7 @@ async function loadAccountFollowing(){
   const kind=tr(advertiserNames[row.advertiser_type]||"advertiser");
   const location=[row.governorate,row.city].filter(Boolean).join(" · ");
   const listing=row.latest_listing_title||uiText("لا توجد إعلانات نشطة حالياً","No active listings currently");
-  return '<article class="account-item"><strong>'+safe(kind)+'</strong><p>'+safe(listing)+'</p><small>'+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="profile-actions"><button type="button" class="primary" data-open-user-id="'+safe(row.advertiser_id)+'">'+uiText("عرض الحساب","View profile")+'</button><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></article>';
+  return '<article class="account-item"><strong>'+safe(row.display_name||uiText("مستخدم DESTATE","DESTATE user"))+'</strong><small>'+safe(kind)+'</small><p>'+safe(listing)+'</p><small>'+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="profile-actions"><button type="button" class="primary" data-open-user-id="'+safe(row.advertiser_id)+'">'+uiText("عرض الحساب","View profile")+'</button><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></article>';
  }).join("");
  list.querySelectorAll("[data-unfollow-id]").forEach(button=>button.addEventListener("click",()=>unfollowAdvertiser(button.dataset.unfollowId)));
  list.querySelectorAll("[data-open-user-id]").forEach(button=>button.addEventListener("click",()=>openFollowedUserProfile(button.dataset.openUserId)));
