@@ -195,7 +195,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 </section>
 </main>
 <footer><div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div><div data-i18n="footerText">منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها</div><div>© D-ESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div><div class="small"><a href="/legal.html#terms" data-i18n="legalTermsLink" style="color:white">شروط الاستخدام</a> · <a href="/legal.html#privacy" data-i18n="legalPrivacyLink" style="color:white">سياسة الخصوصية</a> · <a href="/legal.html#publishing" data-i18n="legalPublishingLink" style="color:white">شروط النشر</a></div></footer>
-<div id="propertyDetailsModal" class="modal"><div class="modal-box"><div class="modal-head"><h2 id="detailTitle">تفاصيل العقار</h2><button class="close" onclick="closeModal('propertyDetailsModal')">✕</button></div><div id="propertyDetailsContent"></div></div></div>
+<section id="propertyDetailsPanel" class="container profile-panel hidden" aria-live="polite"><div class="admin-heading"><h2 class="section-title" id="detailTitle">تفاصيل العقار</h2><button type="button" class="secondary" onclick="closePropertyDetails()">رجوع إلى القائمة</button></div><div id="propertyDetailsContent"></div></section>
 <div id="compareModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>مقارنة العقارات</h2><button class="close" onclick="closeModal('compareModal')">✕</button></div><div id="compareResults"></div></div></div>
 <div id="loginModal" class="modal">
  <div class="modal-box">
@@ -1008,10 +1008,21 @@ function getVisitorId(){
  if(!id){id=crypto.randomUUID();localStorage.setItem("destate_visitor_id",id)}
  return id;
 }
+let propertyDetailsReturnElement=null;
+function closePropertyDetails(){
+ const panel=document.getElementById("propertyDetailsPanel");
+ if(panel)panel.classList.add("hidden");
+ const returnTo=propertyDetailsReturnElement;
+ propertyDetailsReturnElement=null;
+ if(returnTo&&returnTo.isConnected)returnTo.scrollIntoView({behavior:"smooth",block:"center"});
+}
 async function openPropertyDetails(id){
+ propertyDetailsReturnElement=document.activeElement;
+ const panel=document.getElementById("propertyDetailsPanel");
  const box=document.getElementById("propertyDetailsContent");
  box.innerHTML='<div class="status">'+uiText("جاري تحميل التفاصيل...","Loading details...")+'</div>';
- openModal("propertyDetailsModal");
+ panel.classList.remove("hidden");
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
  const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
  if(error||!p){box.textContent=uiText("العقار غير متوفر حالياً.","This property is currently unavailable.");return}
  document.getElementById("detailTitle").textContent=p.title;
