@@ -867,7 +867,7 @@ function displayProperties(items){
    '<div class="meta"><strong>'+uiText("صفة المستخدم: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
 
    '<div class="card-actions"><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
-   '</div><div class="listing-details hidden" id="listingDetails-'+safe(p.id)+'"><p>'+safe(p.description||uiText("لا توجد تفاصيل إضافية لهذا العقار.","No additional description is available for this property."))+'</p></div></article>';
+   '<div class="listing-details hidden" id="listingDetails-'+safe(p.id)+'"><p>'+safe(p.description||uiText("لا توجد تفاصيل إضافية لهذا العقار.","No additional description is available for this property."))+'</p></div></div></article>';
  }).join("");
 }
 
