@@ -80,6 +80,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 .admin-audit-item{border:1px solid var(--border);border-radius:9px;padding:11px;margin:8px 0;background:#fff;font-size:13px}
  .admin-audit-item small{display:block;color:var(--muted);margin-top:5px}
 .compare-toolbar{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin:12px 0}.compare-toolbar.visible{display:flex}.owner-listing{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}.owner-listing-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.owner-listing-stats span{background:#f5f7fa;padding:9px;border-radius:8px;font-size:12px}.detail-gallery{display:flex;gap:8px;overflow-x:auto;margin:12px 0}.detail-gallery img{height:180px;min-width:75%;object-fit:cover;border-radius:8px}.compare-table{width:100%;border-collapse:collapse;margin-top:12px}.compare-table th,.compare-table td{border:1px solid var(--border);padding:9px;text-align:start;font-size:13px}.compare-table th{background:#f5f7fa}.detail-history{margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
+.listing-details{margin-top:12px;padding:13px 15px;background:#f5f8f3;border:1px solid var(--border);border-inline-start:4px solid var(--blue);border-radius:9px;line-height:1.8;color:#344638;white-space:pre-wrap;overflow-wrap:anywhere}.listing-details p{margin:0}.listing-details.hidden{display:none!important}
 #favoritesPanel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}
 #favoritesPanel .admin-heading{margin-bottom:12px}
 #favoritesPanel .admin-heading .section-title{margin:0}
@@ -864,12 +865,24 @@ function displayProperties(items){
    (p.land_type?'<div class="meta"><strong>'+uiText("الصبغة العقارية: ","Land classification: ")+'</strong>'+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</div>':'')+
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
    '<div class="meta"><strong>'+uiText("صفة المستخدم: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
-   '<p>'+safe((p.description||"").slice(0,150))+'</p>'+
-   '<div class="card-actions"><button type="button" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
-   '</div></article>';
+
+   '<div class="card-actions"><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
+   '</div><div class="listing-details hidden" id="listingDetails-'+safe(p.id)+'"><p>'+safe(p.description||uiText("لا توجد تفاصيل إضافية لهذا العقار.","No additional description is available for this property."))+'</p></div></article>';
  }).join("");
 }
 
+
+function toggleListingDetails(id){
+ const panel=document.getElementById("listingDetails-"+id);
+ const button=panel?.previousElementSibling?.querySelector("button[aria-controls]");
+ if(!panel)return;
+ const opening=panel.classList.contains("hidden");
+ panel.classList.toggle("hidden",!opening);
+ if(button){
+  button.setAttribute("aria-expanded",String(opening));
+  button.textContent=opening?uiText("إخفاء التفاصيل","Hide details"):uiText("التفاصيل","Details");
+ }
+}
 
 function renderCompareToolbar(){
  const bar=document.getElementById("compareToolbar"),count=document.getElementById("compareCount");
