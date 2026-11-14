@@ -857,6 +857,8 @@ function displayProperties(items){
   return '<article class="property">'+gallery+
    '<div class="property-content">'+
    '<h3>'+safe(p.title)+'</h3>'+
+   '<div class="meta"><strong>'+uiText("الثمن: ","Price: ")+'</strong>'+safe(p.price!==null&&p.price!==undefined&&p.price!==""?Number(p.price).toLocaleString()+" "+(currentLanguage==="ar"?"د.ت":"TND"):tr("notSpecified"))+'</div>'+
+   '<div class="meta"><strong>'+uiText("العنوان: ","Address: ")+'</strong>'+safe(location||tr("notSpecified"))+'</div>'+
    '<div class="meta"><strong>'+uiText("نوع العقار: ","Property type: ")+'</strong>'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+'</div>'+
    '<div class="meta"><strong>'+uiText("المساحة: ","Area: ")+'</strong>'+safe(p.area!==null&&p.area!==undefined&&p.area!==""?Number(p.area).toLocaleString():tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
    (p.land_type?'<div class="meta"><strong>'+uiText("الصبغة العقارية: ","Land classification: ")+'</strong>'+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</div>':'')+
