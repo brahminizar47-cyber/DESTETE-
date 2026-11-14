@@ -865,7 +865,7 @@ function chooseType(type){
  document.getElementById("type").value=type;
  updateFilters();
  searchProperties();
- document.getElementById("search").scrollIntoView({behavior:"smooth"});
+ document.getElementById("listings").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function resetSearch(){
  ["type","governorate","ownership","landType","advertiserFilter"].forEach(id=>document.getElementById(id).value="");
