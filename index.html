@@ -1426,7 +1426,7 @@ async function deleteAdminProperty(id){
  if(!confirm(tr("deleteConfirm")))return;
 
  const paths=(Array.isArray(property.image_urls)?property.image_urls:[])
-  .filter(path=>typeof path==="string"&&path.startsWith(String(currentUser?.id||"")+"/"+String(id)+"/"));
+  .filter(path=>typeof path==="string"&&path.split("/").length===3&&path.split("/")[1]===String(id));
 
  if(paths.length){
   const {error:imageError}=await db.storage.from(BUCKET).remove(paths);
