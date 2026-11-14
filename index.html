@@ -359,7 +359,7 @@ function renderPropertyRatingStars(){
  if(box)box.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=selectedPropertyRating?'selected':'')+'" onclick="setPropertyReviewRating('+n+')">★</button>').join("");
 }
 function setPropertyReviewRating(n){selectedPropertyRating=n;renderPropertyRatingStars()}
-async function openPropertyReviews(propertyId){
+async async function openPropertyReviews(propertyId){
  if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة تقييمات الإعلان وآراء المستخدمين.","Log in to view listing ratings and reviews."));openModal("loginModal");return}
  activePropertyReviewId=propertyId;selectedPropertyRating=0;
  document.getElementById("propertyReviewTitle").textContent=uiText("تقييم الإعلان","Listing reviews");
