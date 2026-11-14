@@ -149,6 +149,18 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <div id="accountMessagesView" class="hidden"><h3 id="accountMessagesHeading">محادثاتي</h3><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
 <div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المستخدمون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
 </div></section>
+<section id="publicUserPanel" class="profile-panel hidden" aria-live="polite">
+ <div class="admin-heading"><div><h2 class="section-title" id="publicUserName">ملف المستخدم</h2><p class="small" id="publicUserRole"></p></div><button type="button" onclick="closePublicUserProfile()">إغلاق</button></div>
+ <div id="publicUserStatus" class="status" role="status"></div>
+ <div class="profile-grid">
+  <div class="profile-info"><span>التقييم العام</span><strong id="publicUserAverage">—</strong></div>
+  <div class="profile-info"><span>عدد التقييمات</span><strong id="publicUserCount">0</strong></div>
+  <div class="profile-info"><span>الإعلانات المنشورة</span><strong id="publicUserListingsCount">0</strong></div>
+ </div>
+ <div class="profile-section"><h3>إعلانات المستخدم</h3><div id="publicUserListings" class="results"></div></div>
+ <div class="profile-section"><h3>تقييمات المستخدم وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
+ <div class="profile-actions"><button type="button" class="secondary hidden" id="publicUserContactButton" onclick="contactPublicUser()">تواصل مع المستخدم</button></div>
+</section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
@@ -559,6 +571,42 @@ function setProfileLabels(){
  Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
+let activePublicUserId=null;
+async function openPublicUserProfile(userId){
+ if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة ملف المستخدم وتقييماته.","Log in to view user profiles and reviews."));openModal("loginModal");return}
+ if(!userId){alert(uiText("تعذّر فتح ملف المستخدم.","Could not open this user profile."));return}
+ activePublicUserId=userId;
+ const panel=document.getElementById("publicUserPanel"),status=document.getElementById("publicUserStatus");
+ document.getElementById("profilePanel").classList.add("hidden");panel.classList.remove("hidden");
+ document.getElementById("publicUserName").textContent=uiText("ملف المستخدم","User profile");
+ document.getElementById("publicUserRole").textContent="";
+ document.getElementById("publicUserAverage").textContent="—";
+ document.getElementById("publicUserCount").textContent="0";
+ document.getElementById("publicUserListingsCount").textContent="0";
+ document.getElementById("publicUserListings").innerHTML="";
+ document.getElementById("publicUserReviews").innerHTML="";
+ document.getElementById("publicUserContactButton").classList.add("hidden");
+ status.textContent=uiText("جاري تحميل الملف الشخصي...","Loading user profile...");
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+ const {data,error}=await db.rpc("get_public_user_profile",{p_user_id:userId});
+ if(error||!data){status.textContent=uiText("تعذّر تحميل الملف الشخصي. قد لا يملك هذا المستخدم إعلانات منشورة.","Could not load this profile. This user may have no published listings.");return}
+ const profile=data.profile||{},listings=Array.isArray(data.listings)?data.listings:[],reviews=Array.isArray(data.reviews)?data.reviews:[];
+ document.getElementById("publicUserName").textContent=profile.display_name||uiText("مستخدم DESTATE","DESTATE user");
+ const roleNames={owner:uiText("مالك العقار","Property owner"),broker:uiText("وسيط مستقل","Independent broker"),agency:uiText("وكالة عقارية","Real-estate agency")};
+ document.getElementById("publicUserRole").textContent=roleNames[profile.advertiser_type]||"";
+ document.getElementById("publicUserAverage").textContent=data.average_rating==null?"—":Number(data.average_rating).toFixed(1)+" ★";
+ document.getElementById("publicUserCount").textContent=String(data.review_count||0);
+ document.getElementById("publicUserListingsCount").textContent=String(listings.length);
+ status.textContent="";
+ document.getElementById("publicUserListings").innerHTML=listings.length?listings.map(p=>{
+  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+  const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" style="width:100%;height:150px;object-fit:cover">':"";
+  return '<article class="property">'+photo+'<div class="property-content"><h3>'+safe(p.title)+'</h3><div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+'</div><div class="meta">'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+' · '+safe(p.area??"—")+' '+tr("areaUnit")+'</div><p>'+safe(p.description||"")+'</p></div></article>';
+ }).join(""):'<div class="empty">'+uiText("لا توجد إعلانات منشورة حالياً.","No published listings yet.")+'</div>';
+ document.getElementById("publicUserReviews").innerHTML=reviews.length?reviews.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات أو آراء منشورة بعد.","No published reviews yet.")+'</p>';
+ document.getElementById("publicUserContactButton").classList.remove("hidden");
+}
+function closePublicUserProfile(){document.getElementById("publicUserPanel").classList.add("hidden");activePublicUserId=null}
 function openProfile(){
  if(!currentUser){openModal("loginModal");return}
  renderProfile();setProfileLabels();
@@ -796,7 +844,7 @@ async function uploadPropertyImages(files,propertyId){
  publicPage=Math.max(0,Number(page)||0);
  results.innerHTML='<div class="empty">'+tr("loading")+'</div>';
 
- let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at,expires_at",{count:"exact"}).eq("status","published").gt("expires_at",new Date().toISOString());
+ let q=db.from("properties").select("id,owner_id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at,expires_at",{count:"exact"}).eq("status","published").gt("expires_at",new Date().toISOString());
 
  const type=document.getElementById("type").value;
  const gov=document.getElementById("governorate").value;
@@ -866,7 +914,7 @@ function displayProperties(items){
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
    '<div class="meta"><strong>'+uiText("صفة المستخدم: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
 
-   '<div class="card-actions"><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
+   '<div class="card-actions"><button type="button" onclick="openPublicUserProfile(\''+safe(p.owner_id)+'\')">'+uiText("ملف المستخدم","User profile")+'</button><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '<div class="listing-details hidden" id="listingDetails-'+safe(p.id)+'"><p>'+safe(p.description||uiText("لا توجد تفاصيل إضافية لهذا العقار.","No additional description is available for this property."))+'</p></div></div></article>';
  }).join("");
 }
