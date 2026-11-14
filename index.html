@@ -23,9 +23,11 @@ button{border:0;border-radius:8px;padding:11px 16px;cursor:pointer;font-weight:b
 .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
 input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;color:#182536}
 textarea{min-height:100px;resize:vertical}label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}.field{margin-bottom:13px}
-.categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:13px}
-.category{background:white;border:1px solid var(--border);border-radius:12px;text-align:center;padding:20px 10px;cursor:pointer;font-weight:bold}
-.category:hover{border-color:var(--blue)}.symbol{font-size:30px;display:block;margin-bottom:9px}
+.categories{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.category{background:white;border:1px solid var(--border);border-radius:11px;text-align:center;padding:13px 8px;cursor:pointer;font-weight:bold;min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;min-height:62px}
+.category:hover,.category.active{border-color:var(--blue);background:#edf5eb}.category.active{box-shadow:inset 0 0 0 1px var(--blue)}.symbol{font-size:21px;display:inline-block;margin:0;flex:0 0 auto}
+@media(max-width:760px){.categories{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.category{font-size:13px;padding:11px 5px;flex-direction:column;gap:4px;min-height:70px}.symbol{font-size:22px}}
+@media(max-width:430px){.categories{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}.pagination{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:18px 0}.pagination button{min-width:92px}.pagination span{font-size:13px;color:var(--muted)}
 .property{background:white;border-radius:12px;overflow:hidden;border:1px solid var(--border)}.property-content{padding:16px}
 .property h3{margin:0 0 10px;color:var(--navy)}.price{color:var(--blue);font-weight:bold;font-size:19px}
@@ -103,7 +105,17 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <p data-i18n="heroText2">ابحث عن عقارك في جميع أنحاء تونس</p>
 </section>
 <main class="container">
-<section class="search-box" id="search">
+<section id="browseCategories" style="margin-top:30px"><h2 class="section-title" data-i18n="browseByType">تصفح حسب النوع</h2>
+ <div class="categories">
+  <div class="category" onclick="chooseType('',this)"><span class="symbol">🏘️</span><span data-i18n="allProperties">كل العقارات</span></div>
+  <div class="category" onclick="chooseType('house',this)"><span class="symbol">🏠</span><span data-i18n="houses">منازل</span></div>
+  <div class="category" onclick="chooseType('apartment',this)"><span class="symbol">🏢</span><span data-i18n="apartments">شقق</span></div>
+  <div class="category" onclick="chooseType('land',this)"><span class="symbol">🌳</span><span data-i18n="residentialLands">أراضي سكنية</span></div>
+  <div class="category" onclick="chooseType('agricultural_land',this)"><span class="symbol">🌾</span><span data-i18n="agriculturalLands">أراضي فلاحية</span></div>
+  <div class="category" onclick="chooseType('commercial',this)"><span class="symbol">🏬</span><span data-i18n="commercialProperties">محلات تجارية</span></div>
+ </div>
+</section>
+<section class="search-box hidden" id="search">
  <h2 class="section-title" data-i18n="searchTitle">ابحث عن عقار</h2>
  <div class="filters">
   <div><label data-i18n="propertyType">نوع العقار</label><select id="type" onchange="updateFilters()">
@@ -121,16 +133,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
-<section style="margin-top:38px"><h2 class="section-title" data-i18n="browseByType">تصفح حسب النوع</h2>
- <div class="categories">
-  <div class="category" onclick="chooseType('house')"><span class="symbol">🏠</span><span data-i18n="houses">منازل</span></div>
-  <div class="category" onclick="chooseType('apartment')"><span class="symbol">🏢</span><span data-i18n="apartments">شقق</span></div>
-  <div class="category" onclick="chooseType('land')"><span class="symbol">🌳</span><span data-i18n="residentialLands">أراضي سكنية</span></div>
-  <div class="category" onclick="chooseType('agricultural_land')"><span class="symbol">🌾</span><span data-i18n="agriculturalLands">أراضي فلاحية</span></div>
-  <div class="category" onclick="chooseType('commercial')"><span class="symbol">🏬</span><span data-i18n="commercialProperties">محلات تجارية</span></div>
- </div>
-</section>
-<section id="listings" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
+<section id="listings" class="hidden" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
 </section>
@@ -827,16 +830,23 @@ function updatePublishFields(){
  document.getElementById("publishLandTypeField").classList.toggle("hidden",!land);
  document.getElementById("pLandType").required=land;
 }
-function chooseType(type){
+function chooseType(type,card){
  document.getElementById("type").value=type;
  updateFilters();
+ document.getElementById("search").classList.remove("hidden");
+ document.getElementById("listings").classList.remove("hidden");
+ document.querySelectorAll("#browseCategories .category").forEach(card=>card.classList.remove("active"));
+ if(card)card.classList.add("active");
  searchProperties();
- document.getElementById("search").scrollIntoView({behavior:"smooth"});
+ document.getElementById("search").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function resetSearch(){
  ["type","governorate","ownership","landType","advertiserFilter"].forEach(id=>document.getElementById(id).value="");
  document.getElementById("maxPrice").value="";
  document.getElementById("minArea").value="";
+ document.querySelectorAll("#browseCategories .category").forEach(card=>card.classList.remove("active"));
+ const allCard=document.querySelector("#browseCategories .category");
+ if(allCard)allCard.classList.add("active");
  updateFilters();
  searchProperties();
 }
@@ -1500,7 +1510,8 @@ applyLanguage();
 updateFilters();
 updatePublishFields();
 refreshUser();
-searchProperties();
+const sharedProperty=new URLSearchParams(window.location.search).get("property");
+if(sharedProperty){document.getElementById("search").classList.remove("hidden");document.getElementById("listings").classList.remove("hidden");searchProperties();}
 renderCompareToolbar();
 </script>
 </body>
