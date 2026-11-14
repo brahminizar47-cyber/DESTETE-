@@ -146,7 +146,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <div class="account-toolbar"><button type="button" class="secondary" onclick="showAccountTab('notifications')" id="accountShowNotifications">الإشعارات</button><button type="button" class="secondary" onclick="showAccountTab('messages')" id="accountShowMessages">الرسائل الواردة</button><button type="button" class="secondary" onclick="showAccountTab('following')" id="accountShowFollowing">متابعة المستخدمين</button></div>
 <div id="accountNotificationsView"><h3 id="accountNotificationsHeading">إشعاراتي</h3><div id="accountNotificationsList" class="account-list"></div></div>
 <div id="accountMessagesView" class="hidden"><h3 id="accountMessagesHeading">محادثاتي</h3><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
-<div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المستخدمون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
+<div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المستخدمون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div><div id="accountFollowedUserProfile" class="account-list hidden"></div></div>
 </div></section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
@@ -616,6 +616,32 @@ async function unfollowAdvertiser(advertiserId){
  if(error){alert(uiText("تعذّر إلغاء المتابعة.","Could not unfollow advertiser."));return}
  await loadAccountFollowing();
 }
+async function openFollowedUserProfile(userId){
+ const list=document.getElementById("accountFollowingList");
+ const view=document.getElementById("accountFollowedUserProfile");
+ if(!currentUser||!list||!view)return;
+ list.classList.add("hidden");
+ view.classList.remove("hidden");
+ view.innerHTML='<div class="small">'+uiText("جاري تحميل الحساب...","Loading profile...")+'</div>';
+ const {data,error}=await db.rpc("get_followed_user_profile",{p_user_id:userId});
+ if(error){view.innerHTML='<div class="status">'+uiText("تعذّر تحميل الحساب. حاول مرة أخرى.","Could not load this profile. Please try again.")+'</div><button type="button" class="secondary" onclick="backToFollowingList()">'+uiText("العودة إلى قائمة المتابعة","Back to following")+'</button>';console.error(error);return}
+ const rows=data||[];
+ if(!rows.length){view.innerHTML='<div class="empty">'+uiText("هذا الحساب غير متاح حالياً.","This profile is currently unavailable.")+'</div><button type="button" class="secondary" onclick="backToFollowingList()">'+uiText("العودة إلى قائمة المتابعة","Back to following")+'</button>';return}
+ const user=rows[0];
+ const kind=tr(advertiserNames[user.advertiser_type]||"advertiser");
+ const listings=rows.filter(row=>row.property_id);
+ const listingMarkup=listings.length?listings.map(item=>'<article class="account-item"><strong>'+safe(item.title||uiText("إعلان عقاري","Property listing"))+'</strong><p>'+safe((item.description||"").slice(0,180))+'</p><small>'+safe([item.governorate,item.city].filter(Boolean).join(" · ")||uiText("الموقع غير محدد","Location not specified"))+' · '+(item.price!==null&&item.price!==undefined?Number(item.price).toLocaleString()+' TND':uiText("السعر غير محدد","Price not specified"))+'</small><div class="profile-actions"><button type="button" class="primary" data-open-property="'+safe(item.property_id)+'">'+uiText("عرض الإعلان","View listing")+'</button></div></article>').join(""):'<div class="empty">'+uiText("لا توجد إعلانات نشطة حالياً.","No active listings at the moment.")+'</div>';
+ view.innerHTML='<div class="admin-heading"><h3>'+safe(user.display_name||uiText("مستخدم DESTATE","DESTATE user"))+'</h3><button type="button" class="secondary" onclick="backToFollowingList()">'+uiText("رجوع","Back")+'</button></div><p>'+uiText("نوع المستخدم: ","User type: ")+safe(kind)+'</p><p>'+uiText("عدد الإعلانات النشطة: ","Active listings: ")+Number(user.listing_count||0)+'</p><h4>'+uiText("الإعلانات المنشورة","Published listings")+'</h4>'+listingMarkup;
+ view.querySelectorAll("[data-open-property]").forEach(button=>button.addEventListener("click",()=>openPropertyDetails(button.dataset.openProperty)));
+ view.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function backToFollowingList(){
+ const list=document.getElementById("accountFollowingList");
+ const view=document.getElementById("accountFollowedUserProfile");
+ if(list)list.classList.remove("hidden");
+ if(view){view.classList.add("hidden");view.innerHTML="";}
+}
+
 async function loadAccountFollowing(){
  const list=document.getElementById("accountFollowingList");
  const count=document.getElementById("accountFollowingCount");
@@ -626,13 +652,17 @@ async function loadAccountFollowing(){
  const rows=data||[];
  if(count)count.textContent=rows.length;
  if(!rows.length){list.innerHTML='<div class="empty">'+uiText("لا تتابع أي مستخدم حالياً. يمكنك متابعة صاحب أي إعلان.","You are not following any users yet. You can follow a listing owner.")+'</div>';return}
+ const profileView=document.getElementById("accountFollowedUserProfile");
+ if(profileView){profileView.classList.add("hidden");profileView.innerHTML="";}
+ list.classList.remove("hidden");
  list.innerHTML=rows.map(row=>{
   const kind=tr(advertiserNames[row.advertiser_type]||"advertiser");
   const location=[row.governorate,row.city].filter(Boolean).join(" · ");
   const listing=row.latest_listing_title||uiText("لا توجد إعلانات نشطة حالياً","No active listings currently");
-  return '<article class="account-item"><strong>'+safe(kind)+'</strong><p>'+safe(listing)+'</p><small>'+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="profile-actions"><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></article>';
+  return '<article class="account-item"><strong>'+safe(kind)+'</strong><p>'+safe(listing)+'</p><small>'+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="profile-actions"><button type="button" class="primary" data-open-user-id="'+safe(row.advertiser_id)+'">'+uiText("عرض الحساب","View profile")+'</button><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></article>';
  }).join("");
  list.querySelectorAll("[data-unfollow-id]").forEach(button=>button.addEventListener("click",()=>unfollowAdvertiser(button.dataset.unfollowId)));
+ list.querySelectorAll("[data-open-user-id]").forEach(button=>button.addEventListener("click",()=>openFollowedUserProfile(button.dataset.openUserId)));
 }
 
 async function loadAccountCenter(){
