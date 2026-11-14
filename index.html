@@ -92,7 +92,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <nav>
   <a href="#home" data-i18n="home">الرئيسية</a><a href="#search" data-i18n="search">البحث</a><a href="#listings" data-i18n="listings">العقارات</a><button class="secondary" id="profileNavButton" type="button" onclick="openProfile()">حسابي</button><button class="secondary" id="favoritesNavButton" type="button" onclick="openFavorites()" style="display:none">مفضلتي</button>
   <button class="primary" id="languageButton" onclick="toggleLanguage()">English</button>
-  <button class="primary" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button><button class="secondary" type="button" onclick="openReportModal()" id="headerReportButton">تقديم بلاغ / شكوى</button>
+  <button class="primary" id="authNavButton" onclick="openModal('loginModal')" data-i18n="login">دخول / حساب جديد</button><button class="secondary" type="button" onclick="openReportModal()" id="headerReportButton">تقديم بلاغ / شكوى</button>
   <button class="secondary" onclick="openPublish()" data-i18n="addProperty">+ أضف عقارك</button>
  </nav>
 </header>
@@ -436,6 +436,7 @@ function applyLanguage(){
  document.getElementById("languageButton").textContent=currentLanguage==="ar"?"English":"العربية";
  const reportButton=document.getElementById("headerReportButton");if(reportButton)reportButton.textContent=currentLanguage==="ar"?"تقديم بلاغ / شكوى":"Report / Complaint";
  const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display="inline-block";}
+ const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser?"inline-block":"none";}
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
  const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("إغلاق","Close");
@@ -534,6 +535,7 @@ function renderProfile(){
  const nav=document.getElementById("profileNavButton");
  if(!panel||!nav)return;
  nav.style.display="inline-block";
+ const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  if(!currentUser){panel.classList.add("hidden");return}
  const metadata=currentUser.user_metadata||{};
  const displayName=metadata.display_name||metadata.full_name||metadata.name||"—";
