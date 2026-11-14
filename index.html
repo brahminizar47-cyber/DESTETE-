@@ -141,10 +141,12 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <button class="account-tile" type="button" onclick="showAccountTab('messages')">💬 <span id="accountMessagesCount" class="count">0</span><strong id="accountMessagesLabel">رسائلي</strong></button>
 <button class="account-tile" type="button" onclick="goToMyListings()">🏠<strong id="accountListingsLabel">إعلاناتي</strong></button>
 <button class="account-tile" type="button" onclick="goToFavorites()">♡<strong id="accountFavoritesLabel">المفضّلة</strong></button>
+<button class="account-tile" type="button" onclick="showAccountTab('following')">👥 <span id="accountFollowingCount" class="count">0</span><strong id="accountFollowingLabel">متابعة المعلنين</strong></button>
 </div>
-<div class="account-toolbar"><button type="button" class="secondary" onclick="showAccountTab('notifications')" id="accountShowNotifications">الإشعارات</button><button type="button" class="secondary" onclick="showAccountTab('messages')" id="accountShowMessages">الرسائل الواردة</button></div>
+<div class="account-toolbar"><button type="button" class="secondary" onclick="showAccountTab('notifications')" id="accountShowNotifications">الإشعارات</button><button type="button" class="secondary" onclick="showAccountTab('messages')" id="accountShowMessages">الرسائل الواردة</button><button type="button" class="secondary" onclick="showAccountTab('following')" id="accountShowFollowing">متابعة المعلنين</button></div>
 <div id="accountNotificationsView"><h3 id="accountNotificationsHeading">إشعاراتي</h3><div id="accountNotificationsList" class="account-list"></div></div>
 <div id="accountMessagesView" class="hidden"><h3 id="accountMessagesHeading">محادثاتي</h3><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
+<div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المعلنون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
 </div></section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
@@ -547,7 +549,7 @@ function renderProfile(){
 function setProfileLabels(){
  const labels={profileTitle:uiText("حسابي الشخصي","My Profile"),profileIntro:uiText("إدارة معلومات حسابك وإعداداتك","Manage your account information and settings"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات","Edit information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileShortcutsTitle:uiText("اختصارات حسابك","Account shortcuts"),profileListingsButton:uiText("إعلاناتي وإحصائياتي","My listings & statistics"),profileFavoritesButton:uiText("مفضلتي","My Favorites"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profileSignOutButton:uiText("تسجيل الخروج","Sign out"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
  Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
- const accountLabels={accountCenterTitle:uiText("مركزك الشخصي","Your account hub"),accountNotificationsLabel:uiText("إشعاراتي","Notifications"),accountMessagesLabel:uiText("رسائلي","Messages"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountShowNotifications:uiText("الإشعارات","Notifications"),accountShowMessages:uiText("الرسائل الواردة","Inbox"),accountNotificationsHeading:uiText("إشعاراتي","Notifications"),accountMessagesHeading:uiText("محادثاتي","Conversations")};
+ const accountLabels={accountCenterTitle:uiText("مركزك الشخصي","Your account hub"),accountNotificationsLabel:uiText("إشعاراتي","Notifications"),accountMessagesLabel:uiText("رسائلي","Messages"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountShowNotifications:uiText("الإشعارات","Notifications"),accountShowMessages:uiText("الرسائل الواردة","Inbox"),accountNotificationsHeading:uiText("إشعاراتي","Notifications"),accountMessagesHeading:uiText("محادثاتي","Conversations"),accountFollowingLabel:uiText("متابعة المعلنين","Following advertisers"),accountShowFollowing:uiText("متابعة المعلنين","Following advertisers"),accountFollowingHeading:uiText("المعلنون الذين أتابعهم","Advertisers you follow")};
  Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
@@ -586,11 +588,14 @@ function goToFavorites(){closeProfile();openFavorites()}
 function showAccountTab(tab){
  const notifications=document.getElementById("accountNotificationsView");
  const messages=document.getElementById("accountMessagesView");
- if(!notifications||!messages)return;
+ const following=document.getElementById("accountFollowingView");
+ if(!notifications||!messages||!following)return;
  notifications.classList.toggle("hidden",tab!=="notifications");
  messages.classList.toggle("hidden",tab!=="messages");
+ following.classList.toggle("hidden",tab!=="following");
  if(tab==="notifications")loadAccountNotifications();
  if(tab==="messages")loadAccountConversations();
+ if(tab==="following")loadAccountFollowing();
 }
 async function loadAccountCenter(){
  if(!currentUser)return;
