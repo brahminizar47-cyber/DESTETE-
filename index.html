@@ -632,7 +632,7 @@ async function loadAccountFollowing(){
 
 async function loadAccountCenter(){
  if(!currentUser)return;
- await Promise.all([loadAccountNotifications(),loadAccountConversations()]);
+ await Promise.all([loadAccountNotifications(),loadAccountConversations(),loadAccountFollowing()]);
 }
 async function loadAccountNotifications(){
  const list=document.getElementById("accountNotificationsList");
