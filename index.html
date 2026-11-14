@@ -211,7 +211,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 </section>
 </main>
 <footer><div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div><div data-i18n="footerText">منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها</div><div>© D-ESTATE - <span data-i18n="copyright">جميع الحقوق محفوظة</span></div><div class="small"><a href="/legal.html#terms" data-i18n="legalTermsLink" style="color:white">شروط الاستخدام</a> · <a href="/legal.html#privacy" data-i18n="legalPrivacyLink" style="color:white">سياسة الخصوصية</a> · <a href="/legal.html#publishing" data-i18n="legalPublishingLink" style="color:white">شروط النشر</a></div></footer>
-<div id="propertyDetailsModal" class="modal"><div class="modal-box"><div class="modal-head"><h2 id="detailTitle">تفاصيل العقار</h2><button class="close" onclick="closeModal('propertyDetailsModal')">✕</button></div><div id="propertyDetailsContent"></div></div></div>
+<section id="propertyDetailsPanel" class="container profile-panel hidden" aria-live="polite"><div class="admin-heading"><h2 class="section-title" id="detailTitle">تفاصيل العقار</h2><button type="button" class="secondary" onclick="closePropertyDetails()">رجوع إلى القائمة</button></div><div id="propertyDetailsContent"></div></section>
 <div id="compareModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>مقارنة العقارات</h2><button class="close" onclick="closeModal('compareModal')">✕</button></div><div id="compareResults"></div></div></div>
 <div id="loginModal" class="modal">
  <div class="modal-box">
@@ -1109,16 +1109,27 @@ function getVisitorId(){
  if(!id){id=crypto.randomUUID();localStorage.setItem("destate_visitor_id",id)}
  return id;
 }
+let propertyDetailsReturnElement=null;
+function closePropertyDetails(){
+ const panel=document.getElementById("propertyDetailsPanel");
+ if(panel)panel.classList.add("hidden");
+ const returnTo=propertyDetailsReturnElement;
+ propertyDetailsReturnElement=null;
+ if(returnTo&&returnTo.isConnected)returnTo.scrollIntoView({behavior:"smooth",block:"center"});
+}
 async function openPropertyDetails(id){
+ propertyDetailsReturnElement=document.activeElement;
+ const panel=document.getElementById("propertyDetailsPanel");
  const box=document.getElementById("propertyDetailsContent");
  box.innerHTML='<div class="status">'+uiText("جاري تحميل التفاصيل...","Loading details...")+'</div>';
- openModal("propertyDetailsModal");
- const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
+ panel.classList.remove("hidden");
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+ const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
  if(error||!p){box.textContent=uiText("العقار غير متوفر حالياً.","This property is currently unavailable.");return}
  document.getElementById("detailTitle").textContent=p.title;
  const imgs=Array.isArray(p.image_urls)?p.image_urls:[];
  const gallery=imgs.length?'<div class="detail-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':"";
- box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p>'+(p.land_type?'<p class="tag">'+uiText("الصبغة العقارية: ","Land classification: ")+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</p>':'')+(p.ownership_type?'<p class="tag">'+uiText("نوع الملكية: ","Ownership type: ")+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</p>':'')+'<p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("راسل المستخدم","Message user")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p><p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("راسل المستخدم","Message user")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
  const {error:viewError}=await db.rpc("record_property_view",{p_property_id:p.id,p_visitor_id:getVisitorId()});
  if(viewError)console.warn("View tracking unavailable:",viewError.message);
  const history=await db.rpc("get_property_price_history",{p_property_id:p.id});
