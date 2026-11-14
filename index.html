@@ -261,6 +261,15 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <button class="primary" id="submitReviewButton" type="submit" style="width:100%">إرسال التقييم</button>
  </form>
 </div></div>
+<div id="propertyReviewModal" class="modal"><div class="modal-box">
+ <div class="modal-head"><h2 id="propertyReviewTitle">تقييم الإعلان</h2><button class="close" type="button" onclick="closeModal('propertyReviewModal')">✕</button></div>
+ <div id="propertyReviewSummary" class="status" aria-live="polite"></div><p id="propertyReviewEligibility" class="small"></p><div id="propertyReviewList"></div>
+ <form id="propertyReviewForm" onsubmit="submitPropertyReview(event)">
+  <div class="field"><label id="propertyRatingLabel">تقييمك من 1 إلى 5 نجوم</label><div id="propertyRatingStars" class="rating-stars"></div></div>
+  <div class="field"><label for="propertyReviewComment" id="propertyReviewCommentLabel">رأيك في الإعلان (150 حرفاً كحد أقصى)</label><textarea id="propertyReviewComment" maxlength="150" rows="3"></textarea><div class="small"><span id="propertyReviewCharCount">0</span>/150</div></div>
+  <button class="primary" id="submitPropertyReviewButton" type="submit" style="width:100%">إرسال التقييم</button>
+ </form>
+</div></div>
 <div id="reportModal" class="modal"><div class="modal-box">
  <div class="modal-head"><h2 id="reportModalTitle">تقديم بلاغ أو شكوى</h2><button class="close" onclick="closeModal('reportModal')">✕</button></div>
  <div class="notice" id="reportPrivacy">البلاغ سري ولا يظهر للعامة.</div>
@@ -344,6 +353,48 @@ async function submitAdvertiserReview(e){
  if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):error.message.includes("RATE_LIMITED:review")?uiText("وصلت إلى الحد الأقصى للتقييمات. حاول غداً.","You reached the review limit. Please try again tomorrow."):uiText("تعذّر إرسال التقييم: ","Could not submit review: ")+error.message);return}
  alert(uiText("تم حفظ تقييمك.","Your review has been saved."));await loadAdvertiserReviews(activeReviewPropertyId);
 }
+let activePropertyReviewId=null,selectedPropertyRating=0;
+function renderPropertyRatingStars(){
+ const box=document.getElementById("propertyRatingStars");
+ if(box)box.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=selectedPropertyRating?'selected':'')+'" onclick="setPropertyReviewRating('+n+')">★</button>').join("");
+}
+function setPropertyReviewRating(n){selectedPropertyRating=n;renderPropertyRatingStars()}
+async function openPropertyReviews(propertyId){
+ if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة تقييمات الإعلان وآراء المستخدمين.","Log in to view listing ratings and reviews."));openModal("loginModal");return}
+ activePropertyReviewId=propertyId;selectedPropertyRating=0;
+ document.getElementById("propertyReviewTitle").textContent=uiText("تقييم الإعلان","Listing reviews");
+ document.getElementById("propertyRatingLabel").textContent=uiText("تقييمك من 1 إلى 5 نجوم","Your rating (1–5 stars)");
+ document.getElementById("propertyReviewCommentLabel").textContent=uiText("رأيك في الإعلان (150 حرفاً كحد أقصى)","Your opinion (max 150 characters)");
+ document.getElementById("propertyReviewComment").value="";
+ document.getElementById("propertyReviewCharCount").textContent="0";
+ document.getElementById("propertyReviewSummary").textContent=uiText("جاري تحميل التقييمات...","Loading reviews...");
+ document.getElementById("propertyReviewEligibility").textContent="";
+ document.getElementById("propertyReviewList").innerHTML="";
+ renderPropertyRatingStars();openModal("propertyReviewModal");await loadPropertyReviews(propertyId);
+}
+async function loadPropertyReviews(propertyId){
+ const {data,error}=await db.rpc("get_property_reviews",{p_property_id:propertyId});
+ if(error){document.getElementById("propertyReviewSummary").textContent=uiText("تعذّر تحميل تقييمات الإعلان.","Could not load listing reviews.");return}
+ const x=data||{},avg=x.average_rating==null?"—":Number(x.average_rating).toFixed(1);
+ document.getElementById("propertyReviewSummary").textContent=uiText("المعدل: ","Average: ")+avg+" ★ · "+(x.review_count||0)+" "+uiText("تقييم","reviews");
+ document.getElementById("propertyReviewEligibility").textContent=x.can_review?uiText("يمكنك تقييم الإعلان لأنك تواصلت مع المستخدم بشأنه عبر DESTATE.","You can review this listing because you contacted its owner through DESTATE."):uiText("إضافة تقييم متاحة فقط بعد التواصل مع صاحب الإعلان عبر DESTATE.","Reviews are available only after contacting the listing owner through DESTATE.");
+ document.getElementById("propertyReviewForm").classList.toggle("hidden",!x.can_review);
+ if(x.my_rating){selectedPropertyRating=Number(x.my_rating);document.getElementById("propertyReviewComment").value=x.my_comment||"";document.getElementById("propertyReviewCharCount").textContent=String((x.my_comment||"").length);document.getElementById("submitPropertyReviewButton").textContent=uiText("تحديث تقييمي","Update my review")}
+ renderPropertyRatingStars();
+ const rows=Array.isArray(x.reviews)?x.reviews:[];
+ document.getElementById("propertyReviewList").innerHTML=rows.length?rows.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات لهذا الإعلان بعد.","No reviews for this listing yet.")+'</p>';
+}
+async function submitPropertyReview(e){
+ e.preventDefault();if(!currentUser){openModal("loginModal");return}
+ const comment=document.getElementById("propertyReviewComment").value.trim();
+ if(!selectedPropertyRating){alert(uiText("اختر عدد النجوم أولاً.","Choose a star rating first."));return}
+ if(comment.length>150){alert(uiText("التعليق يتجاوز 150 حرفاً.","Comment exceeds 150 characters."));return}
+ const b=document.getElementById("submitPropertyReviewButton");b.disabled=true;
+ const {error}=await db.rpc("submit_property_review",{p_property_id:activePropertyReviewId,p_rating:selectedPropertyRating,p_comment:comment});b.disabled=false;
+ if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):uiText("تعذّر إرسال تقييم الإعلان: ","Could not submit listing review: ")+error.message);return}
+ alert(uiText("تم حفظ تقييم الإعلان.","Listing review saved."));await loadPropertyReviews(activePropertyReviewId);await openPublicUserProfile(activePropertyReviewId);
+}
+document.addEventListener("input",e=>{if(e.target?.id==="propertyReviewComment")document.getElementById("propertyReviewCharCount").textContent=String(e.target.value.length)});
 function openReportModal(type="other",propertyId=null,targetId=null){
  if(!currentUser){alert(uiText("سجّل الدخول لتقديم بلاغ.","Log in to submit a report."));openModal("loginModal");return}
  reportTarget={type,propertyId,targetId};
