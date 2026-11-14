@@ -256,7 +256,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 </div>
 
 <div id="reviewModal" class="modal"><div class="modal-box">
- <div class="modal-head"><h2 id="reviewModalTitle">تقييم المعلن</h2><button class="close" onclick="closeModal('reviewModal')">✕</button></div>
+ <div class="modal-head"><h2 id="reviewModalTitle">تقييم</h2><button class="close" onclick="closeModal('reviewModal')">✕</button></div>
  <div id="reviewSummary" class="status" aria-live="polite"></div><div id="reviewEligibility" class="small"></div><div id="reviewList"></div>
  <form id="reviewForm" onsubmit="submitAdvertiserReview(event)">
   <div class="field"><label id="ratingLabel">تقييمك من 1 إلى 5 نجوم</label><div id="ratingStars" class="rating-stars"></div></div>
@@ -328,7 +328,7 @@ function openAdvertiserReviews(id){
  document.getElementById("reviewSummary").textContent=uiText("جاري تحميل التقييمات...","Loading reviews...");
  document.getElementById("reviewEligibility").textContent="";document.getElementById("reviewList").innerHTML="";
  document.getElementById("reviewComment").value="";document.getElementById("reviewCharCount").textContent="0";
- document.getElementById("reviewModalTitle").textContent=uiText("تقييم المعلن","User reviews");
+ document.getElementById("reviewModalTitle").textContent=uiText("تقييم","User reviews");
  document.getElementById("ratingLabel").textContent=uiText("تقييمك من 1 إلى 5 نجوم","Your rating (1–5 stars)");
  document.getElementById("reviewCommentLabel").textContent=uiText("تعليقك (150 حرفاً كحد أقصى)","Your comment (max 150 characters)");
  renderRatingStars();openModal("reviewModal");loadAdvertiserReviews(id);
@@ -980,7 +980,7 @@ function displayProperties(items){
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
    '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
 
-   '<div class="card-actions"><button type="button" onclick="openPublicUserProfile(\''+safe(p.id)+'\')">'+uiText("الملف الشخصي","User profile")+'</button><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المعلن","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
+   '<div class="card-actions"><button type="button" onclick="openPublicUserProfile(\''+safe(p.id)+'\')">'+uiText("الملف الشخصي","User profile")+'</button><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '<div class="listing-details hidden" id="listingDetails-'+safe(p.id)+'"><p>'+safe(p.description||uiText("لا توجد تفاصيل إضافية لهذا العقار.","No additional description is available for this property."))+'</p></div></div></article>';
  }).join("");
 }
