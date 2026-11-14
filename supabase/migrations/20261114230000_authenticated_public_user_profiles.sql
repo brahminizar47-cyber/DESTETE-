@@ -34,7 +34,7 @@ begin
         nullif(btrim(u.raw_user_meta_data ->> 'display_name'), ''),
         nullif(btrim(u.raw_user_meta_data ->> 'full_name'), ''),
         nullif(btrim(pr.full_name), ''),
-        'DESTATE user'
+        null
       ),
       'advertiser_type', (
         select p2.advertiser_type
