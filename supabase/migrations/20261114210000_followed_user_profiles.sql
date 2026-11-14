@@ -34,9 +34,9 @@ begin
   return query
   select
     coalesce(
-      nullif(btrim(u.raw_user_meta_data ->> 'display_name'), ''),
-      nullif(btrim(u.raw_user_meta_data ->> 'full_name'), ''),
-      nullif(btrim(u.raw_user_meta_data ->> 'name'), ''),
+      nullif(btrim(u.full_name), ''),
+      nullif(btrim(null), ''),
+      nullif(btrim(null), ''),
       'DESTATE user'
     )::text,
     coalesce(latest.advertiser_type, 'owner')::text,
@@ -50,7 +50,7 @@ begin
     p.price,
     p.area,
     p.created_at
-  from auth.users u
+  from public.profiles u
   left join lateral (
     select count(*)::bigint as listing_count
     from public.properties x
@@ -111,9 +111,9 @@ begin
   select
     f.advertiser_id,
     coalesce(
-      nullif(btrim(u.raw_user_meta_data ->> 'display_name'), ''),
-      nullif(btrim(u.raw_user_meta_data ->> 'full_name'), ''),
-      nullif(btrim(u.raw_user_meta_data ->> 'name'), ''),
+      nullif(btrim(u.full_name), ''),
+      nullif(btrim(null), ''),
+      nullif(btrim(null), ''),
       'DESTATE user'
     )::text,
     coalesce(latest.advertiser_type, 'owner')::text,
@@ -123,7 +123,7 @@ begin
     latest.city::text,
     f.created_at
   from public.advertiser_follows f
-  join auth.users u on u.id = f.advertiser_id
+  join public.profiles u on u.id = f.advertiser_id
   left join lateral (
     select count(*)::bigint as listing_count
     from public.properties p
