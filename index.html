@@ -118,20 +118,15 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <section class="search-box hidden" id="search">
  <h2 class="section-title" data-i18n="searchTitle">ابحث عن عقار</h2>
  <div class="filters">
-  <div><label data-i18n="propertyType">نوع العقار</label><select id="type" onchange="updateFilters()">
-   <option value="" data-i18n="allProperties">كل العقارات</option><option value="house" data-i18n="house">منزل</option><option value="apartment" data-i18n="apartment">شقة</option><option value="land" data-i18n="land">أرض سكنية</option><option value="agricultural_land" data-i18n="agriculturalLand">أرض فلاحية</option><option value="commercial" data-i18n="commercial">محل تجاري</option>
-  </select></div>
-  <div><label data-i18n="governorate">الولاية</label><select id="governorate"><option value="" data-i18n="allGovernorates">كل الولايات</option>
+  <input id="type" type="hidden" value="">
+  <div><label data-i18n="governorate">الولاية</label><select id="governorate" onchange="searchProperties()"><option value="" data-i18n="allGovernorates">كل الولايات</option>
    <option value="تونس" data-i18n="gov_tunis">تونس</option><option value="أريانة" data-i18n="gov_ariana">أريانة</option><option value="بن عروس" data-i18n="gov_ben_arous">بن عروس</option><option value="منوبة" data-i18n="gov_manouba">منوبة</option><option value="نابل" data-i18n="gov_nabeul">نابل</option><option value="زغوان" data-i18n="gov_zaghouan">زغوان</option><option value="بنزرت" data-i18n="gov_bizerte">بنزرت</option><option value="باجة" data-i18n="gov_beja">باجة</option><option value="جندوبة" data-i18n="gov_jendouba">جندوبة</option><option value="الكاف" data-i18n="gov_kef">الكاف</option><option value="سليانة" data-i18n="gov_siliana">سليانة</option><option value="سوسة" data-i18n="gov_sousse">سوسة</option><option value="المنستير" data-i18n="gov_monastir">المنستير</option><option value="المهدية" data-i18n="gov_mahdia">المهدية</option><option value="صفاقس" data-i18n="gov_sfax">صفاقس</option><option value="القيروان" data-i18n="gov_kairouan">القيروان</option><option value="القصرين" data-i18n="gov_kasserine">القصرين</option><option value="سيدي بوزيد" data-i18n="gov_sidi_bouzid">سيدي بوزيد</option><option value="قابس" data-i18n="gov_gabes">قابس</option><option value="مدنين" data-i18n="gov_medenine">مدنين</option><option value="تطاوين" data-i18n="gov_tataouine">تطاوين</option><option value="قفصة" data-i18n="gov_gafsa">قفصة</option><option value="توزر" data-i18n="gov_tozeur">توزر</option><option value="قبلي" data-i18n="gov_kebili">قبلي</option>
   </select></div>
-  <div id="ownershipField" class="hidden"><label data-i18n="ownershipType">نوع الملكية</label><select id="ownership"><option value="" data-i18n="all">الكل</option><option value="individual" data-i18n="individual">فردية</option><option value="shared" data-i18n="shared">مشتركة</option></select></div>
-  <div id="landField" class="hidden"><label data-i18n="landNature">الصبغة العقارية</label><select id="landType"><option value="" data-i18n="all">الكل</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
-  <div><label data-i18n="maxPrice">السعر الأقصى (دينار)</label><input id="maxPrice" type="number" placeholder="200000"></div>
-  <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" placeholder="100"></div>
-  <div><label data-i18n="advertiserType">صفة المستخدم</label><select id="advertiserFilter"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
+  <div id="ownershipField" class="hidden"><label data-i18n="ownershipType">نوع الملكية</label><select id="ownership" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="individual" data-i18n="individual">فردية</option><option value="shared" data-i18n="shared">مشتركة</option></select></div>
+  <div id="landField" class="hidden"><label data-i18n="landNature">الصبغة العقارية</label><select id="landType" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
+  <div><label data-i18n="advertiserType">صفة المعلن</label><select id="advertiserFilter" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">سمسار مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
  </div>
- <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
- <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
+ <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط الفلاتر</button>
 </section>
 <section id="listings" class="hidden" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
@@ -295,7 +290,7 @@ let compareItems=[];let openedSharedPropertyId=null;
 const translations={
 ar:{
 home:"الرئيسية",search:"البحث",listings:"العقارات",login:"دخول / حساب جديد",addProperty:"+ أضف عقارك",heroTitle:"عقارك، فرصتك، تواصلك المباشر",heroText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",heroText2:"ابحث عن عقارك في جميع أنحاء تونس",
-searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"الصبغة العقارية",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"صفة المستخدم",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",
+searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"الصبغة العقارية",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"صفة المعلن",owner:"مالك العقار",broker:"سمسار مستقل",agency:"وكالة عقارية",
 searchNow:"ابحث الآن",resetSearch:"إعادة ضبط البحث",browseByType:"تصفح حسب النوع",houses:"منازل",apartments:"شقق",residentialLands:"أراضي سكنية",agriculturalLands:"أراضي فلاحية",commercialProperties:"محلات تجارية",latestProperties:"أحدث العقارات",footerText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",copyright:"جميع الحقوق محفوظة",
 accountTitle:"حساب D-ESTATE",displayName:"الاسم (للتسجيل الجديد فقط)",enterName:"اكتب اسمك أولاً.",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب جديد",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
 loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"تواصل مع المستخدم",notSpecified:"غير محددة",advertiser:"مستخدم",loginRequired:"للتواصل مع المستخدم، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المستخدم. حاول مرة أخرى لاحقاً.",contactNumber:"رقم هاتف المستخدم: ",
@@ -304,7 +299,7 @@ adminTitle:"لوحة الإدارة",adminIntro:"إدارة جميع الإعل�
 },
 en:{
 home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian digital platform connecting property owners with property seekers",heroText2:"Find your property anywhere in Tunisia",
-searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"User Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
+searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"Advertiser Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
 searchNow:"Search Now",resetSearch:"Reset Search",browseByType:"Browse by Type",houses:"Houses",apartments:"Apartments",residentialLands:"Residential Lands",agriculturalLands:"Agricultural Lands",commercialProperties:"Commercial Properties",latestProperties:"Latest Properties",footerText:"A Tunisian digital platform connecting property owners with property seekers",copyright:"All rights reserved",
 accountTitle:"D-ESTATE Account",displayName:"Name (new accounts only)",enterName:"Please enter your name.",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create New Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
 loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact User",notSpecified:"Not specified",advertiser:"User",loginRequired:"Please create a free account or log in to contact the user.",contactError:"Could not retrieve the user's phone number. Please try again later.",contactNumber:"User phone: ",
@@ -821,6 +816,7 @@ function updateFilters(){
  const land=type==="land"||type==="agricultural_land";
  document.getElementById("landField").classList.toggle("hidden",!land);
  document.getElementById("ownershipField").classList.toggle("hidden",!land);
+ if(!land){document.getElementById("ownership").value="";document.getElementById("landType").value="";}
 }
 function updatePublishFields(){
  const type=document.getElementById("pType").value;
@@ -841,9 +837,7 @@ function chooseType(type,card){
  document.getElementById("search").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function resetSearch(){
- ["type","governorate","ownership","landType","advertiserFilter"].forEach(id=>document.getElementById(id).value="");
- document.getElementById("maxPrice").value="";
- document.getElementById("minArea").value="";
+ ["governorate","ownership","landType","advertiserFilter"].forEach(id=>document.getElementById(id).value="");
  document.querySelectorAll("#browseCategories .category").forEach(card=>card.classList.remove("active"));
  const allCard=document.querySelector("#browseCategories .category");
  if(allCard)allCard.classList.add("active");
@@ -916,15 +910,11 @@ async function uploadPropertyImages(files,propertyId){
  const gov=document.getElementById("governorate").value;
  const ownership=document.getElementById("ownership").value;
  const landType=document.getElementById("landType").value;
- const maxPrice=document.getElementById("maxPrice").value;
- const minArea=document.getElementById("minArea").value;
  const advertiser=document.getElementById("advertiserFilter").value;
 
  if(type)q=q.eq("property_type",type);
  if(gov)q=q.eq("governorate",gov);
  if(ownership)q=q.eq("ownership_type",ownership); if(landType)q=q.eq("land_type",landType);
- if(maxPrice)q=q.lte("price",Number(maxPrice));
- if(minArea)q=q.gte("area",Number(minArea));
  if(advertiser)q=q.eq("advertiser_type",advertiser);
 
  const from=publicPage*PUBLIC_PAGE_SIZE;
