@@ -107,12 +107,12 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <main class="container">
 <section id="browseCategories" style="margin-top:30px"><h2 class="section-title" data-i18n="browseByType">تصفح حسب النوع</h2>
  <div class="categories">
-  <div class="category" onclick="chooseType('')"><span class="symbol">🏘️</span><span data-i18n="allProperties">كل العقارات</span></div>
-  <div class="category" onclick="chooseType('house')"><span class="symbol">🏠</span><span data-i18n="houses">منازل</span></div>
-  <div class="category" onclick="chooseType('apartment')"><span class="symbol">🏢</span><span data-i18n="apartments">شقق</span></div>
-  <div class="category" onclick="chooseType('land')"><span class="symbol">🌳</span><span data-i18n="residentialLands">أراضي سكنية</span></div>
-  <div class="category" onclick="chooseType('agricultural_land')"><span class="symbol">🌾</span><span data-i18n="agriculturalLands">أراضي فلاحية</span></div>
-  <div class="category" onclick="chooseType('commercial')"><span class="symbol">🏬</span><span data-i18n="commercialProperties">محلات تجارية</span></div>
+  <div class="category" onclick="chooseType('',this)"><span class="symbol">🏘️</span><span data-i18n="allProperties">كل العقارات</span></div>
+  <div class="category" onclick="chooseType('house',this)"><span class="symbol">🏠</span><span data-i18n="houses">منازل</span></div>
+  <div class="category" onclick="chooseType('apartment',this)"><span class="symbol">🏢</span><span data-i18n="apartments">شقق</span></div>
+  <div class="category" onclick="chooseType('land',this)"><span class="symbol">🌳</span><span data-i18n="residentialLands">أراضي سكنية</span></div>
+  <div class="category" onclick="chooseType('agricultural_land',this)"><span class="symbol">🌾</span><span data-i18n="agriculturalLands">أراضي فلاحية</span></div>
+  <div class="category" onclick="chooseType('commercial',this)"><span class="symbol">🏬</span><span data-i18n="commercialProperties">محلات تجارية</span></div>
  </div>
 </section>
 <section class="search-box hidden" id="search">
@@ -133,7 +133,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
-<section id="listings" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
+<section id="listings" class="hidden" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
  <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
 </section>
@@ -830,14 +830,13 @@ function updatePublishFields(){
  document.getElementById("publishLandTypeField").classList.toggle("hidden",!land);
  document.getElementById("pLandType").required=land;
 }
-function chooseType(type){
+function chooseType(type,card){
  document.getElementById("type").value=type;
  updateFilters();
  document.getElementById("search").classList.remove("hidden");
  document.getElementById("listings").classList.remove("hidden");
  document.querySelectorAll("#browseCategories .category").forEach(card=>card.classList.remove("active"));
- const clicked=event?.currentTarget;
- if(clicked)clicked.classList.add("active");
+ if(card)card.classList.add("active");
  searchProperties();
  document.getElementById("search").scrollIntoView({behavior:"smooth",block:"start"});
 }
