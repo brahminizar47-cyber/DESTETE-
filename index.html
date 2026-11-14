@@ -149,6 +149,18 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 <div id="accountMessagesView" class="hidden"><h3 id="accountMessagesHeading">محادثاتي</h3><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
 <div id="accountFollowingView" class="hidden"><h3 id="accountFollowingHeading">المستخدمون الذين أتابعهم</h3><div id="accountFollowingList" class="account-list"></div></div>
 </div></section>
+<section id="publicUserPanel" class="profile-panel hidden" aria-live="polite">
+ <div class="admin-heading"><div><h2 class="section-title" id="publicUserName">ملف المستخدم</h2><p class="small" id="publicUserRole"></p></div><button type="button" onclick="closePublicUserProfile()" id="publicUserCloseButton">إغلاق</button></div>
+ <div id="publicUserStatus" class="status" role="status"></div>
+ <div class="profile-grid">
+  <div class="profile-info"><span id="publicUserAverageLabel">التقييم العام</span><strong id="publicUserAverage">—</strong></div>
+  <div class="profile-info"><span id="publicUserCountLabel">عدد التقييمات</span><strong id="publicUserCount">0</strong></div>
+  <div class="profile-info"><span id="publicUserListingsCountLabel">الإعلانات المنشورة</span><strong id="publicUserListingsCount">0</strong></div>
+ </div>
+ <div class="profile-section"><h3 id="publicUserListingsTitle">إعلانات المستخدم</h3><div id="publicUserListings" class="results"></div></div>
+ <div class="profile-section"><h3 id="publicUserReviewsTitle">تقييمات المستخدم وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
+ 
+</section>
 <section id="favoritesPanel" class="hidden" style="margin-top:35px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
@@ -249,6 +261,15 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <button class="primary" id="submitReviewButton" type="submit" style="width:100%">إرسال التقييم</button>
  </form>
 </div></div>
+<div id="propertyReviewModal" class="modal"><div class="modal-box">
+ <div class="modal-head"><h2 id="propertyReviewTitle">تقييم الإعلان</h2><button class="close" type="button" onclick="closeModal('propertyReviewModal')">✕</button></div>
+ <div id="propertyReviewSummary" class="status" aria-live="polite"></div><p id="propertyReviewEligibility" class="small"></p><div id="propertyReviewList"></div>
+ <form id="propertyReviewForm" onsubmit="submitPropertyReview(event)">
+  <div class="field"><label id="propertyRatingLabel">تقييمك من 1 إلى 5 نجوم</label><div id="propertyRatingStars" class="rating-stars"></div></div>
+  <div class="field"><label for="propertyReviewComment" id="propertyReviewCommentLabel">رأيك في الإعلان (150 حرفاً كحد أقصى)</label><textarea id="propertyReviewComment" maxlength="150" rows="3"></textarea><div class="small"><span id="propertyReviewCharCount">0</span>/150</div></div>
+  <button class="primary" id="submitPropertyReviewButton" type="submit" style="width:100%">إرسال التقييم</button>
+ </form>
+</div></div>
 <div id="reportModal" class="modal"><div class="modal-box">
  <div class="modal-head"><h2 id="reportModalTitle">تقديم بلاغ أو شكوى</h2><button class="close" onclick="closeModal('reportModal')">✕</button></div>
  <div class="notice" id="reportPrivacy">البلاغ سري ولا يظهر للعامة.</div>
@@ -299,6 +320,7 @@ let activeReviewPropertyId=null,selectedReviewRating=0,reportTarget={type:"other
 function renderRatingStars(){const box=document.getElementById("ratingStars");if(box)box.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=selectedReviewRating?'selected':'')+'" onclick="setReviewRating('+n+')">★</button>').join("")}
 function setReviewRating(n){selectedReviewRating=n;renderRatingStars()}
 function openAdvertiserReviews(id){
+ if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة التقييمات والآراء.","Log in to view ratings and reviews."));openModal("loginModal");return}
  activeReviewPropertyId=id;selectedReviewRating=0;
  document.getElementById("reviewSummary").textContent=uiText("جاري تحميل التقييمات...","Loading reviews...");
  document.getElementById("reviewEligibility").textContent="";document.getElementById("reviewList").innerHTML="";
@@ -331,6 +353,48 @@ async function submitAdvertiserReview(e){
  if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):error.message.includes("RATE_LIMITED:review")?uiText("وصلت إلى الحد الأقصى للتقييمات. حاول غداً.","You reached the review limit. Please try again tomorrow."):uiText("تعذّر إرسال التقييم: ","Could not submit review: ")+error.message);return}
  alert(uiText("تم حفظ تقييمك.","Your review has been saved."));await loadAdvertiserReviews(activeReviewPropertyId);
 }
+let activePropertyReviewId=null,selectedPropertyRating=0;
+function renderPropertyRatingStars(){
+ const box=document.getElementById("propertyRatingStars");
+ if(box)box.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="'+(n<=selectedPropertyRating?'selected':'')+'" onclick="setPropertyReviewRating('+n+')">★</button>').join("");
+}
+function setPropertyReviewRating(n){selectedPropertyRating=n;renderPropertyRatingStars()}
+async function openPropertyReviews(propertyId){
+ if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة تقييمات الإعلان وآراء المستخدمين.","Log in to view listing ratings and reviews."));openModal("loginModal");return}
+ activePropertyReviewId=propertyId;selectedPropertyRating=0;
+ document.getElementById("propertyReviewTitle").textContent=uiText("تقييم الإعلان","Listing reviews");
+ document.getElementById("propertyRatingLabel").textContent=uiText("تقييمك من 1 إلى 5 نجوم","Your rating (1–5 stars)");
+ document.getElementById("propertyReviewCommentLabel").textContent=uiText("رأيك في الإعلان (150 حرفاً كحد أقصى)","Your opinion (max 150 characters)");
+ document.getElementById("propertyReviewComment").value="";
+ document.getElementById("propertyReviewCharCount").textContent="0";
+ document.getElementById("propertyReviewSummary").textContent=uiText("جاري تحميل التقييمات...","Loading reviews...");
+ document.getElementById("propertyReviewEligibility").textContent="";
+ document.getElementById("propertyReviewList").innerHTML="";
+ renderPropertyRatingStars();openModal("propertyReviewModal");await loadPropertyReviews(propertyId);
+}
+async function loadPropertyReviews(propertyId){
+ const {data,error}=await db.rpc("get_property_reviews",{p_property_id:propertyId});
+ if(error){document.getElementById("propertyReviewSummary").textContent=uiText("تعذّر تحميل تقييمات الإعلان.","Could not load listing reviews.");return}
+ const x=data||{},avg=x.average_rating==null?"—":Number(x.average_rating).toFixed(1);
+ document.getElementById("propertyReviewSummary").textContent=uiText("المعدل: ","Average: ")+avg+" ★ · "+(x.review_count||0)+" "+uiText("تقييم","reviews");
+ document.getElementById("propertyReviewEligibility").textContent=x.can_review?uiText("يمكنك تقييم الإعلان لأنك تواصلت مع المستخدم بشأنه عبر DESTATE.","You can review this listing because you contacted its owner through DESTATE."):uiText("إضافة تقييم متاحة فقط بعد التواصل مع صاحب الإعلان عبر DESTATE.","Reviews are available only after contacting the listing owner through DESTATE.");
+ document.getElementById("propertyReviewForm").classList.toggle("hidden",!x.can_review);
+ if(x.my_rating){selectedPropertyRating=Number(x.my_rating);document.getElementById("propertyReviewComment").value=x.my_comment||"";document.getElementById("propertyReviewCharCount").textContent=String((x.my_comment||"").length);document.getElementById("submitPropertyReviewButton").textContent=uiText("تحديث تقييمي","Update my review")}
+ renderPropertyRatingStars();
+ const rows=Array.isArray(x.reviews)?x.reviews:[];
+ document.getElementById("propertyReviewList").innerHTML=rows.length?rows.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات لهذا الإعلان بعد.","No reviews for this listing yet.")+'</p>';
+}
+async function submitPropertyReview(e){
+ e.preventDefault();if(!currentUser){openModal("loginModal");return}
+ const comment=document.getElementById("propertyReviewComment").value.trim();
+ if(!selectedPropertyRating){alert(uiText("اختر عدد النجوم أولاً.","Choose a star rating first."));return}
+ if(comment.length>150){alert(uiText("التعليق يتجاوز 150 حرفاً.","Comment exceeds 150 characters."));return}
+ const b=document.getElementById("submitPropertyReviewButton");b.disabled=true;
+ const {error}=await db.rpc("submit_property_review",{p_property_id:activePropertyReviewId,p_rating:selectedPropertyRating,p_comment:comment});b.disabled=false;
+ if(error){alert(error.message.includes("PROFANITY_BLOCKED")?uiText("يرجى حذف الكلمات غير اللائقة.","Please remove inappropriate language."):uiText("تعذّر إرسال تقييم الإعلان: ","Could not submit listing review: ")+error.message);return}
+ alert(uiText("تم حفظ تقييم الإعلان.","Listing review saved."));await loadPropertyReviews(activePropertyReviewId);await openPublicUserProfile(activePropertyReviewId);
+}
+document.addEventListener("input",e=>{if(e.target?.id==="propertyReviewComment")document.getElementById("propertyReviewCharCount").textContent=String(e.target.value.length)});
 function openReportModal(type="other",propertyId=null,targetId=null){
  if(!currentUser){alert(uiText("سجّل الدخول لتقديم بلاغ.","Log in to submit a report."));openModal("loginModal");return}
  reportTarget={type,propertyId,targetId};
@@ -559,6 +623,46 @@ function setProfileLabels(){
  Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
+async function openPublicUserProfile(propertyId){
+ if(!currentUser){alert(uiText("سجّل الدخول لمشاهدة ملف المستخدم وتقييماته.","Log in to view user profiles and reviews."));openModal("loginModal");return}
+ if(!propertyId){alert(uiText("تعذّر فتح ملف المستخدم.","Could not open this user profile."));return}
+ const panel=document.getElementById("publicUserPanel"),status=document.getElementById("publicUserStatus");
+ document.getElementById("profilePanel").classList.add("hidden");panel.classList.remove("hidden");
+ document.getElementById("publicUserName").textContent=uiText("ملف المستخدم","User profile");
+ document.getElementById("publicUserCloseButton").textContent=uiText("إغلاق","Close");
+ document.getElementById("publicUserAverageLabel").textContent=uiText("التقييم العام","Overall rating");
+ document.getElementById("publicUserCountLabel").textContent=uiText("عدد التقييمات","Number of reviews");
+ document.getElementById("publicUserListingsCountLabel").textContent=uiText("الإعلانات المنشورة","Published listings");
+ document.getElementById("publicUserListingsTitle").textContent=uiText("إعلانات المستخدم","User listings");
+ document.getElementById("publicUserReviewsTitle").textContent=uiText("تقييمات المستخدم وآراء الآخرين","User ratings and reviews");
+ document.getElementById("publicUserRole").textContent="";
+ document.getElementById("publicUserAverage").textContent="—";
+ document.getElementById("publicUserCount").textContent="0";
+ document.getElementById("publicUserListingsCount").textContent="0";
+ document.getElementById("publicUserListings").innerHTML="";
+ document.getElementById("publicUserReviews").innerHTML="";
+
+ status.textContent=uiText("جاري تحميل الملف الشخصي...","Loading user profile...");
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+ const {data,error}=await db.rpc("get_public_user_profile",{p_property_id:propertyId});
+ if(error||!data){status.textContent=uiText("تعذّر تحميل الملف الشخصي. قد لا يملك هذا المستخدم إعلانات منشورة.","Could not load this profile. This user may have no published listings.");return}
+ const profile=data.profile||{},listings=Array.isArray(data.listings)?data.listings:[],reviews=Array.isArray(data.reviews)?data.reviews:[];
+ document.getElementById("publicUserName").textContent=profile.display_name||uiText("مستخدم DESTATE","DESTATE user");
+ const roleNames={owner:uiText("مالك العقار","Property owner"),broker:uiText("وسيط مستقل","Independent broker"),agency:uiText("وكالة عقارية","Real-estate agency")};
+ document.getElementById("publicUserRole").textContent=roleNames[profile.advertiser_type]||"";
+ document.getElementById("publicUserAverage").textContent=data.average_rating==null?"—":Number(data.average_rating).toFixed(1)+" ★";
+ document.getElementById("publicUserCount").textContent=String(data.review_count||0);
+ document.getElementById("publicUserListingsCount").textContent=String(listings.length);
+ status.textContent="";
+ document.getElementById("publicUserListings").innerHTML=listings.length?listings.map(p=>{
+  const images=Array.isArray(p.image_urls)?p.image_urls:[];
+  const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" style="width:100%;height:150px;object-fit:cover">':"";
+  return '<article class="property">'+photo+'<div class="property-content"><h3>'+safe(p.title)+'</h3><div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+'</div><div class="meta">'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+' · '+safe(p.area??"—")+' '+tr("areaUnit")+'</div><div class="meta">'+uiText("تقييم الإعلان: ","Listing rating: ")+(p.rating_average==null?"—":Number(p.rating_average).toFixed(1)+" ★")+' · '+Number(p.rating_count||0)+' '+uiText("تقييماً","reviews")+'</div><button type="button" class="secondary" onclick="openPropertyReviews(\''+safe(p.id)+'\')">'+uiText("التقييمات والآراء","Ratings & reviews")+'</button><p>'+safe(p.description||"")+'</p><button type="button" class="secondary" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("عرض الإعلان","View listing")+'</button></div></article>';
+ }).join(""):'<div class="empty">'+uiText("لا توجد إعلانات منشورة حالياً.","No published listings yet.")+'</div>';
+ document.getElementById("publicUserReviews").innerHTML=reviews.length?reviews.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات أو آراء منشورة بعد.","No published reviews yet.")+'</p>';
+
+}
+function closePublicUserProfile(){document.getElementById("publicUserPanel").classList.add("hidden")}
 function openProfile(){
  if(!currentUser){openModal("loginModal");return}
  renderProfile();setProfileLabels();
@@ -866,7 +970,7 @@ function displayProperties(items){
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
    '<div class="meta"><strong>'+uiText("صفة المستخدم: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
 
-   '<div class="card-actions"><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
+   '<div class="card-actions"><button type="button" onclick="openPublicUserProfile(\''+safe(p.id)+'\')">'+uiText("ملف المستخدم","User profile")+'</button><button type="button" onclick="toggleListingDetails(\''+safe(p.id)+'\')" aria-expanded="false" aria-controls="listingDetails-'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة المستخدم","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+tr("contact")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المستخدم","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button></div>'+
    '<div class="listing-details hidden" id="listingDetails-'+safe(p.id)+'"><p>'+safe(p.description||uiText("لا توجد تفاصيل إضافية لهذا العقار.","No additional description is available for this property."))+'</p></div></div></article>';
  }).join("");
 }
