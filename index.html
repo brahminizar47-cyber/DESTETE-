@@ -949,6 +949,7 @@ function updatePublishFields(){
  document.getElementById("pLandType").required=land;
 }
 function chooseType(type,card){
+ closeProfile();
  document.getElementById("type").value=type;
  updateFilters();
  document.getElementById("search").classList.remove("hidden");
@@ -1290,6 +1291,7 @@ function closePropertyDetails(){
  if(returnTo&&returnTo.isConnected)returnTo.scrollIntoView({behavior:"smooth",block:"center"});
 }
 async function openPropertyDetails(id){
+ closeProfile();
  propertyDetailsReturnElement=document.activeElement;
  const panel=document.getElementById("propertyDetailsPanel");
  const box=document.getElementById("propertyDetailsContent");
@@ -1315,6 +1317,7 @@ async function loadMyPropertyStats(){
  const panel=document.getElementById("myPropertiesPanel"),list=document.getElementById("myPropertiesList");
  if(!panel||!list)return;
  if(!currentUser){panel.classList.add("hidden");list.innerHTML="";return}
+ closeProfile();
  panel.classList.remove("hidden");
  document.getElementById("myPropertiesTitle").textContent=uiText("إعلاناتي وإحصائياتي","My listings & statistics");
  list.innerHTML='<div class="status">'+uiText("جاري تحميل إحصائيات إعلاناتك...","Loading your listing statistics...")+'</div>';
@@ -1512,6 +1515,7 @@ async function loadAdminPanel(){
  }
  if(data!==true)return;
 
+ closeProfile();
  panel.classList.remove("hidden");
  setAdminLabels();
  await loadAdminProperties();
