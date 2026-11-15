@@ -137,6 +137,17 @@ button,a{ -webkit-tap-highlight-color:transparent }
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 
+
+/* Account and service navigation: plain text, no colored tiles */
+.account-tiles{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px}
+.account-tile{appearance:none;background:transparent;border:0;border-radius:0;padding:8px 2px;text-align:start;min-height:40px;color:inherit;box-shadow:none;font:inherit}
+.account-tile strong{display:inline;margin:0;color:inherit;font-weight:600}
+.my-page-footer button,
+#profileNavButton,
+#favoritesNavButton,
+#headerReportButton{appearance:none;background:transparent!important;color:inherit!important;border:0!important;box-shadow:none!important;font-weight:500}
+.my-page-footer button{padding-inline:4px}
+
 </style>
 </head>
 <body>
@@ -194,18 +205,18 @@ button,a{ -webkit-tap-highlight-color:transparent }
    <h3 id="accountCenterTitle" class="account-section-heading">نشاطي على المنصة</h3>
    <span id="accountNotificationsCount" class="hidden">0</span><span id="accountMessagesCount" class="hidden">0</span><span id="accountFollowingCount" class="hidden">0</span>
    <div class="account-tiles">
-    <button class="account-tile" type="button" onclick="goToMyListings()">🏠<strong id="accountListingsLabel">إعلاناتي</strong></button>
-    <button class="account-tile" type="button" onclick="showAccountTab('following')">↗<strong id="accountFollowingLabel">متابعاتي</strong></button>
-    <button class="account-tile" type="button" onclick="goToFavorites()">♡<strong id="accountFavoritesLabel">المفضّلة</strong></button>
-    <button class="account-tile" type="button" onclick="showAccountTab('messages')">✉<strong id="accountMessagesLabel">الرسائل</strong></button>
+    <button class="account-tile" type="button" onclick="goToMyListings()"><strong id="accountListingsLabel">إعلاناتي</strong></button>
+    <button class="account-tile" type="button" onclick="showAccountTab('following')"><strong id="accountFollowingLabel">متابعاتي</strong></button>
+    <button class="account-tile" type="button" onclick="goToFavorites()"><strong id="accountFavoritesLabel">المفضّلة</strong></button>
+    <button class="account-tile" type="button" onclick="showAccountTab('messages')"><strong id="accountMessagesLabel">الرسائل</strong></button>
    </div>
    <div id="accountFollowingView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountFollowingHeading">متابعاتي</h3><button type="button" class="secondary" onclick="document.getElementById('accountFollowingView').classList.add('hidden')" id="accountFollowingClose">إغلاق</button></div><div id="accountFollowingList" class="account-list"></div></div>
    <div id="accountMessagesView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountMessagesHeading">الرسائل</h3><button type="button" class="secondary" onclick="document.getElementById('accountMessagesView').classList.add('hidden')" id="accountMessagesClose">إغلاق</button></div><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
    <div id="accountNotificationsView" class="hidden"><h3 id="accountNotificationsHeading">إشعاراتي</h3><div id="accountNotificationsList" class="account-list"></div></div>
   </section>
   <div class="my-page-footer">
-   <button type="button" class="secondary" id="accountSettingsButton" onclick="openAccountSettings()">⚙ <span id="accountSettingsButtonLabel">Account Settings</span></button>
-   <button type="button" class="danger" id="myPageLogoutButton" onclick="signOut()">↪ <span id="myPageLogoutLabel">تسجيل الخروج</span></button>
+   <button type="button" id="accountSettingsButton" onclick="openAccountSettings()"><span id="accountSettingsButtonLabel">Account Settings</span></button>
+   <button type="button" id="myPageLogoutButton" onclick="signOut()"><span id="myPageLogoutLabel">تسجيل الخروج</span></button>
   </div>
  </section>
  <section id="accountSettingsPanel" class="account-settings-panel hidden">
