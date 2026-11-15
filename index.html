@@ -270,11 +270,25 @@ button,a{ -webkit-tap-highlight-color:transparent }
   <div class="field"><label data-i18n="displayName">الاسم</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name"></div>
   <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email"></div>
   <div class="field"><label data-i18n="password">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password"></div>
+  <p id="authError" class="status hidden" role="alert" aria-live="polite"></p>
+  <button id="authForgotPassword" type="button" class="hidden" style="width:100%;margin-bottom:8px;background:transparent;color:var(--blue);text-decoration:underline" onclick="forgotPassword()">نسيت كلمة المرور؟</button>
   <label class="legal-consent"><input id="legalConsent" type="checkbox"><span><span data-i18n="legalConsentText">أوافق على شروط الاستخدام وسياسة الخصوصية</span> — <a href="/legal.html#terms" target="_blank" rel="noopener" data-i18n="legalTermsLink">شروط الاستخدام</a> · <a href="/legal.html#privacy" target="_blank" rel="noopener" data-i18n="legalPrivacyLink">سياسة الخصوصية</a></span></label>
   <button class="secondary" style="width:100%;margin-bottom:8px" onclick="signIn()" data-i18n="signIn">تسجيل الدخول</button>
-  <button class="primary" style="width:100%;margin-bottom:8px" onclick="signUp()" data-i18n="signUp">إنشاء حساب جديد</button>
-  <button style="width:100%;background:#eee" onclick="signOut()" data-i18n="signOut">تسجيل الخروج</button>
+  <button id="signUpButton" class="primary" style="width:100%;margin-bottom:8px" onclick="signUp()" data-i18n="signUp">حساب جديد</button>
+  <button id="signOutButton" style="width:100%;background:#eee" onclick="signOut()" data-i18n="signOut">تسجيل الخروج</button>
   <p class="small" data-i18n="emailConfirmation">قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.</p>
+ </div>
+</div>
+<div id="passwordResetModal" class="modal">
+ <div class="modal-box">
+  <div class="modal-head"><h2 data-i18n="resetPasswordTitle">إنشاء كلمة مرور جديدة</h2></div>
+  <p class="small" data-i18n="resetPasswordIntro">أدخل كلمة المرور الجديدة لحسابك.</p>
+  <form onsubmit="updateRecoveredPassword(event)">
+   <div class="field"><label data-i18n="newPassword">كلمة المرور الجديدة (12 حرفاً على الأقل)</label><input id="recoveryPassword" type="password" autocomplete="new-password" minlength="12" required></div>
+   <div class="field"><label data-i18n="confirmPassword">تأكيد كلمة المرور</label><input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" minlength="12" required></div>
+   <p id="recoveryStatus" class="status hidden" role="alert" aria-live="polite"></p>
+   <button id="recoverySubmitButton" class="primary" type="submit" style="width:100%" data-i18n="saveNewPassword">حفظ كلمة المرور</button>
+  </form>
  </div>
 </div>
 <div id="publishModal" class="modal">
@@ -347,7 +361,7 @@ ar:{
 home:"الرئيسية",search:"البحث",listings:"العقارات",login:"دخول / حساب جديد",addProperty:"+ أضف عقارك",heroTitle:"عقارك، فرصتك، تواصلك المباشر",heroText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",heroText2:"ابحث عن عقارك في جميع أنحاء تونس",
 searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"الصبغة العقارية",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"صفة المعلن",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",sortResults:"ترتيب النتائج",sortNewest:"الأحدث أولاً",sortPriceAsc:"السعر: من الأقل إلى الأعلى",sortPriceDesc:"السعر: من الأعلى إلى الأقل",
 searchNow:"ابحث الآن",resetSearch:"إعادة ضبط الفلاتر",browseByType:"تصفح حسب النوع",houses:"منازل",apartments:"شقق",residentialLands:"أراضي سكنية",agriculturalLands:"أراضي فلاحية",commercialProperties:"محلات تجارية",latestProperties:"أحدث العقارات",footerText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",copyright:"جميع الحقوق محفوظة",
-accountTitle:"حساب D-ESTATE",displayName:"الاسم (للتسجيل الجديد فقط)",enterName:"اكتب اسمك أولاً.",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب جديد",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
+accountTitle:"حساب D-ESTATE",displayName:"الاسم (للتسجيل الجديد فقط)",enterName:"اكتب اسمك أولاً.",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"حساب جديد",signOut:"تسجيل الخروج",forgotPassword:"نسيت كلمة المرور؟",wrongCredentials:"البريد الإلكتروني أو كلمة المرور غير صحيحة.",resetEmailSent:"إذا كان البريد مرتبطاً بحساب، فستصلك رسالة تحتوي على رابط لإعادة تعيين كلمة المرور.",resetEmailError:"تعذّر إرسال رابط إعادة تعيين كلمة المرور. حاول مرة أخرى لاحقاً.",resetPasswordTitle:"إنشاء كلمة مرور جديدة",resetPasswordIntro:"أدخل كلمة المرور الجديدة لحسابك.",newPassword:"كلمة المرور الجديدة (12 حرفاً على الأقل)",confirmPassword:"تأكيد كلمة المرور",saveNewPassword:"حفظ كلمة المرور",passwordMismatch:"كلمتا المرور غير متطابقتين.",passwordTooShort:"كلمة المرور يجب أن تحتوي على 12 حرفاً على الأقل.",passwordUpdated:"تم تحديث كلمة المرور. يمكنك الآن تسجيل الدخول بكلمتك الجديدة.",passwordUpdateError:"تعذّر تحديث كلمة المرور: ",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
 loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"الهاتف",notSpecified:"غير محددة",advertiser:"معلن",loginRequired:"للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المعلن. حاول مرة أخرى لاحقاً.",contactNumber:"رقم الهاتف: ",
 enterEmailPassword:"اكتب البريد الإلكتروني وكلمة مرور من 12 حرفاً على الأقل.",accountCreated:"تم إرسال طلب إنشاء الحساب. تفقد بريدك الإلكتروني إذا طُلب التأكيد.",signedIn:"تم تسجيل الدخول.",signedOut:"تم تسجيل الخروج.",mustLogin:"يلزمك تسجيل الدخول قبل نشر إعلان.",chooseAtLeastOne:"يجب اختيار صورة واحدة على الأقل، و8 صور كحد أقصى.",tooManyImages:"يمكنك اختيار 8 صور كحد أقصى.",badFormat:"صيغة غير مقبولة. استعمل JPG أو PNG أو WebP.",tooLarge:"حجم كل صورة يجب ألا يتجاوز 5 ميغابايت.",uploading:"جاري رفع الصور والنشر...",pleaseWait:"يرجى الانتظار، لا تغلق الصفحة أثناء رفع الصور.",uploadError:"تعذر رفع الصور: ",saveError:"لم يتم حفظ الإعلان: ",publishSuccess:"تم رفع الصور وإرسال الإعلان للمراجعة بنجاح. سيظهر بعد اعتماده.",publishFailed:"لم يكتمل النشر. راجع رسالة الخطأ.",publishError:"حدث خطأ أثناء النشر.",checkPhotos:"تأكد من صيغة الصور وحجمها قبل النشر.",loggedIn:"أنت مسجل الدخول: ",readyToPublish:"أنت مسجل الدخول. يمكنك إعداد إعلانك.",loginBefore:"يلزمك تسجيل الدخول قبل نشر إعلان.",
 adminTitle:"لوحة الإدارة",adminIntro:"إدارة جميع الإعلانات ومراجعة حالتها من مكان واحد.",adminChecking:"جاري التحقق من صلاحيات الإدارة...",adminLoading:"جاري تحميل بيانات الإعلانات...",adminRefresh:"تحديث البيانات",adminTotal:"كل الإعلانات",adminPending:"في الانتظار",adminPublished:"منشورة",adminRejected:"مرفوضة",adminSearch:"ابحث بالعنوان أو المدينة أو رقم الإعلان",adminFilterAll:"كل الحالات",adminEmptyAll:"لا توجد إعلانات حالياً.",adminEmptyFilter:"لا توجد إعلانات بهذه الحالة أو بهذه الكلمات.",statusPending:"في الانتظار",statusPublished:"منشور",statusRejected:"مرفوض",approve:"موافقة ونشر",reject:"رفض الإعلان",republish:"إعادة النشر",deleteListing:"حذف الإعلان",deleteConfirm:"هل أنت متأكد من حذف هذا الإعلان نهائياً؟ سيتم حذف صوره أيضاً.",deleted:"تم حذف الإعلان وصوره بنجاح.",deleteError:"تعذّر حذف الإعلان: ",deleteImagesError:"تعذّر حذف صور الإعلان، لم يتم حذف الإعلان: ",deletePartialError:"تم حذف الإعلان، لكن تعذّر حذف بعض الصور من التخزين: ",location:"الموقع",pendingError:"تعذّر تحميل الإعلانات: ",approveConfirm:"هل تريد الموافقة على الإعلان ونشره؟",rejectConfirm:"هل تريد رفض هذا الإعلان؟",republishConfirm:"هل تريد إعادة نشر هذا الإعلان؟",approved:"تم نشر الإعلان بنجاح.",rejected:"تم رفض الإعلان.",reviewError:"تعذّر تحديث الإعلان: ",reviewNoRow:"لم يتم تحديث الإعلان. ربما تمت مراجعته من قبل.",areaUnit:"م²",chooseType:"اختر نوع العقار"
@@ -356,7 +370,7 @@ en:{
 home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian digital platform connecting property owners with property seekers",heroText2:"Find your property anywhere in Tunisia",
 searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"User Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",sortResults:"Sort results",sortNewest:"Newest first",sortPriceAsc:"Price: low to high",sortPriceDesc:"Price: high to low",
 searchNow:"Search Now",resetSearch:"Reset Filters",browseByType:"Browse by Type",houses:"Houses",apartments:"Apartments",residentialLands:"Residential Lands",agriculturalLands:"Agricultural Lands",commercialProperties:"Commercial Properties",latestProperties:"Latest Properties",footerText:"A Tunisian digital platform connecting property owners with property seekers",copyright:"All rights reserved",
-accountTitle:"D-ESTATE Account",displayName:"Name (new accounts only)",enterName:"Please enter your name.",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create New Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
+accountTitle:"D-ESTATE Account",displayName:"Name (new accounts only)",enterName:"Please enter your name.",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"New Account",signOut:"Log Out",forgotPassword:"Forgot password?",wrongCredentials:"The email address or password is incorrect.",resetEmailSent:"If an account is associated with this email, a password reset link will be sent to it.",resetEmailError:"Could not send the password reset link. Please try again later.",resetPasswordTitle:"Create a new password",resetPasswordIntro:"Enter a new password for your account.",newPassword:"New password (at least 12 characters)",confirmPassword:"Confirm password",saveNewPassword:"Save new password",passwordMismatch:"The passwords do not match.",passwordTooShort:"Password must be at least 12 characters.",passwordUpdated:"Your password has been updated. You can now sign in with your new password.",passwordUpdateError:"Could not update password: ",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
 loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact User",notSpecified:"Not specified",advertiser:"User",loginRequired:"Please create a free account or log in to contact the user.",contactError:"Could not retrieve the user's phone number. Please try again later.",contactNumber:"User phone: ",
 enterEmailPassword:"Enter your email and a password of at least 12 characters.",accountCreated:"Your registration request was sent. Check your email if confirmation is required.",signedIn:"You are now logged in.",signedOut:"You have been logged out.",mustLogin:"Please log in before publishing a listing.",chooseAtLeastOne:"Choose at least one image and no more than 8.",tooManyImages:"You can choose a maximum of 8 images.",badFormat:"Unsupported format. Use JPG, PNG or WebP.",tooLarge:"Each image must be no larger than 5 MB.",uploading:"Uploading images and publishing...",pleaseWait:"Please wait. Do not close the page while images are uploading.",uploadError:"Image upload failed: ",saveError:"Listing could not be saved: ",publishSuccess:"Images uploaded and listing submitted for review. It will appear after approval.",publishFailed:"Publishing was not completed. Check the error message.",publishError:"An error occurred while publishing.",checkPhotos:"Check the image formats and sizes before publishing.",loggedIn:"Logged in as: ",readyToPublish:"You are logged in. You can prepare your listing.",loginBefore:"Please log in before publishing a listing.",
 adminTitle:"Admin Dashboard",adminIntro:"Manage every listing and review its status in one place.",adminChecking:"Checking administrator permissions...",adminLoading:"Loading listing data...",adminRefresh:"Refresh data",adminTotal:"All listings",adminPending:"Pending",adminPublished:"Published",adminRejected:"Rejected",adminSearch:"Search by title, city or listing ID",adminFilterAll:"All statuses",adminEmptyAll:"There are no listings yet.",adminEmptyFilter:"No listings match this status or search.",statusPending:"Pending",statusPublished:"Published",statusRejected:"Rejected",approve:"Approve & Publish",reject:"Reject listing",republish:"Republish",deleteListing:"Delete listing",deleteConfirm:"Permanently delete this listing? Its photos will also be deleted.",deleted:"Listing and photos deleted successfully.",deleteError:"Could not delete listing: ",deleteImagesError:"Could not delete the listing photos. The listing was not deleted: ",deletePartialError:"The listing was deleted, but some photos could not be removed from storage: ",location:"Location",pendingError:"Could not load listings: ",approveConfirm:"Approve and publish this listing?",rejectConfirm:"Reject this listing?",republishConfirm:"Republish this listing?",approved:"Listing published successfully.",rejected:"Listing rejected.",reviewError:"Could not update listing: ",reviewNoRow:"No listing was updated. It may already have been reviewed.",areaUnit:"m²",chooseType:"Choose property type"
@@ -559,6 +573,9 @@ function applyLanguage(){
  const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display="inline-block";}
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser?"inline-block":"none";}
+ const signUpButton=document.getElementById("signUpButton");if(signUpButton)signUpButton.style.display=currentUser?"none":"block";
+ const signOutButton=document.getElementById("signOutButton");if(signOutButton)signOutButton.style.display=currentUser?"block":"none";
+ const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
  const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("إغلاق","Close");
  document.querySelectorAll("[data-i18n]").forEach(el=>{
@@ -623,8 +640,18 @@ async function signUp(){
 async function signIn(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
+ const authError=document.getElementById("authError");
+ const forgotButton=document.getElementById("authForgotPassword");
+ authError.classList.add("hidden");authError.textContent="";
+ forgotButton.classList.add("hidden");
  const {data,error}=await db.auth.signInWithPassword({email,password});
- if(error){alert(error.message);return}
+ if(error){
+  if(error.code==="invalid_credentials"||(error.status===400&&/invalid login credentials/i.test(error.message||""))){
+   authError.textContent=tr("wrongCredentials");authError.classList.remove("hidden");
+   forgotButton.classList.remove("hidden");
+  }else alert(error.message);
+  return;
+ }
  const metadata=data.user?.user_metadata||{};
  const needsAcceptance=metadata.accepted_terms_version!=="2026-11-13-v1"||metadata.accepted_privacy_version!=="2026-11-13-v1";
  if(needsAcceptance){
@@ -645,6 +672,46 @@ async function signIn(){
  await refreshUser();
  closeModal("loginModal");
  alert(tr("signedIn"));
+}
+async function forgotPassword(){
+ const email=document.getElementById("authEmail").value.trim();
+ const status=document.getElementById("authError");
+ const link=document.getElementById("authForgotPassword");
+ if(!email||!document.getElementById("authEmail").checkValidity()){
+  status.textContent=uiText("اكتب بريدك الإلكتروني الصحيح أولاً.","Enter a valid email address first.");
+  status.classList.remove("hidden");document.getElementById("authEmail").focus();return;
+ }
+ link.disabled=true;
+ const {error}=await db.auth.resetPasswordForEmail(email);
+ link.disabled=false;
+ if(error){
+  status.textContent=tr("resetEmailError");status.classList.remove("hidden");
+  console.error("Password recovery request failed:",error.message);return;
+ }
+ status.textContent=tr("resetEmailSent");status.classList.remove("hidden");
+ link.classList.add("hidden");
+}
+async function updateRecoveredPassword(event){
+ event.preventDefault();
+ const password=document.getElementById("recoveryPassword").value;
+ const confirmPassword=document.getElementById("recoveryPasswordConfirm").value;
+ const status=document.getElementById("recoveryStatus");
+ const button=document.getElementById("recoverySubmitButton");
+ status.classList.add("hidden");
+ if(password.length<12){status.textContent=tr("passwordTooShort");status.classList.remove("hidden");return;}
+ if(password!==confirmPassword){status.textContent=tr("passwordMismatch");status.classList.remove("hidden");return;}
+ button.disabled=true;
+ const {error}=await db.auth.updateUser({password});
+ button.disabled=false;
+ if(error){status.textContent=tr("passwordUpdateError")+error.message;status.classList.remove("hidden");return;}
+ await db.auth.signOut();
+ document.getElementById("recoveryPassword").value="";
+ document.getElementById("recoveryPasswordConfirm").value="";
+ closeModal("passwordResetModal");
+ openModal("loginModal");
+ const authError=document.getElementById("authError");
+ authError.textContent=tr("passwordUpdated");authError.classList.remove("hidden");
+ document.getElementById("authForgotPassword").classList.add("hidden");
 }
 async function signOut(){
  const {error}=await db.auth.signOut();
@@ -1578,7 +1645,11 @@ async function reviewProperty(id,nextStatus,currentStatus){
  if(nextStatus==="published")await searchProperties();
 }
 
-db.auth.onAuthStateChange((_event,session)=>{
+db.auth.onAuthStateChange((event,session)=>{
+ if(event==="PASSWORD_RECOVERY"){
+  closeModal("loginModal");
+  openModal("passwordResetModal");
+ }
  currentUser=session?.user||null;
  const authNavButton=document.getElementById("authNavButton");
  if(authNavButton)authNavButton.style.display=currentUser?"none":"";
