@@ -367,8 +367,10 @@ button,a{ -webkit-tap-highlight-color:transparent }
 const SUPABASE_KEY="sb_publishable_ohUN940nP5SXpsFxlbnr8w_s3RMBidV";
 const BUCKET="property-images";
 const MAX_IMAGES=8,MAX_IMAGE_SIZE=5*1024*1024;
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let currentUser=null,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=20;
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+ auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}
+});
+let currentUser=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=20;
 let compareItems=[];let openedSharedPropertyId=null;
 
 const translations={
@@ -625,14 +627,17 @@ function openPublish(){ openModal("publishModal");
 }
 
 async function refreshUser(){
- const {data}=await db.auth.getUser();
- currentUser=data?.user||null;
+ const version=authStateVersion;
+ const {data,error}=await db.auth.getSession();
+ if(version===authStateVersion){
+  currentUser=error?null:(data?.session?.user||null);
+ }
  renderProfile();
  applyLanguage();
  await loadAdminPanel();
  await loadMyPropertyStats();
  const favoritesPanel=document.getElementById("favoritesPanel");
- if(favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
+ if(currentUser&&favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
 }
 async function signUp(){
  const displayName=document.getElementById("authDisplayName").value.trim();
@@ -1699,13 +1704,14 @@ async function reviewProperty(id,nextStatus,currentStatus){
 }
 
 db.auth.onAuthStateChange((event,session)=>{
+ authStateVersion++;
  if(event==="PASSWORD_RECOVERY"){
   closeModal("loginModal");
   openModal("passwordResetModal");
  }
  currentUser=session?.user||null;
  const authNavButton=document.getElementById("authNavButton");
- if(authNavButton)authNavButton.style.display=currentUser?"none":"";
+ if(authNavButton)authNavButton.style.display=currentUser?"none":"inline-block";
  renderProfile();
  applyLanguage();
  if(!currentUser){const favoritesPanel=document.getElementById("favoritesPanel");if(favoritesPanel)favoritesPanel.classList.add("hidden");}
