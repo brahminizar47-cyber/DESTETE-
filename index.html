@@ -88,6 +88,55 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 #favoritesPanel .admin-heading{margin-bottom:12px}
 #favoritesPanel .admin-heading .section-title{margin:0}
 .legal-consent{display:flex;align-items:flex-start;gap:9px;margin:12px 0;padding:12px;background:#f4f7f1;border:1px solid var(--border);border-radius:9px;line-height:1.6}.legal-consent input{width:auto;min-width:18px;margin-top:4px}.legal-consent a{color:var(--navy);text-decoration:underline}.profile-panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:30px}.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.profile-info{background:#f5f7fa;border:1px solid var(--border);border-radius:9px;padding:12px;min-width:0}.profile-info strong{display:block;margin-top:6px;overflow-wrap:anywhere}.profile-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.profile-actions button{flex:1;min-width:130px}.profile-section{border-top:1px solid var(--border);margin-top:18px;padding-top:16px}.profile-section h3{margin:0 0 12px;color:var(--navy)}.account-center{margin-top:20px;border-top:1px solid var(--border);padding-top:18px}.account-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.account-tile{background:#f5f7fa;border:1px solid var(--border);border-radius:10px;padding:13px;text-align:start;min-height:78px}.account-tile strong{display:block;margin-top:7px;color:var(--navy)}.account-tile .count{float:inline-end;background:#e4efe2;color:var(--navy);border-radius:20px;padding:2px 8px;font-size:12px}.account-list{display:grid;gap:9px;margin-top:12px}.account-item{background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px;text-align:start}.account-item.unread{border-inline-start:4px solid var(--blue);background:#f6faf5}
+
+/* DESTATE Mobile First + 4G improvements */
+img{max-width:100%}
+button,a,input,select,textarea{touch-action:manipulation}
+button,a{ -webkit-tap-highlight-color:transparent }
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.property-gallery img,.detail-gallery img,.image-thumb img{display:block;max-width:100%;height:auto;object-fit:cover}
+.property-gallery img{height:185px;min-width:75%;width:auto}
+@media(max-width:640px){
+ body{font-size:15px;overflow-x:hidden}
+ header{padding:12px 4%;gap:10px}
+ .logo{font-size:24px}
+ nav{width:100%;justify-content:flex-start;gap:7px}
+ nav a{padding:9px 4px}
+ nav button{min-height:44px;padding:10px 12px;flex:1 1 auto}
+ .hero{padding:38px 16px 34px}
+ .hero h1{font-size:clamp(24px,6vw,30px);line-height:1.35}
+ .hero p{font-size:15px;line-height:1.65}
+ .container{width:92%;margin:18px auto}
+ .search-box{padding:15px;margin-top:16px}
+ .filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .filters>div{min-width:0}
+ input,select,textarea{min-height:44px;font-size:16px}
+ .categories{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .results{grid-template-columns:minmax(0,1fr);gap:13px}
+ .property-content{padding:14px}
+ .property-gallery{height:160px}
+ .property-gallery img{height:160px;min-width:82%}
+ .card-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .card-actions button{min-width:0;min-height:44px;padding:10px 8px}
+ .pagination{gap:8px}
+ .pagination button{min-height:44px;min-width:82px}
+ .modal{padding:8px}
+ .modal-box{width:100%;max-width:540px;margin:10px auto;padding:16px}
+ .detail-gallery img{height:150px;min-width:82%}
+ .compare-table{display:block;overflow-x:auto;white-space:nowrap}
+ #favoritesPanel,.profile-panel{padding:14px}
+ .admin-panel{padding:14px}
+}
+@media(max-width:380px){
+ .filters{grid-template-columns:minmax(0,1fr)}
+ nav{gap:5px}
+ nav button{font-size:13px;padding:9px 8px}
+ .card-actions{grid-template-columns:minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
 </style>
 </head>
 <body>
@@ -661,7 +710,7 @@ async function openPublicUserProfile(propertyId){
  status.textContent="";
  document.getElementById("publicUserListings").innerHTML=listings.length?listings.map(p=>{
   const images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
-  const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" style="width:100%;height:150px;object-fit:cover">':"";
+  const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" decoding="async" style="width:100%;height:150px;object-fit:cover">':"";
   return '<article class="property">'+photo+'<div class="property-content"><h3>'+safe(p.title)+'</h3><div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+'</div><div class="meta">'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+' · '+safe(p.area??"—")+' '+tr("areaUnit")+'</div><div class="meta">'+uiText("تقييم الإعلان: ","Listing rating: ")+(p.rating_average==null?"—":Number(p.rating_average).toFixed(1)+" ★")+' · '+Number(p.rating_count||0)+' '+uiText("تقييماً","reviews")+'</div><button type="button" class="secondary" onclick="openPropertyReviews(\''+safe(p.id)+'\')">'+uiText("التقييمات والآراء","Ratings & reviews")+'</button><p>'+safe(p.description||"")+'</p><button type="button" class="secondary" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("عرض الإعلان","View listing")+'</button></div></article>';
  }).join(""):'<div class="empty">'+uiText("لا توجد إعلانات منشورة حالياً.","No published listings yet.")+'</div>';
  document.getElementById("publicUserReviews").innerHTML=reviews.length?reviews.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات أو آراء منشورة بعد.","No published reviews yet.")+'</p>';
@@ -909,14 +958,41 @@ async function signPropertyImages(properties){
  });
  return items;
 }
+async function compressPropertyImage(file){
+ if(typeof createImageBitmap!=="function")return file;
+ let bitmap;
+ try{
+  bitmap=await createImageBitmap(file);
+  const maxDimension=1600;
+  const scale=Math.min(1,maxDimension/Math.max(bitmap.width,bitmap.height));
+  if(scale===1&&file.size<=450*1024)return file;
+  const canvas=document.createElement("canvas");
+  canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+  canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const context=canvas.getContext("2d",{alpha:false});
+  if(!context)return file;
+  context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.78));
+  if(!blob||blob.size>=file.size)return file;
+  const baseName=file.name.replace(/\.[^.]+$/,"");
+  return new File([blob],baseName+".webp",{type:"image/webp",lastModified:Date.now()});
+ }catch(error){
+  console.warn("Image optimization skipped:",error);
+  return file;
+ }finally{
+  if(bitmap)bitmap.close();
+ }
+}
 async function uploadPropertyImages(files,propertyId){
  const urls=[],uploadedPaths=[];
- for(const file of files){
+ for(const originalFile of files){
+  const file=await compressPropertyImage(originalFile);
   const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"}[file.type];
+  if(!ext)throw new Error(tr("badFormat"));
   const name=crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2);
   const path=currentUser.id+"/"+propertyId+"/"+name+"."+ext;
   const {error}=await db.storage.from(BUCKET).upload(path,file,{
-   cacheControl:"3600",upsert:false,contentType:file.type
+   cacheControl:"31536000",upsert:false,contentType:file.type
   });
   if(error){
    if(uploadedPaths.length)await db.storage.from(BUCKET).remove(uploadedPaths);
