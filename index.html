@@ -213,11 +213,11 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div class="profile-section"><h3 id="publicUserListingsTitle">إعلانات هذا الحساب</h3><div id="publicUserListings" class="results"></div></div>
  <div class="profile-section"><h3 id="publicUserReviewsTitle">تقييمات المعلن وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
  
-</section>
-<section id="favoritesPanel" class="hidden" style="margin-top:35px">
+ <section id="favoritesPanel" class="hidden profile-section" style="margin-top:20px">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
  <div id="favoritesResults" class="results"></div>
+ </section>
 </section>
 <section id="myPropertiesPanel" class="hidden" style="margin-top:35px"><h2 class="section-title" id="myPropertiesTitle">إعلاناتي وإحصائياتي</h2><div id="myPropertiesList"></div></section>
 <section id="adminPanel" class="admin-panel hidden">
@@ -747,7 +747,7 @@ async function saveProfilePassword(){
  input.value="";status.textContent=uiText("تم تحديث كلمة المرور بنجاح.","Password updated successfully.");
 }
 function goToMyListings(){closeProfile();const panel=document.getElementById("myPropertiesPanel");panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});loadMyPropertyStats()}
-function goToFavorites(){closeProfile();openFavorites()}
+function goToFavorites(){openFavorites()}
 
 function showAccountTab(tab){
  const notifications=document.getElementById("accountNotificationsView");
@@ -1155,10 +1155,14 @@ async function toggleFavorite(id){
 
 async function openFavorites(){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
+ const profilePanel=document.getElementById("profilePanel");
+ if(profilePanel?.classList.contains("hidden")){
+  openProfile();
+ }
  const panel=document.getElementById("favoritesPanel");
  panel.classList.remove("hidden");
  await loadFavoriteProperties();
- panel.scrollIntoView({behavior:"smooth",block:"start"});
+ panel.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function closeFavorites(){document.getElementById("favoritesPanel").classList.add("hidden")}
 
