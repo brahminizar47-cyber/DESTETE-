@@ -1499,6 +1499,19 @@ function setAdminLabels(){
  if(searchButton)searchButton.textContent=uiText("بحث","Search");
 }
 
+async function runFacebookPublisher(){
+ try{
+  const {data,error}=await db.functions.invoke("destate-facebook-publisher",{
+   body:{site_url:window.location.origin}
+  });
+  if(error)console.warn("Facebook publishing queue:",error.message);
+  return data||null;
+ }catch(error){
+  console.warn("Facebook publishing is not available yet:",error);
+  return null;
+ }
+}
+
 async function loadAdminPanel(){
  const panel=document.getElementById("adminPanel");
  if(!panel)return;
@@ -1516,6 +1529,7 @@ async function loadAdminPanel(){
  if(data!==true)return;
 
  closeProfile();
+ void runFacebookPublisher();
  panel.classList.remove("hidden");
  setAdminLabels();
  await loadAdminProperties();
@@ -1646,7 +1660,10 @@ async function reviewProperty(id,nextStatus,currentStatus){
  alert(nextStatus==="published"?tr("approved"):tr("rejected"));
  await loadAdminProperties();
  await loadAdminActionLogs();
- if(nextStatus==="published")await searchProperties();
+ if(nextStatus==="published"){
+  await searchProperties();
+  void runFacebookPublisher();
+ }
 }
 
 db.auth.onAuthStateChange((event,session)=>{
