@@ -129,6 +129,7 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
   <div><label data-i18n="maxPrice">السعر الأقصى (دينار)</label><input id="maxPrice" type="number" placeholder="200000"></div>
   <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" placeholder="100"></div>
   <div><label data-i18n="advertiserType">صفة المعلن</label><select id="advertiserFilter" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
+  <div><label data-i18n="sortResults">ترتيب النتائج</label><select id="sortBy" onchange="searchProperties()"><option value="newest" data-i18n="sortNewest">الأحدث أولاً</option><option value="price_asc" data-i18n="sortPriceAsc">السعر: من الأقل إلى الأعلى</option><option value="price_desc" data-i18n="sortPriceDesc">السعر: من الأعلى إلى الأقل</option></select></div>
  </div>
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
@@ -295,7 +296,7 @@ let compareItems=[];let openedSharedPropertyId=null;
 const translations={
 ar:{
 home:"الرئيسية",search:"البحث",listings:"العقارات",login:"دخول / حساب جديد",addProperty:"+ أضف عقارك",heroTitle:"عقارك، فرصتك، تواصلك المباشر",heroText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",heroText2:"ابحث عن عقارك في جميع أنحاء تونس",
-searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"الصبغة العقارية",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"صفة المعلن",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",
+searchTitle:"ابحث عن عقار",propertyType:"نوع العقار",allProperties:"كل العقارات",house:"منزل",apartment:"شقة",land:"أرض سكنية",agriculturalLand:"أرض فلاحية",commercial:"محل تجاري",governorate:"الولاية",allGovernorates:"كل الولايات",ownershipType:"نوع الملكية",all:"الكل",individual:"فردية",shared:"مشتركة",landNature:"الصبغة العقارية",residential:"سكنية",agricultural:"فلاحية",maxPrice:"السعر الأقصى (دينار)",minArea:"المساحة الدنيا (م²)",advertiserType:"صفة المعلن",owner:"مالك العقار",broker:"وسيط مستقل",agency:"وكالة عقارية",sortResults:"ترتيب النتائج",sortNewest:"الأحدث أولاً",sortPriceAsc:"السعر: من الأقل إلى الأعلى",sortPriceDesc:"السعر: من الأعلى إلى الأقل",
 searchNow:"ابحث الآن",resetSearch:"إعادة ضبط الفلاتر",browseByType:"تصفح حسب النوع",houses:"منازل",apartments:"شقق",residentialLands:"أراضي سكنية",agriculturalLands:"أراضي فلاحية",commercialProperties:"محلات تجارية",latestProperties:"أحدث العقارات",footerText:"منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها",copyright:"جميع الحقوق محفوظة",
 accountTitle:"حساب D-ESTATE",displayName:"الاسم (للتسجيل الجديد فقط)",enterName:"اكتب اسمك أولاً.",loginFree:"الدخول مجاني. تصفح العقارات متاح للجميع.",email:"البريد الإلكتروني",password:"كلمة المرور",signIn:"تسجيل الدخول",signUp:"إنشاء حساب جديد",signOut:"تسجيل الخروج",emailConfirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",legalConsentText:"أوافق على شروط الاستخدام وسياسة الخصوصية.",legalTermsLink:"شروط الاستخدام",legalPrivacyLink:"سياسة الخصوصية",legalPublishingLink:"شروط نشر الإعلانات",legalConsentRequired:"يلزم قبول شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب أو متابعة الدخول.",legalAcceptError:"تعذر تسجيل موافقتك. حاول مرة أخرى.",addNewProperty:"إضافة عقار جديد",adTitle:"عنوان الإعلان",choose:"اختر",chooseGovernorate:"اختر الولاية",cityArea:"المدينة / المنطقة",priceTND:"السعر بالدينار التونسي",areaSqm:"المساحة بالمتر المربع",phone:"رقم الهاتف",description:"وصف العقار",photoNotice:"الرجاء استعمال صور حقيقية وحديثة للعقار المعروض. يُمنع تضليل المشترين باستعمال صور لا تمثّل العقار.",propertyPhotos:"صور العقار (من 1 إلى 8 صور)",photoRules:"الصيغ المقبولة: JPG وPNG وWebP. الحد الأقصى 5 ميغابايت للصورة.",publish:"نشر الإعلان",
 loading:"جاري البحث...",searchError:"تعذّر تحميل العقارات. راجع إعدادات قاعدة البيانات.",noResults:"لا توجد عقارات مطابقة للبحث حالياً.",price:"السعر",area:"المساحة",contact:"الهاتف",notSpecified:"غير محددة",advertiser:"معلن",loginRequired:"للاتصال بالمعلن، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.",contactError:"تعذّر جلب رقم هاتف المعلن. حاول مرة أخرى لاحقاً.",contactNumber:"رقم الهاتف: ",
@@ -304,7 +305,7 @@ adminTitle:"لوحة الإدارة",adminIntro:"إدارة جميع الإعل�
 },
 en:{
 home:"Home",search:"Search",listings:"Properties",login:"Login / Sign up",addProperty:"+ Add Property",heroTitle:"Your Property, Your Opportunity, Direct Contact",heroText:"A Tunisian digital platform connecting property owners with property seekers",heroText2:"Find your property anywhere in Tunisia",
-searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"User Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",
+searchTitle:"Find a Property",propertyType:"Property Type",allProperties:"All Properties",house:"House",apartment:"Apartment",land:"Residential Land",agriculturalLand:"Agricultural Land",commercial:"Commercial Property",governorate:"Governorate",allGovernorates:"All Governorates",ownershipType:"Ownership Type",all:"All",individual:"Individual",shared:"Shared",landNature:"Land Classification",residential:"Residential",agricultural:"Agricultural",maxPrice:"Maximum Price (TND)",minArea:"Minimum Area (m²)",advertiserType:"User Type",owner:"Property Owner",broker:"Independent Broker",agency:"Real Estate Agency",sortResults:"Sort results",sortNewest:"Newest first",sortPriceAsc:"Price: low to high",sortPriceDesc:"Price: high to low",
 searchNow:"Search Now",resetSearch:"Reset Filters",browseByType:"Browse by Type",houses:"Houses",apartments:"Apartments",residentialLands:"Residential Lands",agriculturalLands:"Agricultural Lands",commercialProperties:"Commercial Properties",latestProperties:"Latest Properties",footerText:"A Tunisian digital platform connecting property owners with property seekers",copyright:"All rights reserved",
 accountTitle:"D-ESTATE Account",displayName:"Name (new accounts only)",enterName:"Please enter your name.",loginFree:"Registration is free. Everyone can browse properties.",email:"Email Address",password:"Password",signIn:"Log In",signUp:"Create New Account",signOut:"Log Out",emailConfirmation:"You may need to confirm your email depending on your account settings.",legalConsentText:"I agree to the Terms of Use and Privacy Policy.",legalTermsLink:"Terms of Use",legalPrivacyLink:"Privacy Policy",legalPublishingLink:"Listing Rules",legalConsentRequired:"You must accept the Terms of Use and Privacy Policy to create an account or continue signing in.",legalAcceptError:"Your acceptance could not be recorded. Please try again.",addNewProperty:"Add a New Property",adTitle:"Listing Title",choose:"Choose",chooseGovernorate:"Choose Governorate",cityArea:"City / Area",priceTND:"Price in Tunisian Dinars",areaSqm:"Area in Square Metres",phone:"Phone Number",description:"Property Description",photoNotice:"Please use genuine and recent photos of the listed property.",propertyPhotos:"Property Photos (1 to 8 photos)",photoRules:"Accepted formats: JPG, PNG and WebP. Maximum 5 MB per image.",publish:"Publish Listing",
 loading:"Searching...",searchError:"Unable to load properties. Review the database settings.",noResults:"No properties currently match your search.",price:"Price",area:"Area",contact:"Contact User",notSpecified:"Not specified",advertiser:"User",loginRequired:"Please create a free account or log in to contact the user.",contactError:"Could not retrieve the user's phone number. Please try again later.",contactNumber:"User phone: ",
@@ -843,6 +844,7 @@ function chooseType(type,card){
 }
 function resetSearch(){
  ["type","governorate","ownership","landType","advertiserFilter"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("sortBy").value="newest";
  document.getElementById("maxPrice").value="";
  document.getElementById("minArea").value="";
  document.querySelectorAll("#browseCategories .category").forEach(card=>card.classList.remove("active"));
@@ -938,6 +940,7 @@ async function uploadPropertyImages(files,propertyId){
  const maxPrice=document.getElementById("maxPrice").value;
  const minArea=document.getElementById("minArea").value;
  const advertiser=document.getElementById("advertiserFilter").value;
+ const sortBy=document.getElementById("sortBy").value;
 
  if(type)q=q.eq("property_type",type);
  if(gov)q=q.eq("governorate",gov);
@@ -946,8 +949,10 @@ async function uploadPropertyImages(files,propertyId){
  if(minArea)q=q.gte("area",Number(minArea));
  if(advertiser)q=q.eq("advertiser_type",advertiser);
 
+ const sortColumn=sortBy==="price_asc"||sortBy==="price_desc"?"price":"created_at";
+ const ascending=sortBy==="price_asc";
  const from=publicPage*PUBLIC_PAGE_SIZE;
- const {data,error,count}=await q.order("created_at",{ascending:false}).range(from,from+PUBLIC_PAGE_SIZE-1);
+ const {data,error,count}=await q.order(sortColumn,{ascending, nullsFirst:false}).order("id",{ascending:false}).range(from,from+PUBLIC_PAGE_SIZE-1);
 
  if(error){
   results.innerHTML='<div class="empty">'+tr("searchError")+'</div>';
