@@ -148,6 +148,54 @@ button,a{ -webkit-tap-highlight-color:transparent }
 #headerReportButton{appearance:none;background:transparent!important;color:inherit!important;border:0!important;box-shadow:none!important;font-weight:500}
 .my-page-footer button{padding-inline:4px}
 
+
+/* My Profile opens as a right-side drawer, like ChatGPT */
+#profilePanel.profile-panel{
+ position:fixed;
+ top:0;
+ right:0;
+ bottom:0;
+ z-index:30;
+ width:min(460px,92vw);
+ max-width:100%;
+ height:100vh;
+ height:100dvh;
+ margin:0;
+ padding:20px;
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ border:0;
+ border-radius:0;
+ box-shadow:-12px 0 36px rgba(0,0,0,.18),0 0 0 100vmax rgba(0,0,0,.42);
+ animation:profileDrawerEnter .22s ease-out;
+}
+#profilePanel>.admin-heading{min-width:0;align-items:center}
+#profilePanel>.admin-heading>div{min-width:0;flex:1 1 auto}
+#profileCloseButton{
+ flex:0 0 40px;
+ width:40px;
+ min-width:40px;
+ height:40px;
+ padding:0;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ border-radius:50%;
+ background:#f0f2f0;
+ color:#182536;
+ font-size:28px;
+ line-height:1;
+ font-weight:400;
+}
+@keyframes profileDrawerEnter{
+ from{transform:translateX(100%)}
+ to{transform:translateX(0)}
+}
+@media(max-width:600px){
+ #profilePanel.profile-panel{width:min(460px,94vw);padding:16px}
+ #profilePanel>.admin-heading{align-items:center}
+}
+
 </style>
 </head>
 <body>
@@ -198,7 +246,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
 </section>
 <section id="profilePanel" class="profile-panel hidden">
- <div class="admin-heading"><div><h2 class="section-title" id="profileTitle">صفحتي</h2><p class="small" id="profileIntro">إعلاناتك ومتابعاتك ورسائلك في مكان واحد</p></div><button type="button" onclick="closeProfile()" id="profileCloseButton">إغلاق</button></div>
+ <div class="admin-heading"><div><h2 class="section-title" id="profileTitle">صفحتي</h2><p class="small" id="profileIntro">إعلاناتك ومتابعاتك ورسائلك في مكان واحد</p></div><button type="button" onclick="closeProfile()" id="profileCloseButton" aria-label="إغلاق" title="إغلاق">×</button></div>
  <div id="profileStatus" class="status" role="status" aria-live="polite"></div>
  <section id="myPageHome">
   <section class="account-activity">
@@ -822,7 +870,7 @@ function openProfile(){
  document.getElementById("accountMessagesView").classList.add("hidden");
  document.getElementById("accountFollowingView").classList.add("hidden");
  const panel=document.getElementById("profilePanel");panel.classList.remove("hidden");
- panel.scrollIntoView({behavior:"smooth",block:"start"});loadAccountCenter();
+ panel.scrollTop=0;loadAccountCenter();
 }
 function openAccountSettings(){if(!currentUser){openModal("loginModal");return}renderProfile();document.getElementById("myPageHome").classList.add("hidden");document.getElementById("accountSettingsPanel").classList.remove("hidden");document.getElementById("accountSettingsPanel").scrollIntoView({behavior:"smooth",block:"start"})}
 function closeAccountSettings(){document.getElementById("accountSettingsPanel").classList.add("hidden");document.getElementById("myPageHome").classList.remove("hidden");document.getElementById("profilePanel").scrollIntoView({behavior:"smooth",block:"start"})}
