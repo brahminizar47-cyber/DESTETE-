@@ -148,6 +148,16 @@ button,a{ -webkit-tap-highlight-color:transparent }
 #headerReportButton{appearance:none;background:transparent!important;color:inherit!important;border:0!important;box-shadow:none!important;font-weight:500}
 .my-page-footer button{padding-inline:4px}
 
+
+/* Keep profile close controls fully visible on narrow screens */
+.profile-panel>.admin-heading{min-width:0}
+.profile-panel>.admin-heading>div{min-width:0;flex:1 1 auto}
+.profile-panel>.admin-heading>button{flex:0 0 auto;width:auto;max-width:100%;white-space:nowrap}
+@media(max-width:600px){
+ .profile-panel>.admin-heading{align-items:center}
+ .profile-panel>.admin-heading>button{width:auto;min-width:max-content}
+}
+
 </style>
 </head>
 <body>
