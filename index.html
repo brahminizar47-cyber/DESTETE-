@@ -95,7 +95,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 button,a{ -webkit-tap-highlight-color:transparent }
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .property-gallery img,.detail-gallery img,.image-thumb img{display:block;max-width:100%;height:auto;object-fit:cover}
-.property-gallery img{height:185px;min-width:75%;width:auto;decoding:async}
+.property-gallery img{height:185px;min-width:75%;width:auto}
 @media(max-width:640px){
  body{font-size:15px;overflow-x:hidden}
  header{padding:12px 4%;gap:10px}
@@ -710,7 +710,7 @@ async function openPublicUserProfile(propertyId){
  status.textContent="";
  document.getElementById("publicUserListings").innerHTML=listings.length?listings.map(p=>{
   const images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
-  const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" style="width:100%;height:150px;object-fit:cover">':"";
+  const photo=images.length?'<img src="'+safe(images[0])+'" alt="'+safe(p.title)+'" loading="lazy" decoding="async" style="width:100%;height:150px;object-fit:cover">':"";
   return '<article class="property">'+photo+'<div class="property-content"><h3>'+safe(p.title)+'</h3><div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+'</div><div class="meta">'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+' · '+safe(p.area??"—")+' '+tr("areaUnit")+'</div><div class="meta">'+uiText("تقييم الإعلان: ","Listing rating: ")+(p.rating_average==null?"—":Number(p.rating_average).toFixed(1)+" ★")+' · '+Number(p.rating_count||0)+' '+uiText("تقييماً","reviews")+'</div><button type="button" class="secondary" onclick="openPropertyReviews(\''+safe(p.id)+'\')">'+uiText("التقييمات والآراء","Ratings & reviews")+'</button><p>'+safe(p.description||"")+'</p><button type="button" class="secondary" onclick="openPropertyDetails(\''+safe(p.id)+'\')">'+uiText("عرض الإعلان","View listing")+'</button></div></article>';
  }).join(""):'<div class="empty">'+uiText("لا توجد إعلانات منشورة حالياً.","No published listings yet.")+'</div>';
  document.getElementById("publicUserReviews").innerHTML=reviews.length?reviews.map(r=>'<article class="review-item"><strong>'+Number(r.rating)+' ★</strong> <small>'+safe(new Date(r.created_at).toLocaleDateString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small><p>'+safe(r.comment||uiText("دون تعليق","No comment"))+'</p></article>').join(""):'<p class="small">'+uiText("لا توجد تقييمات أو آراء منشورة بعد.","No published reviews yet.")+'</p>';
