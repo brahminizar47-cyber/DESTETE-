@@ -1688,6 +1688,15 @@ window.addEventListener("pageshow",()=>{
  const saved=localStorage.getItem("destate_language")||"ar";
  if(saved!==currentLanguage){currentLanguage=saved==="en"?"en":"ar";applyLanguage();}
 });
+// Close the personal account panel whenever the user activates another service control.
+document.addEventListener("click",(event)=>{
+ const control=event.target instanceof Element?event.target.closest("a,button,[role='button']"):null;
+ if(!control)return;
+ if(control.id==="profileNavButton"||control.id==="favoritesNavButton")return;
+ if(control.closest("#profilePanel"))return;
+ closeProfile();
+},true);
+
 applyLanguage();
 updateFilters();
 updatePublishFields();
