@@ -974,7 +974,7 @@ async function compressPropertyImage(file){
   context.drawImage(bitmap,0,0,canvas.width,canvas.height);
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.78));
   if(!blob||blob.size>=file.size)return file;
-  const baseName=file.name.replace(/\\.[^.]+$/,"");
+  const baseName=file.name.replace(/\.[^.]+$/,"");
   return new File([blob],baseName+".webp",{type:"image/webp",lastModified:Date.now()});
  }catch(error){
   console.warn("Image optimization skipped:",error);
