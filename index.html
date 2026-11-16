@@ -1379,7 +1379,7 @@ function displayProperties(items){
    '<div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</div>'+
    (p.land_type?'<div class="meta"><strong>'+uiText("الصبغة العقارية: ","Land classification: ")+'</strong>'+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</div>':'')+
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
-   '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+ '<button type="button" class="favorite-heart property-card-heart" data-favorite-button data-favorite-id="'+safe(p.id)+'" aria-pressed="false" onclick="event.stopPropagation();toggleFavorite(\\''+safe(p.id)+'\\')"><span aria-hidden="true">♥</span><span data-favorite-count="'+safe(p.id)+'">'+Number(p.favorite_count||0)+'</span></button>'+
+   '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+ '<button type="button" class="favorite-heart property-card-heart" data-favorite-button data-favorite-id="'+safe(p.id)+'" aria-pressed="false" onclick="event.stopPropagation();toggleFavorite(&quot;'+safe(p.id)+'&quot;)"><span aria-hidden="true">♥</span><span data-favorite-count="'+safe(p.id)+'">'+Number(p.favorite_count||0)+'</span></button>'+
 
    '</article>';
  }).join("");
