@@ -1491,8 +1491,8 @@ async function loadFavoriteProperties(){
  const {data:favorites,error}=await db.from("property_favorites").select("property_id").eq("user_id",currentUser.id).order("created_at",{ascending:false});
  if(error){status.textContent=uiText("تعذّر تحميل المفضّلة. حاول مرة أخرى.","Could not load favorites. Please try again.");console.error("Favorites lookup failed:",error.message);return}
  const ids=(favorites||[]).map(x=>x.property_id).filter(Boolean);
- if(!ids.length){status.textContent=uiText("لم تحفظ أي عقار بعد. اضغط على «حفظ» في الإعلان لإضافته هنا.","You have not saved any properties yet. Select Save on a listing to add it here.");return}
- const {data:properties,error:propertiesError}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,image_urls,created_at,expires_at").in("id",ids).eq("status","published").gt("expires_at",new Date().toISOString());
+ if(!ids.length){status.textContent=uiText("لم تضف أي عقار إلى المفضّلة بعد. اضغط على قلب الإعلان لإضافته هنا.","You have not added any properties to Favorites yet. Tap the heart on a listing to add it here.");return}
+ const {data:properties,error:propertiesError}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,image_urls,created_at,expires_at,favorite_count").in("id",ids).eq("status","published").gt("expires_at",new Date().toISOString());
  if(propertiesError){status.textContent=uiText("تعذّر تحميل تفاصيل العقارات المحفوظة.","Could not load saved property details.");console.error("Saved property details failed:",propertiesError.message);return}
  try{await signPropertyImages(properties||[]);}catch(e){console.error("Favorite images:",e);}
  const byId=new Map((properties||[]).map(p=>[String(p.id),p]));
@@ -1503,7 +1503,7 @@ async function loadFavoriteProperties(){
   const images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
   const gallery=images.length?'<div class="property-gallery">'+images.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':'<div style="height:180px;background:#e8edf2;display:grid;place-items:center;font-size:55px">🏠</div>';
   const location=(currentLanguage==="en"?(govEnglish[p.governorate]||p.governorate):p.governorate)+" "+(p.city||"");
-  return '<article class="property">'+gallery+'<div class="property-content"><h3>'+safe(p.title)+'</h3><span class="tag">'+safe(tr(typeNames[p.property_type]||"propertyType"))+'</span><span class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</span><div class="meta">📍 '+safe(location)+'</div><div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div><p>'+safe((p.description||"").slice(0,150))+'</p><div class="card-actions"><button type="button" data-fav-action="details" data-property-id="'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" data-fav-action="share" data-property-id="'+safe(p.id)+'">'+uiText("مشاركة","Share")+'</button><button type="button" data-fav-action="remove" data-property-id="'+safe(p.id)+'">'+uiText("إزالة من المفضّلة","Remove")+'</button><button class="secondary" type="button" data-fav-action="contact" data-property-id="'+safe(p.id)+'">'+tr("contact")+'</button></div></div></article>';
+  return '<article class="property">'+gallery+'<div class="property-content"><h3>'+safe(p.title)+'</h3><span class="tag">'+safe(tr(typeNames[p.property_type]||"propertyType"))+'</span><span class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</span><div class="meta">📍 '+safe(location)+'</div><div class="price">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><div class="meta">'+tr("area")+": "+safe(p.area||tr("notSpecified"))+" "+tr("areaUnit")+'</div><p>'+safe((p.description||"").slice(0,150))+'</p><div class="card-actions"><button type="button" data-fav-action="details" data-property-id="'+safe(p.id)+'">'+uiText("التفاصيل","Details")+'</button><button type="button" data-fav-action="share" data-property-id="'+safe(p.id)+'">'+uiText("مشاركة","Share")+'</button><button type="button" class="favorite-heart liked" aria-label="'+uiText("إزالة من المفضّلة","Remove from favorites")+'" title="'+uiText("إزالة من المفضّلة","Remove from favorites")+'" data-fav-action="remove" data-property-id="'+safe(p.id)+'"><span aria-hidden="true">♥</span><span>'+Number(p.favorite_count||0)+'</span></button><button class="secondary" type="button" data-fav-action="contact" data-property-id="'+safe(p.id)+'">'+tr("contact")+'</button></div></div></article>';
  }).join("");
  list.querySelectorAll("[data-fav-action]").forEach(button=>{
   button.addEventListener("click",()=>{
@@ -1520,8 +1520,8 @@ async function removeFavorite(id){
  if(!currentUser)return;
  const {error}=await db.from("property_favorites").delete().eq("user_id",currentUser.id).eq("property_id",id);
  if(error){alert(uiText("تعذّرت إزالة العقار من المفضّلة: ","Could not remove this property: ")+error.message);return}
+ await syncFavoriteUi(id);
  await loadFavoriteProperties();
- await loadMyPropertyStats();
 }
 
 function getVisitorId(){
