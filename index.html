@@ -247,6 +247,16 @@ button,a{ -webkit-tap-highlight-color:transparent }
 #profilePanel .my-page-footer .account-menu-row{min-height:64px}
 #profilePanel .account-menu-row:active{background:#f7faf6}
 #profilePanel .account-menu-row:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+#accountFollowingList .account-item{display:flex;align-items:center;gap:13px;padding:14px;margin:10px 0;border:1px solid var(--border);border-radius:12px;background:#fff}
+#accountFollowingList .following-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;object-fit:cover;background:#f1f4f1}
+#accountFollowingList .following-info{flex:1;min-width:0}
+#accountFollowingList .following-info strong{display:block;font-size:15px;color:var(--navy);overflow-wrap:anywhere}
+#accountFollowingList .following-info p{margin:4px 0;font-size:13px}
+#accountFollowingList .following-info small{display:block;color:var(--muted);font-size:12px;line-height:1.6}
+#accountFollowingList .following-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+#accountFollowingList .following-actions button{min-height:34px;padding:6px 10px;font-size:12px}
+@media(max-width:480px){#accountFollowingList .account-item{align-items:flex-start;gap:10px}#accountFollowingList .following-avatar{width:46px;height:46px;flex-basis:46px}}
+
 @media(max-width:600px){#profilePanel .my-page-identity{padding-top:12px}#profilePanel .account-activity{padding:15px 13px}#profilePanel .account-menu-row{min-height:58px}}
 
 /* Consistent back navigation for all My Page subviews */
@@ -1033,9 +1043,9 @@ function showAccountTab(tab){
 
 async function followAdvertiser(propertyId){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
- const {error}=await db.rpc("follow_advertiser_from_property",{p_property_id:propertyId});
- if(error){alert(uiText("تعذّرت متابعة. حاول مرة أخرى.","Could not follow this user. Please try again."));console.error(error);return}
- alert(uiText("أصبحت تتابع هذا المعلن.","You are now following this user."));
+ const {data,error}=await db.rpc("follow_advertiser_from_property",{p_property_id:propertyId});
+ if(error){alert(uiText("تعذّرت متابعة هذا المعلن. حاول مرة أخرى.","Could not follow this advertiser. Please try again."));console.error(error);return}
+ alert(data===false?uiText("أنت تتابع هذا المعلن بالفعل.","You already follow this advertiser."):uiText("أصبحت تتابع هذا المعلن.","You are now following this advertiser."));
  await loadAccountFollowing();
 }
 async function unfollowAdvertiser(advertiserId){
@@ -1056,9 +1066,12 @@ async function loadAccountFollowing(){
  if(!rows.length){list.innerHTML='<div class="empty">'+uiText("قائمة المتابعة فارغة حالياً. يمكنك متابعة صاحب أي إعلان.","You are not following any users yet. You can follow a listing owner.")+'</div>';return}
  list.innerHTML=rows.map(row=>{
   const kind=tr(advertiserNames[row.advertiser_type]||"advertiser");
+  const name=row.display_name||uiText("معلن على DESTATE","DESTATE advertiser");
   const location=[row.governorate,row.city].filter(Boolean).join(" · ");
   const listing=row.latest_listing_title||uiText("لا توجد إعلانات نشطة حالياً","No active listings currently");
-  return '<article class="account-item"><strong>'+safe(kind)+'</strong><p>'+safe(listing)+'</p><small>'+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="profile-actions"><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></article>';
+  const photo=String(row.profile_photo_url||"");
+  const avatar=/^https:\/\/[^\s"'<>]+$/i.test(photo)?'<img class="following-avatar" src="'+safe(photo)+'" alt="">':"";
+  return '<article class="account-item">'+avatar+'<div class="following-info"><strong>'+safe(name)+'</strong><p>'+safe(kind)+'</p><small>'+safe(listing)+' · '+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="following-actions"><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></div></article>';
  }).join("");
  list.querySelectorAll("[data-unfollow-id]").forEach(button=>button.addEventListener("click",()=>unfollowAdvertiser(button.dataset.unfollowId)));
 }
