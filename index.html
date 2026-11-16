@@ -1386,7 +1386,7 @@ function openCompareModal(){
  if(compareItems.length<2){alert(uiText("اختر عقارين على الأقل للمقارنة.","Select at least two properties to compare."));return}
  const rows=[
   [uiText("السعر","Price"),p=>formatListingPrice(p)],
-  [uiText("المساحة","Area"),p=>(p.area||"—")+" m²"],
+  [uiText("المساحة","Area"),p=>formatListingArea(p)],
   [uiText("النوع","Type"),p=>tr(typeNames[p.property_type]||p.property_type)],
   [uiText("الموقع","Location"),p=>[p.governorate,p.city].filter(Boolean).join(" - ")],
   [uiText("صفة المعلن","User type"),p=>tr(advertiserNames[p.advertiser_type]||p.advertiser_type)]
