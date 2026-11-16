@@ -1356,7 +1356,7 @@ function displayProperties(items){
 
   const location=(currentLanguage==="en"?(govEnglish[p.governorate]||p.governorate):p.governorate)+" "+(p.city||"");
 
-  return '<article class="property" role="button" tabindex="0" aria-label="'+uiText("فتح الإعلان","Open listing")+": "+safe(p.title)+'" onclick="openPropertyDetails(\\''+safe(p.id)+'\\')" onkeydown="if(event.key===\\'Enter\\'||event.key===\\' \\'){event.preventDefault();openPropertyDetails(\\''+safe(p.id)+'\\')}">'+gallery+
+  return '<article class="property" role="button" tabindex="0" aria-label="'+uiText("فتح الإعلان","Open listing")+": "+safe(p.title)+'" onclick="openPropertyDetails(&quot;'+safe(p.id)+'&quot;)">'+gallery+
    '<div class="property-content">'+
    '<h3>'+safe(p.title)+'</h3>'+
    '<div class="meta"><strong>'+uiText("الثمن: ","Price: ")+'</strong>'+safe(formatListingPrice(p))+'</div>'+
