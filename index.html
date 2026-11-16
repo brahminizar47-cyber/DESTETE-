@@ -243,7 +243,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
   <div><label data-i18n="sortResults">ترتيب النتائج</label><select id="sortBy" onchange="searchProperties()"><option value="newest" data-i18n="sortNewest">الأحدث أولاً</option><option value="price_asc" data-i18n="sortPriceAsc">السعر: من الأقل إلى الأعلى</option><option value="price_desc" data-i18n="sortPriceDesc">السعر: من الأعلى إلى الأقل</option></select></div>
  </div>
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
- <div class="map-tools"><button type="button" class="secondary" onclick="toggleMapSearch()">عرض النتائج على الخريطة</button><button type="button" class="secondary" onclick="toggleSavedSearches()">حفظ البحث / بحثاتي المحفوظة</button></div>
+ <div class="map-tools"><button type="button" class="secondary" onclick="toggleMapSearch()">عرض النتائج على الخريطة</button><button type="button" class="secondary" onclick="saveCurrentSearch()">حفظ هذا البحث</button><button type="button" class="secondary" onclick="toggleSavedSearches()">بحثاتي المحفوظة</button></div>
  <div id="mapSearchPanel" class="hidden"><p class="map-note">تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.</p><div id="mapSearchCanvas"></div></div>
  <div id="savedSearchesPanel" class="hidden"><div class="admin-heading"><strong>عمليات البحث المحفوظة</strong></div><div id="savedSearchesList" class="saved-search-list"></div></div>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
