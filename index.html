@@ -253,7 +253,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
 </section>
 <section id="profilePanel" class="profile-panel hidden">
- <div class="admin-heading"><div><h2 class="section-title" id="profileTitle">صفحتي</h2><p class="small" id="profileIntro">إعلاناتك ومتابعاتك ورسائلك في مكان واحد</p></div><button type="button" onclick="closeProfile()" id="profileCloseButton" aria-label="إغلاق" title="إغلاق">×</button></div>
+ <div class="admin-heading"><div><h2 class="section-title" id="profileTitle">صفحتي</h2><p class="small" id="profileIntro">إعلاناتك ومتابعاتك ورسائلك في مكان واحد</p></div><button type="button" onclick="closeProfile()" id="profileCloseButton" aria-label="×" title="×">×</button></div>
  <div id="profileStatus" class="status" role="status" aria-live="polite"></div>
  <section id="myPageHome">
   <section class="account-activity">
@@ -265,8 +265,8 @@ button,a{ -webkit-tap-highlight-color:transparent }
     <button class="account-tile" type="button" onclick="goToFavorites()"><strong id="accountFavoritesLabel">المفضّلة</strong></button>
     <button class="account-tile" type="button" onclick="showAccountTab('messages')"><strong id="accountMessagesLabel">الرسائل</strong></button>
    </div>
-   <div id="accountFollowingView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountFollowingHeading">متابعاتي</h3><button type="button" class="secondary" onclick="document.getElementById('accountFollowingView').classList.add('hidden')" id="accountFollowingClose">إغلاق</button></div><div id="accountFollowingList" class="account-list"></div></div>
-   <div id="accountMessagesView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountMessagesHeading">الرسائل</h3><button type="button" class="secondary" onclick="document.getElementById('accountMessagesView').classList.add('hidden')" id="accountMessagesClose">إغلاق</button></div><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
+   <div id="accountFollowingView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountFollowingHeading">متابعاتي</h3><button type="button" class="secondary" onclick="document.getElementById('accountFollowingView').classList.add('hidden')" id="accountFollowingClose">×</button></div><div id="accountFollowingList" class="account-list"></div></div>
+   <div id="accountMessagesView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountMessagesHeading">الرسائل</h3><button type="button" class="secondary" onclick="document.getElementById('accountMessagesView').classList.add('hidden')" id="accountMessagesClose">×</button></div><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
    <div id="accountNotificationsView" class="hidden"><h3 id="accountNotificationsHeading">إشعاراتي</h3><div id="accountNotificationsList" class="account-list"></div></div>
   </section>
   <div class="my-page-footer">
@@ -284,7 +284,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  </section>
 </section>
  <section id="publicUserPanel" class="profile-panel hidden" aria-live="polite">
- <div class="admin-heading"><div><h2 class="section-title" id="publicUserName">الملف الشخصي</h2><p class="small" id="publicUserRole"></p></div><button type="button" onclick="closePublicUserProfile()" id="publicUserCloseButton">إغلاق</button></div>
+ <div class="admin-heading"><div><h2 class="section-title" id="publicUserName">الملف الشخصي</h2><p class="small" id="publicUserRole"></p></div><button type="button" onclick="closePublicUserProfile()" id="publicUserCloseButton">×</button></div>
  <div id="publicUserStatus" class="status" role="status"></div>
  <div class="profile-grid">
   <div class="profile-info"><span id="publicUserAverageLabel">التقييم العام</span><strong id="publicUserAverage">—</strong></div>
@@ -295,7 +295,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div class="profile-section"><h3 id="publicUserReviewsTitle">تقييمات المعلن وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
  
  <section id="favoritesPanel" class="hidden profile-section" style="margin-top:20px">
- <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">إغلاق</button></div>
+ <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">×</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
  <div id="favoritesResults" class="results"></div>
  </section>
@@ -664,7 +664,7 @@ function applyLanguage(){
  const signOutButton=document.getElementById("signOutButton");if(signOutButton)signOutButton.style.display=currentUser?"block":"none";
  const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
- const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("إغلاق","Close");
+ const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("×","×");
  const newLabels={minPriceLabel:uiText("السعر الجملي الأدنى (د.ت)","Minimum total price (TND)"),maxPriceLabel:uiText("السعر الجملي الأقصى (د.ت)","Maximum total price (TND)"),mapSearchButton:uiText("عرض النتائج على الخريطة","Show results on map"),saveSearchButton:uiText("حفظ هذا البحث","Save this search"),savedSearchesButton:uiText("بحثاتي المحفوظة","My saved searches"),savedSearchesTitle:uiText("عمليات البحث المحفوظة","Saved searches"),mapSearchNote:uiText("تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.","Listings with a location pin from the current results appear here."),publishMapButton:uiText("تحديد الموقع على الخريطة","Choose location on map")};
  Object.entries(newLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  document.querySelectorAll("[data-i18n]").forEach(el=>{
@@ -830,7 +830,7 @@ function renderProfile(){
  document.getElementById("profileDisplayName").value=displayName==="—"?"":displayName;
 }
 function setProfileLabels(){
- const labels={profileTitle:uiText("صفحتي","My Page"),profileIntro:uiText("إعلاناتك ومتابعاتك ورسائلك في مكان واحد","Your listings, follows and messages in one place"),profileCloseButton:uiText("إغلاق","Close"),accountCenterTitle:uiText("نشاطي على المنصة","My activity"),accountSettingsButtonLabel:"Account Settings",accountSettingsPageTitle:uiText("المعلومات الشخصية","Personal Information"),accountSettingsIntro:uiText("إدارة معلومات حسابك","Manage your personal information"),accountSettingsBackButton:uiText("العودة إلى صفحتي","Back to My Page"),myPageLogoutLabel:uiText("تسجيل الخروج","Log out"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFollowingLabel:uiText("متابعاتي","Following"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountMessagesLabel:uiText("الرسائل","Messages"),accountFollowingHeading:uiText("متابعاتي","Following"),accountMessagesHeading:uiText("الرسائل","Messages"),accountFollowingClose:uiText("إغلاق","Close"),accountMessagesClose:uiText("إغلاق","Close"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات الشخصية","Edit personal information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileLanguageTitle:uiText("اللغة","Language"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
+ const labels={profileTitle:uiText("صفحتي","My Page"),profileIntro:uiText("إعلاناتك ومتابعاتك ورسائلك في مكان واحد","Your listings, follows and messages in one place"),profileCloseButton:uiText("×","×"),accountCenterTitle:uiText("نشاطي على المنصة","My activity"),accountSettingsButtonLabel:"Account Settings",accountSettingsPageTitle:uiText("المعلومات الشخصية","Personal Information"),accountSettingsIntro:uiText("إدارة معلومات حسابك","Manage your personal information"),accountSettingsBackButton:uiText("العودة إلى صفحتي","Back to My Page"),myPageLogoutLabel:uiText("تسجيل الخروج","Log out"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFollowingLabel:uiText("متابعاتي","Following"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountMessagesLabel:uiText("الرسائل","Messages"),accountFollowingHeading:uiText("متابعاتي","Following"),accountMessagesHeading:uiText("الرسائل","Messages"),accountFollowingClose:uiText("×","×"),accountMessagesClose:uiText("×","×"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات الشخصية","Edit personal information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileLanguageTitle:uiText("اللغة","Language"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
  Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const accountLabels={accountNotificationsHeading:uiText("إشعاراتي","Notifications")};Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
@@ -841,7 +841,7 @@ async function openPublicUserProfile(propertyId){
  const panel=document.getElementById("publicUserPanel"),status=document.getElementById("publicUserStatus");
  document.getElementById("profilePanel").classList.add("hidden");panel.classList.remove("hidden");
  document.getElementById("publicUserName").textContent=uiText("الملف الشخصي","User profile");
- document.getElementById("publicUserCloseButton").textContent=uiText("إغلاق","Close");
+ document.getElementById("publicUserCloseButton").textContent=uiText("×","×");
  document.getElementById("publicUserAverageLabel").textContent=uiText("التقييم العام","Overall rating");
  document.getElementById("publicUserCountLabel").textContent=uiText("عدد التقييمات","Number of reviews");
  document.getElementById("publicUserListingsCountLabel").textContent=uiText("الإعلانات المنشورة","Published listings");
@@ -1005,7 +1005,7 @@ async function openConversation(id){
  await db.from("property_messages").update({read_at:new Date().toISOString()}).eq("conversation_id",id).neq("sender_id",currentUser.id).is("read_at",null);
  const {data:messages,error}=await db.from("property_messages").select("id,sender_id,body,created_at").eq("conversation_id",id).order("created_at",{ascending:true}).limit(100);
  if(error){thread.innerHTML='<div class="status">'+safe(error.message)+'</div>';return}
- thread.innerHTML='<div class="admin-heading"><strong>'+safe(conversation.properties?.title||uiText("محادثة عقارية","Property conversation"))+'</strong><button type="button" onclick="document.getElementById(\'accountConversationThread\').classList.add(\'hidden\')">'+uiText("إغلاق","Close")+'</button></div><div class="thread-messages" id="threadMessages">'+(messages||[]).map(m=>'<div class="thread-message '+(m.sender_id===currentUser.id?'mine':'')+'">'+safe(m.body)+'<small>'+safe(new Date(m.created_at).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small></div>').join("")+'</div><form onsubmit="sendConversationReply(event)"><div class="field"><textarea id="conversationReply" maxlength="3000" required placeholder="'+uiText("اكتب رسالتك...","Write your message...")+'"></textarea></div><button class="primary" type="submit">'+uiText("إرسال","Send")+'</button></form>';
+ thread.innerHTML='<div class="admin-heading"><strong>'+safe(conversation.properties?.title||uiText("محادثة عقارية","Property conversation"))+'</strong><button type="button" onclick="document.getElementById(\'accountConversationThread\').classList.add(\'hidden\')">'+uiText("×","×")+'</button></div><div class="thread-messages" id="threadMessages">'+(messages||[]).map(m=>'<div class="thread-message '+(m.sender_id===currentUser.id?'mine':'')+'">'+safe(m.body)+'<small>'+safe(new Date(m.created_at).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-GB"))+'</small></div>').join("")+'</div><form onsubmit="sendConversationReply(event)"><div class="field"><textarea id="conversationReply" maxlength="3000" required placeholder="'+uiText("اكتب رسالتك...","Write your message...")+'"></textarea></div><button class="primary" type="submit">'+uiText("إرسال","Send")+'</button></form>';
  const box=document.getElementById("threadMessages");if(box)box.scrollTop=box.scrollHeight;
  await loadAccountConversations();await loadAccountNotifications();
 }
