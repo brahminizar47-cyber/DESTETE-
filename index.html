@@ -1516,8 +1516,15 @@ async function loadMyPropertyStats(){
  if(!data?.length){list.innerHTML='<div class="empty">'+uiText("ليس لديك إعلانات بعد.","You have no listings yet.")+'</div>';return}
  list.innerHTML=data.map(p=>{
   const expired=Date.parse(p.expires_at)<=Date.now();
-  return '<article class="owner-listing"><strong>'+safe(p.title)+'</strong><div class="meta">'+uiText("السعر: ","Price: ")+Number(p.price).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+' · '+safe(p.status)+'</div><div class="owner-listing-stats"><span>'+uiText("المشاهدات: ","Views: ")+Number(p.view_count||0)+'</span><span>'+uiText("طلبات الاتصال: ","Contact requests: ")+Number(p.contact_count||0)+'</span><span>'+uiText("المفضّلة: ","Favorites: ")+Number(p.favorite_count||0)+'</span></div><div class="meta">'+uiText("تنتهي صلاحية الظهور: ","Visibility expires: ")+safe(new Date(p.expires_at).toLocaleDateString())+'</div>'+(expired&&p.status==="published"?'<button class="primary" onclick="confirmPropertyAvailability(\''+safe(p.property_id)+'\')">'+uiText("تأكيد أن العقار ما زال متوفراً (+30 يوماً)","Confirm availability (+30 days)")+'</button>':'')+'</article>';
+  const availabilityOptions='<option value="available" '+(p.availability_status==="available"?"selected":"")+'>'+uiText("متوفر","Available")+'</option><option value="sold" '+(p.availability_status==="sold"?"selected":"")+'>'+uiText("تم البيع","Sold")+'</option><option value="rented" '+(p.availability_status==="rented"?"selected":"")+'>'+uiText("تم الكراء","Rented")+'</option>';
+  return '<article class="owner-listing"><strong>'+safe(p.title)+'</strong><div class="meta">'+uiText("السعر: ","Price: ")+safe(formatListingPrice(p))+' · '+safe(p.status)+'</div><div class="meta">'+uiText("حالة العقار: ","Availability: ")+'<select aria-label="Availability status" onchange="setPropertyAvailability(\''+safe(p.property_id)+'\',this.value)">'+availabilityOptions+'</select></div><div class="owner-listing-stats"><span>'+uiText("المشاهدات: ","Views: ")+Number(p.view_count||0)+'</span><span>'+uiText("طلبات الاتصال: ","Contact requests: ")+Number(p.contact_count||0)+'</span><span>'+uiText("المفضّلة: ","Favorites: ")+Number(p.favorite_count||0)+'</span></div><div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.expires_at).toLocaleDateString())+'</div><div class="meta">'+uiText("تنتهي صلاحية الظهور: ","Visibility expires: ")+safe(new Date(p.expires_at).toLocaleDateString())+'</div>'+(expired&&p.status==="published"?'<button class="primary" onclick="confirmPropertyAvailability(\''+safe(p.property_id)+'\')">'+uiText("تأكيد أن العقار ما زال متوفراً (+30 يوماً)","Confirm availability (+30 days)")+'</button>':'')+'</article>';
  }).join("");
+}
+async function setPropertyAvailability(id,value){
+ const {error}=await db.rpc("set_property_availability",{p_property_id:id,p_availability_status:value});
+ if(error){alert(uiText("تعذّر تحديث حالة العقار: ","Could not update listing status: ")+error.message);await loadMyPropertyStats();return}
+ alert(uiText("تم تحديث حالة العقار.","Listing status updated."));
+ await loadMyPropertyStats();await searchProperties();
 }
 async function confirmPropertyAvailability(id){
  const {error}=await db.rpc("confirm_property_availability",{p_property_id:id});
