@@ -77,6 +77,12 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 .review-item,.report-item{border:1px solid var(--border);border-radius:9px;padding:12px;margin:9px 0;background:#fff}
 .card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .card-actions button{flex:1;min-width:110px}
+.favorite-heart{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:58px!important;flex:0 0 auto!important;padding:9px 13px!important;color:#d62845!important;font-size:18px!important;line-height:1}
+.favorite-heart span[aria-hidden="true"]{font-size:23px;line-height:1}
+.favorite-heart.liked{background:#fff0f2!important;color:#d20f3c!important}
+.favorite-count-display{display:inline-flex;align-items:center;gap:6px;color:#d62845;font-weight:700;margin-top:5px}
+.favorite-count-display span:first-child{font-size:18px;line-height:1}
+
 .report-item small{color:var(--muted)}
 .admin-reports{margin-top:25px;border-top:1px solid var(--border);padding-top:20px}
 .admin-report-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
@@ -1276,7 +1282,7 @@ async function uploadPropertyImages(files,propertyId){
  publicPage=Math.max(0,Number(page)||0);
  results.innerHTML='<div class="empty">'+tr("loading")+'</div>';
 
- let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,price_type,total_price,area,area_unit,area_sqm,latitude,longitude,availability_status,updated_at,advertiser_type,ownership_type,land_type,image_urls,created_at,expires_at",{count:"exact"}).eq("status","published").gt("expires_at",new Date().toISOString());
+ let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,price_type,total_price,area,area_unit,area_sqm,latitude,longitude,availability_status,updated_at,advertiser_type,ownership_type,land_type,image_urls,created_at,expires_at,favorite_count",{count:"exact"}).eq("status","published").gt("expires_at",new Date().toISOString());
 
  const type=document.getElementById("type").value;
  const subType=document.getElementById("subType").value;
@@ -1367,7 +1373,7 @@ function displayProperties(items){
    '<div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</div>'+
    (p.land_type?'<div class="meta"><strong>'+uiText("الصبغة العقارية: ","Land classification: ")+'</strong>'+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</div>':'')+
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
-   '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
+   '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+ '<div class="favorite-count-display"><span aria-hidden="true">♥</span> <span data-favorite-count="'+safe(p.id)+'">'+Number(p.favorite_count||0)+'</span></div>'+
 
    '</article>';
  }).join("");
@@ -1426,20 +1432,36 @@ async function shareProperty(id){
   else window.prompt(uiText("انسخ رابط العقار","Copy property link"),url.toString());
  }catch(e){if(e?.name!=="AbortError")alert(uiText("تعذّرت مشاركة الرابط.","Could not share the link."))}
 }
+async function syncFavoriteUi(id){
+ const {data:property,error:propertyError}=await db.from("properties").select("favorite_count").eq("id",id).maybeSingle();
+ if(propertyError)console.error("Favorite count lookup failed:",propertyError.message);
+ const count=Number(property?.favorite_count||0);
+ document.querySelectorAll('[data-favorite-count="'+id+'"]').forEach(el=>el.textContent=String(count));
+ let liked=false;
+ if(currentUser){
+  const {data,error}=await db.from("property_favorites").select("property_id").eq("user_id",currentUser.id).eq("property_id",id).maybeSingle();
+  if(error)console.error("Favorite state lookup failed:",error.message);
+  liked=!!data;
+ }
+ document.querySelectorAll('[data-favorite-button][data-favorite-id="'+id+'"]').forEach(button=>{
+  button.classList.toggle("liked",liked);
+  button.setAttribute("aria-pressed",String(liked));
+  button.setAttribute("aria-label",liked?uiText("إزالة من المفضّلة","Remove from favorites"):uiText("إضافة إلى المفضّلة","Add to favorites"));
+  button.title=liked?uiText("إزالة من المفضّلة","Remove from favorites"):uiText("إضافة إلى المفضّلة","Add to favorites");
+ });
+}
 async function toggleFavorite(id){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
  const {data,error}=await db.from("property_favorites").select("property_id").eq("user_id",currentUser.id).eq("property_id",id).maybeSingle();
- if(error){alert(uiText("تعذّر التحقق من المفضّلة. حدّث قاعدة البيانات أولاً.","Could not check favorites. Apply the database migration first."));return}
+ if(error){console.error("Favorite state lookup failed:",error.message);alert(uiText("تعذّر تنفيذ العملية. حاول مرة أخرى.","Could not update this favorite. Please try again."));return}
  if(data){
   const result=await db.from("property_favorites").delete().eq("user_id",currentUser.id).eq("property_id",id);
-  if(result.error){alert(result.error.message);return}
-  alert(uiText("تم حذف العقار من المفضّلة.","Removed from favorites."));
+  if(result.error){alert(uiText("تعذّرت إزالة العقار من المفضّلة.","Could not remove this property from favorites."));return}
  }else{
   const result=await db.from("property_favorites").insert({user_id:currentUser.id,property_id:id});
-  if(result.error){alert(result.error.message);return}
-  alert(uiText("تمت إضافة العقار إلى المفضّلة.","Added to favorites."));
+  if(result.error){alert(uiText("تعذّرت إضافة العقار إلى المفضّلة.","Could not add this property to favorites."));return}
  }
- await loadMyPropertyStats();
+ await syncFavoriteUi(id);
  const favoritesPanel=document.getElementById("favoritesPanel");
  if(favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
 }
@@ -1521,13 +1543,14 @@ async function openPropertyDetails(id){
  const box=document.getElementById("propertyDetailsContent");
  box.innerHTML='<div class="status">'+uiText("جاري تحميل التفاصيل...","Loading details...")+'</div>';
  panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});
- const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,price_type,total_price,area,area_unit,area_sqm,latitude,longitude,availability_status,updated_at,advertiser_type,ownership_type,land_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
+ const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,price_type,total_price,area,area_unit,area_sqm,latitude,longitude,availability_status,updated_at,advertiser_type,ownership_type,land_type,image_urls,favorite_count").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
  if(error||!p){box.textContent=uiText("العقار غير متوفر حالياً.","This property is currently unavailable.");return}
  document.getElementById("detailTitle").textContent=p.title;
  try{await signPropertyImages(p);}catch(e){console.error("Detail images:",e);}
  const imgs=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
  const gallery=imgs.length?'<div class="detail-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':"";
- box.innerHTML=gallery+'<div class="price">'+safe(formatListingPrice(p))+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(formatListingArea(p))+'</p><p class="property-status">'+safe(getAvailabilityLabel(p))+'</p><p class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p>'+(p.land_type?'<p class="tag">'+uiText("الصبغة العقارية: ","Land classification: ")+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</p>':'')+(p.ownership_type?'<p class="tag">'+uiText("نوع الملكية: ","Ownership type: ")+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</p>':'')+'<p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button type="button" onclick="openPublicUserProfile(\''+safe(p.id)+'\')">'+uiText("الملف الشخصي","User profile")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="sharePropertyWhatsApp(\''+safe(p.id)+'\')">WhatsApp</button><button type="button" onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+uiText("الاتصال بالمعلن","Contact user")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المعلن","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("رسالة","Message")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ box.innerHTML=gallery+'<div class="price">'+safe(formatListingPrice(p))+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(formatListingArea(p))+'</p><p class="property-status">'+safe(getAvailabilityLabel(p))+'</p><p class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p>'+(p.land_type?'<p class="tag">'+uiText("الصبغة العقارية: ","Land classification: ")+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</p>':'')+(p.ownership_type?'<p class="tag">'+uiText("نوع الملكية: ","Ownership type: ")+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</p>':'')+'<p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button type="button" onclick="openPublicUserProfile(\''+safe(p.id)+'\')">'+uiText("الملف الشخصي","User profile")+'</button><button type="button" onclick="toggleCompare(\''+safe(p.id)+'\')">'+uiText("مقارنة","Compare")+'</button><button type="button" onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button type="button" onclick="sharePropertyWhatsApp(\''+safe(p.id)+'\')">WhatsApp</button><button type="button" class="favorite-heart" data-favorite-button data-favorite-id="'+safe(p.id)+'" aria-pressed="false" onclick="toggleFavorite(\''+safe(p.id)+'\')"><span aria-hidden="true">♥</span><span data-favorite-count="'+safe(p.id)+'">'+Number(p.favorite_count||0)+'</span></button><button type="button" onclick="followAdvertiser(\''+safe(p.id)+'\')">'+uiText("متابعة","Follow user")+'</button><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+uiText("الاتصال بالمعلن","Contact user")+'</button><button type="button" onclick="openAdvertiserReviews(\''+safe(p.id)+'\')">'+uiText("تقييم المعلن","Rate user")+'</button><button type="button" onclick="openReportModal(\'listing\',\''+safe(p.id)+'\')">'+uiText("إبلاغ","Report")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("رسالة","Message")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ await syncFavoriteUi(p.id);
  if(p.latitude!==null&&p.longitude!==null){box.innerHTML+='<p><a href="https://www.openstreetmap.org/?mlat='+encodeURIComponent(p.latitude)+'&mlon='+encodeURIComponent(p.longitude)+'#map=16/'+encodeURIComponent(p.latitude)+'/'+encodeURIComponent(p.longitude)+'" target="_blank" rel="noopener">'+uiText("عرض الموقع على الخريطة","View location on map")+'</a></p>'}
  const {error:viewError}=await db.rpc("record_property_view",{p_property_id:p.id,p_visitor_id:getVisitorId()});
  if(viewError)console.warn("View tracking unavailable:",viewError.message);
