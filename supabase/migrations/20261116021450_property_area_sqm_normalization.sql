@@ -1,0 +1,1 @@
+alter table public.properties add column area_sqm numeric generated always as (area * case when area_unit = 'hectare' then 10000::numeric else 1::numeric end) stored; create index if not exists properties_area_sqm_idx on public.properties (area_sqm) where status = 'published';
