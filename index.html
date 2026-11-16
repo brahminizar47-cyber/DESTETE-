@@ -96,6 +96,8 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 .compare-toolbar{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin:12px 0}.compare-toolbar.visible{display:flex}.owner-listing{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}.owner-listing-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.owner-listing-stats span{background:#f5f7fa;padding:9px;border-radius:8px;font-size:12px}.detail-gallery{display:flex;gap:8px;overflow-x:auto;margin:12px 0}.detail-gallery img{height:180px;min-width:75%;object-fit:cover;border-radius:8px}.compare-table{width:100%;border-collapse:collapse;margin-top:12px}.compare-table th,.compare-table td{border:1px solid var(--border);padding:9px;text-align:start;font-size:13px}.compare-table th{background:#f5f7fa}.detail-history{margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
 .listing-details{margin-top:12px;padding:13px 15px;background:#f5f8f3;border:1px solid var(--border);border-inline-start:4px solid var(--blue);border-radius:9px;line-height:1.8;color:#344638;white-space:pre-wrap;overflow-wrap:anywhere}.listing-details p{margin:0}.listing-details.hidden{display:none!important}
 #favoritesPanel.favorites-page{position:fixed;inset:0;z-index:31;overflow-y:auto;overscroll-behavior:contain;background:#f5f7f3;padding:24px max(4%,calc((100% - 1100px)/2));border:0;border-radius:0;box-shadow:0 0 0 100vmax rgba(0,0,0,.42)}
+/* Hide favorite-list thumbnails; show photos inside the opened listing details. */
+#favoritesPanel .property-gallery{display:none!important}
 #favoritesPanel .admin-heading{margin-bottom:18px;align-items:center}
 #favoritesPanel .admin-heading .section-title{margin:0}
 #favoritesPanel .admin-heading button{flex:0 0 40px;width:40px;min-width:40px;height:40px;padding:0;border-radius:50%;background:#f0f2f0;color:#182536;font-size:28px;line-height:1;font-weight:400}
@@ -1536,13 +1538,24 @@ function getVisitorId(){
  return id;
 }
 let propertyDetailsReturnElement=null;
+let returnToFavoritesAfterDetails=false;
 function closePropertyDetails(){
  const panel=document.getElementById("propertyDetailsPanel");
  if(panel)panel.classList.add("hidden");
  const returnTo=propertyDetailsReturnElement;propertyDetailsReturnElement=null;
- if(returnTo&&returnTo.isConnected)returnTo.scrollIntoView({behavior:"smooth",block:"center"});
+ if(returnToFavoritesAfterDetails){
+  returnToFavoritesAfterDetails=false;
+  const favorites=document.getElementById("favoritesPanel");
+  favorites?.classList.remove("hidden");
+  favorites?.scrollTo({top:0,behavior:"smooth"});
+ }else if(returnTo&&returnTo.isConnected){
+  returnTo.scrollIntoView({behavior:"smooth",block:"center"});
+ }
 }
 async function openPropertyDetails(id){
+ const favorites=document.getElementById("favoritesPanel");
+ returnToFavoritesAfterDetails=!!favorites&&!favorites.classList.contains("hidden");
+ if(returnToFavoritesAfterDetails)closeFavorites();
  closeProfile();
  propertyDetailsReturnElement=document.activeElement;
  const panel=document.getElementById("propertyDetailsPanel");
