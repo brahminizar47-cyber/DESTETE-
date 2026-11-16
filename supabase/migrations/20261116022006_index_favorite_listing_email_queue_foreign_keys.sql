@@ -1,0 +1,2 @@
+create index if not exists favorite_listing_email_queue_property_id_idx on private.favorite_listing_email_queue(property_id);
+create index if not exists favorite_listing_email_queue_recipient_id_idx on private.favorite_listing_email_queue(recipient_id);
