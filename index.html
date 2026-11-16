@@ -236,16 +236,16 @@ button,a{ -webkit-tap-highlight-color:transparent }
   </select></div>
   <div id="ownershipField" class="hidden"><label data-i18n="ownershipType">نوع الملكية</label><select id="ownership" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="individual" data-i18n="individual">فردية</option><option value="shared" data-i18n="shared">مشتركة</option></select></div>
   <div id="landField" class="hidden"><label data-i18n="landNature">الصبغة العقارية</label><select id="landType" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
-  <div><label>السعر الجملي الأدنى (د.ت)</label><input id="minPrice" type="number" min="0" placeholder="مثال: 50000"></div>
-  <div><label>السعر الجملي الأقصى (د.ت)</label><input id="maxPrice" type="number" min="0" placeholder="مثال: 200000"></div>
+  <div><label id="minPriceLabel">السعر الجملي الأدنى (د.ت)</label><input id="minPrice" type="number" min="0" placeholder="مثال: 50000"></div>
+  <div><label id="maxPriceLabel">السعر الجملي الأقصى (د.ت)</label><input id="maxPrice" type="number" min="0" placeholder="مثال: 200000"></div>
   <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" min="0" placeholder="100"></div>
   <div><label data-i18n="advertiserType">صفة المعلن</label><select id="advertiserFilter" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
   <div><label data-i18n="sortResults">ترتيب النتائج</label><select id="sortBy" onchange="searchProperties()"><option value="newest" data-i18n="sortNewest">الأحدث أولاً</option><option value="price_asc" data-i18n="sortPriceAsc">السعر: من الأقل إلى الأعلى</option><option value="price_desc" data-i18n="sortPriceDesc">السعر: من الأعلى إلى الأقل</option></select></div>
  </div>
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
- <div class="map-tools"><button type="button" class="secondary" onclick="toggleMapSearch()">عرض النتائج على الخريطة</button><button type="button" class="secondary" onclick="saveCurrentSearch()">حفظ هذا البحث</button><button type="button" class="secondary" onclick="toggleSavedSearches()">بحثاتي المحفوظة</button></div>
- <div id="mapSearchPanel" class="hidden"><p class="map-note">تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.</p><div id="mapSearchCanvas"></div></div>
- <div id="savedSearchesPanel" class="hidden"><div class="admin-heading"><strong>عمليات البحث المحفوظة</strong></div><div id="savedSearchesList" class="saved-search-list"></div></div>
+ <div class="map-tools"><button id="mapSearchButton" type="button" class="secondary" onclick="toggleMapSearch()">عرض النتائج على الخريطة</button><button id="saveSearchButton" type="button" class="secondary" onclick="saveCurrentSearch()">حفظ هذا البحث</button><button id="savedSearchesButton" type="button" class="secondary" onclick="toggleSavedSearches()">بحثاتي المحفوظة</button></div>
+ <div id="mapSearchPanel" class="hidden"><p id="mapSearchNote" class="map-note">تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.</p><div id="mapSearchCanvas"></div></div>
+ <div id="savedSearchesPanel" class="hidden"><div class="admin-heading"><strong id="savedSearchesTitle">عمليات البحث المحفوظة</strong></div><div id="savedSearchesList" class="saved-search-list"></div></div>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
 <section id="listings" class="hidden" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
@@ -397,7 +397,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
    <div class="field"><label data-i18n="phone">رقم الهاتف</label><input id="pPhone" type="tel" required maxlength="30"></div>
    <div class="field"><label data-i18n="description">وصف العقار</label><textarea id="pDescription" maxlength="3000"></textarea></div>
    <div class="field"><label data-i18n="propertyPhotos">صور العقار (من 1 إلى 8 صور)</label><input id="pImages" type="file" accept="image/jpeg,image/png,image/webp" multiple required><div class="upload-info" data-i18n="photoRules">الصيغ المقبولة JPG وPNG وWebP، بحد أقصى 5 ميغابايت للصورة.</div><div id="imagePreview" class="image-grid"></div></div>
-   <div class="field"><label>موقع العقار (اختياري)</label><button type="button" class="secondary" onclick="togglePublishMap()">تحديد الموقع على الخريطة</button><div id="publishMapWrap" class="hidden" style="margin-top:10px"><div id="publishMapCanvas"></div><p id="publishMapStatus" class="map-note">اضغط على الخريطة لتحديد موقع العقار. الموقع تقريبي ويمكن تركه فارغاً.</p></div><input id="pLatitude" type="hidden"><input id="pLongitude" type="hidden"></div>
+   <div class="field"><label>موقع العقار (اختياري)</label><button id="publishMapButton" type="button" class="secondary" onclick="togglePublishMap()">تحديد الموقع على الخريطة</button><div id="publishMapWrap" class="hidden" style="margin-top:10px"><div id="publishMapCanvas"></div><p id="publishMapStatus" class="map-note">اضغط على الخريطة لتحديد موقع العقار. الموقع تقريبي ويمكن تركه فارغاً.</p></div><input id="pLatitude" type="hidden"><input id="pLongitude" type="hidden"></div>
    <button id="publishButton" class="primary" type="submit" style="width:100%" data-i18n="publish">نشر الإعلان</button>
   </form>
  </div>
@@ -665,6 +665,8 @@ function applyLanguage(){
  const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
  const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("إغلاق","Close");
+ const newLabels={minPriceLabel:uiText("السعر الجملي الأدنى (د.ت)","Minimum total price (TND)"),maxPriceLabel:uiText("السعر الجملي الأقصى (د.ت)","Maximum total price (TND)"),mapSearchButton:uiText("عرض النتائج على الخريطة","Show results on map"),saveSearchButton:uiText("حفظ هذا البحث","Save this search"),savedSearchesButton:uiText("بحثاتي المحفوظة","My saved searches"),savedSearchesTitle:uiText("عمليات البحث المحفوظة","Saved searches"),mapSearchNote:uiText("تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.","Listings with a location pin from the current results appear here."),publishMapButton:uiText("تحديد الموقع على الخريطة","Choose location on map")};
+ Object.entries(newLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  document.querySelectorAll("[data-i18n]").forEach(el=>{
   const k=el.dataset.i18n;
   if(translations[currentLanguage][k])el.textContent=translations[currentLanguage][k];
@@ -679,6 +681,7 @@ function applyLanguage(){
  });
  document.getElementById("authStatus").textContent=currentUser?tr("loggedIn")+currentUser.email:tr("loginFree");
  document.getElementById("publishStatus").textContent=currentUser?tr("readyToPublish"):tr("loginBefore");
+ updatePricingLabels();
  if(lastProperties.length)displayProperties(lastProperties);
  renderPublicPagination();
  const adminPanel=document.getElementById("adminPanel");
@@ -1046,10 +1049,15 @@ function updatePricingLabels(){
  const type=document.getElementById("pPriceType")?.value||"total";
  const unit=document.getElementById("pAreaUnit")?.value||"sqm";
  const label=document.getElementById("pPriceLabel"),help=document.getElementById("pPriceHelp");
- if(label)label.textContent=type==="per_sqm"?"السعر للمتر المربع (د.ت/م²)":type==="per_hectare"?"السعر للهكتار (د.ت/هك)":"السعر الجملي (د.ت)";
- if(help)help.textContent=type==="per_sqm"?"أدخل ثمن المتر المربع الواحد.":type==="per_hectare"?"أدخل ثمن الهكتار الواحد.":"أدخل السعر الكامل للعقار.";
+ const ar=currentLanguage==="ar";
+ if(label)label.textContent=type==="per_sqm"?(ar?"السعر للمتر المربع (د.ت/م²)":"Price per square metre (TND/m²)"):type==="per_hectare"?(ar?"السعر للهكتار (د.ت/هك)":"Price per hectare (TND/ha)"):(ar?"السعر الجملي (د.ت)":"Total price (TND)");
+ if(help)help.textContent=type==="per_sqm"?(ar?"أدخل ثمن المتر المربع الواحد.":"Enter the price for one square metre."):type==="per_hectare"?(ar?"أدخل ثمن الهكتار الواحد.":"Enter the price for one hectare."):(ar?"أدخل السعر الكامل للعقار.":"Enter the full property price.");
  const areaLabel=document.querySelector('label[for="pArea"]');
- if(areaLabel)areaLabel.textContent=unit==="hectare"?"المساحة بالهكتار (هك)":"المساحة بالمتر المربع (م²)";
+ if(areaLabel)areaLabel.textContent=unit==="hectare"?(ar?"المساحة بالهكتار (هك)":"Area in hectares (ha)"):(ar?"المساحة بالمتر المربع (م²)":"Area in square metres (m²)");
+ const priceType=document.getElementById("pPriceType");
+ if(priceType){priceType.options[0].text=ar?"السعر الجملي":"Total price";priceType.options[1].text=ar?"السعر للمتر المربع":"Price per square metre";priceType.options[2].text=ar?"السعر للهكتار":"Price per hectare";}
+ const areaUnit=document.getElementById("pAreaUnit");
+ if(areaUnit){areaUnit.options[0].text=ar?"متر مربع (م²)":"Square metre (m²)";areaUnit.options[1].text=ar?"هكتار (هك)":"Hectare (ha)";}
 }
 function updatePublishFields(){
  const type=document.getElementById("pType").value;
