@@ -92,9 +92,10 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
  .admin-audit-item small{display:block;color:var(--muted);margin-top:5px}
 .compare-toolbar{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin:12px 0}.compare-toolbar.visible{display:flex}.owner-listing{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0}.owner-listing-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.owner-listing-stats span{background:#f5f7fa;padding:9px;border-radius:8px;font-size:12px}.detail-gallery{display:flex;gap:8px;overflow-x:auto;margin:12px 0}.detail-gallery img{height:180px;min-width:75%;object-fit:cover;border-radius:8px}.compare-table{width:100%;border-collapse:collapse;margin-top:12px}.compare-table th,.compare-table td{border:1px solid var(--border);padding:9px;text-align:start;font-size:13px}.compare-table th{background:#f5f7fa}.detail-history{margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
 .listing-details{margin-top:12px;padding:13px 15px;background:#f5f8f3;border:1px solid var(--border);border-inline-start:4px solid var(--blue);border-radius:9px;line-height:1.8;color:#344638;white-space:pre-wrap;overflow-wrap:anywhere}.listing-details p{margin:0}.listing-details.hidden{display:none!important}
-#favoritesPanel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}
-#favoritesPanel .admin-heading{margin-bottom:12px}
+#favoritesPanel.favorites-page{position:fixed;inset:0;z-index:31;overflow-y:auto;overscroll-behavior:contain;background:#f5f7f3;padding:24px max(4%,calc((100% - 1100px)/2));border:0;border-radius:0;box-shadow:0 0 0 100vmax rgba(0,0,0,.42)}
+#favoritesPanel .admin-heading{margin-bottom:18px;align-items:center}
 #favoritesPanel .admin-heading .section-title{margin:0}
+#favoritesPanel .admin-heading button{flex:0 0 40px;width:40px;min-width:40px;height:40px;padding:0;border-radius:50%;background:#f0f2f0;color:#182536;font-size:28px;line-height:1;font-weight:400}
 .legal-consent{display:flex;align-items:flex-start;gap:9px;margin:12px 0;padding:12px;background:#f4f7f1;border:1px solid var(--border);border-radius:9px;line-height:1.6}.legal-consent input{width:auto;min-width:18px;margin-top:4px}.legal-consent a{color:var(--navy);text-decoration:underline}.profile-panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:30px}.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.profile-info{background:#f5f7fa;border:1px solid var(--border);border-radius:9px;padding:12px;min-width:0}.profile-info strong{display:block;margin-top:6px;overflow-wrap:anywhere}.profile-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.profile-actions button{flex:1;min-width:130px}.profile-section{border-top:1px solid var(--border);margin-top:18px;padding-top:16px}.profile-section h3{margin:0 0 12px;color:var(--navy)}.account-management,.account-activity{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:12px;background:#fbfcfd}.account-section-heading{margin:0 0 14px;color:var(--navy);font-size:18px}.account-center{margin-top:0;border-top:0;padding-top:0}.account-activity .account-center>h3{margin-top:0}.account-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.account-tile{background:#f5f7fa;border:1px solid var(--border);border-radius:10px;padding:13px;text-align:start;min-height:78px}.account-tile strong{display:block;margin-top:7px;color:var(--navy)}.account-tile .count{float:inline-end;background:#e4efe2;color:var(--navy);border-radius:20px;padding:2px 8px;font-size:12px}.account-list{display:grid;gap:9px;margin-top:12px}.account-item{background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px;text-align:start}.account-item.unread{border-inline-start:4px solid var(--blue);background:#f6faf5}.my-page-footer{display:grid;gap:9px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}.my-page-footer button{width:100%;min-height:48px;text-align:start}.account-settings-panel{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:12px;background:#fbfcfd}.account-settings-panel>.admin-heading h3{margin:0;color:var(--navy)}.account-settings-panel .profile-section{background:#fff;border-radius:9px;padding:14px;margin-top:14px}.account-activity{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:12px;background:#fbfcfd}
 
 /* DESTATE Mobile First + 4G improvements */
@@ -315,12 +316,14 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div class="profile-section"><h3 id="publicUserListingsTitle">إعلانات هذا الحساب</h3><div id="publicUserListings" class="results"></div></div>
  <div class="profile-section"><h3 id="publicUserReviewsTitle">تقييمات المعلن وآراء الآخرين</h3><div id="publicUserReviews"></div></div>
  
- <section id="favoritesPanel" class="hidden profile-section" style="margin-top:20px">
+
+</section>
+ <section id="favoritesPanel" class="hidden favorites-page">
  <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">×</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
  <div id="favoritesResults" class="results"></div>
  </section>
-</section>
+
 <section id="myPropertiesPanel" class="hidden" style="margin-top:35px"><h2 class="section-title" id="myPropertiesTitle">إعلاناتي وإحصائياتي</h2><div id="myPropertiesList"></div></section>
 <section id="adminPanel" class="admin-panel hidden">
  <div class="admin-heading">
@@ -1469,14 +1472,13 @@ async function toggleFavorite(id){
 
 async function openFavorites(){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
- const profilePanel=document.getElementById("profilePanel");
- if(profilePanel?.classList.contains("hidden")){
-  openProfile();
- }
+ closeProfile();
+ closePublicUserProfile();
+ document.getElementById("myPropertiesPanel")?.classList.add("hidden");
  const panel=document.getElementById("favoritesPanel");
  panel.classList.remove("hidden");
  await loadFavoriteProperties();
- panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 function closeFavorites(){document.getElementById("favoritesPanel").classList.add("hidden")}
 
