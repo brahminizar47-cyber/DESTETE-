@@ -1130,7 +1130,10 @@ async function saveCurrentSearch(){
  if(!currentUser){openModal("loginModal");return}
  const label=prompt(uiText("سمّ عملية البحث هذه","Name this search"),uiText("بحث عقارات","Property search"));if(label===null)return;
  const {error}=await db.from("saved_searches").insert({user_id:currentUser.id,label:label.trim().slice(0,80),filters:currentSearchFilters()});
- if(error){alert(uiText("تعذّر حفظ البحث: ","Could not save search: ")+error.message);return}await loadSavedSearches();
+ if(error){alert(uiText("تعذّر حفظ البحث: ","Could not save search: ")+error.message);return}
+ document.getElementById("savedSearchesPanel").classList.remove("hidden");
+ await loadSavedSearches();
+ alert(uiText("تم حفظ عملية البحث.","Search saved."));
 }
 async function loadSavedSearches(){
  const list=document.getElementById("savedSearchesList");if(!list||!currentUser)return;
@@ -1530,7 +1533,8 @@ async function loadMyPropertyStats(){
  list.innerHTML=data.map(p=>{
   const expired=Date.parse(p.expires_at)<=Date.now();
   const availabilityOptions='<option value="available" '+(p.availability_status==="available"?"selected":"")+'>'+uiText("متوفر","Available")+'</option><option value="sold" '+(p.availability_status==="sold"?"selected":"")+'>'+uiText("تم البيع","Sold")+'</option><option value="rented" '+(p.availability_status==="rented"?"selected":"")+'>'+uiText("تم الكراء","Rented")+'</option>';
-  return '<article class="owner-listing"><strong>'+safe(p.title)+'</strong><div class="meta">'+uiText("السعر: ","Price: ")+safe(formatListingPrice(p))+' · '+safe(p.status)+'</div><div class="meta">'+uiText("حالة العقار: ","Availability: ")+'<select aria-label="Availability status" onchange="setPropertyAvailability(\''+safe(p.property_id)+'\',this.value)">'+availabilityOptions+'</select></div><div class="owner-listing-stats"><span>'+uiText("المشاهدات: ","Views: ")+Number(p.view_count||0)+'</span><span>'+uiText("طلبات الاتصال: ","Contact requests: ")+Number(p.contact_count||0)+'</span><span>'+uiText("المفضّلة: ","Favorites: ")+Number(p.favorite_count||0)+'</span></div><div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.expires_at).toLocaleDateString())+'</div><div class="meta">'+uiText("تنتهي صلاحية الظهور: ","Visibility expires: ")+safe(new Date(p.expires_at).toLocaleDateString())+'</div>'+(expired&&p.status==="published"?'<button class="primary" onclick="confirmPropertyAvailability(\''+safe(p.property_id)+'\')">'+uiText("تأكيد أن العقار ما زال متوفراً (+30 يوماً)","Confirm availability (+30 days)")+'</button>':'')+'</article>';
+  const availabilityControl=p.status==="published"?'<select aria-label="Availability status" onchange="setPropertyAvailability(\''+safe(p.property_id)+'\',this.value)">'+availabilityOptions+'</select>':safe(getAvailabilityLabel(p));
+  return '<article class="owner-listing"><strong>'+safe(p.title)+'</strong><div class="meta">'+uiText("السعر: ","Price: ")+safe(formatListingPrice(p))+' · '+safe(p.status)+'</div><div class="meta">'+uiText("حالة العقار: ","Availability: ")+availabilityControl+'</div><div class="owner-listing-stats"><span>'+uiText("المشاهدات: ","Views: ")+Number(p.view_count||0)+'</span><span>'+uiText("طلبات الاتصال: ","Contact requests: ")+Number(p.contact_count||0)+'</span><span>'+uiText("المفضّلة: ","Favorites: ")+Number(p.favorite_count||0)+'</span></div><div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.expires_at).toLocaleDateString())+'</div><div class="meta">'+uiText("تنتهي صلاحية الظهور: ","Visibility expires: ")+safe(new Date(p.expires_at).toLocaleDateString())+'</div>'+(expired&&p.status==="published"&&p.availability_status==="available"?'<button class="primary" onclick="confirmPropertyAvailability(\''+safe(p.property_id)+'\')">'+uiText("تأكيد أن العقار ما زال متوفراً (+30 يوماً)","Confirm availability (+30 days)")+'</button>':'')+'</article>';
  }).join("");
 }
 async function setPropertyAvailability(id,value){
