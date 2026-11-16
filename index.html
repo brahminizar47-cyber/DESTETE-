@@ -248,7 +248,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
 <section id="listings" class="hidden" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
- <div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
+ <div id="publicResultsCount" class="caption" style="margin:12px 0;font-weight:600" aria-live="polite">عدد الإعلانات: 0</div><div id="propertyResults" class="results"><div class="empty">جاري التحميل...</div></div><div id="publicPagination" class="pagination" aria-label="Property pages"></div>
  <div id="compareToolbar" class="compare-toolbar"><span id="compareCount">0 / 3</span><div><button type="button" class="secondary" onclick="openCompareModal()">مقارنة العقارات</button><button type="button" onclick="clearCompare()">مسح</button></div></div>
 </section>
 <section id="profilePanel" class="profile-panel hidden">
@@ -438,7 +438,7 @@ const MAX_IMAGES=3,MAX_IMAGE_SIZE=5*1024*1024;
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
  auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}
 });
-let currentUser=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=20;
+let currentUser=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=10;
 let compareItems=[];let openedSharedPropertyId=null;
 let publishMap=null,publishMarker=null,savedSearchesCache=[];
 
@@ -1305,12 +1305,16 @@ async function uploadPropertyImages(files,propertyId){
 }
 
 function renderPublicPagination(){
+ const countEl=document.getElementById("publicResultsCount");
+ if(countEl)countEl.textContent=uiText("عدد الإعلانات: ","Total listings: ")+publicTotal;
  const el=document.getElementById("publicPagination");if(!el)return;
  const pages=Math.ceil(publicTotal/PUBLIC_PAGE_SIZE);
- if(pages<=1){el.innerHTML="";return;}
+ if(pages===0){el.innerHTML="";return;}
+ const pageLabel=uiText("صفحة ","Page ")+(publicPage+1)+" / "+pages;
+ if(pages===1){el.innerHTML='<span>'+pageLabel+'</span>';return;}
  const prevDisabled=publicPage<=0?"disabled":"";
  const nextDisabled=publicPage>=pages-1?"disabled":"";
- el.innerHTML='<button type="button" class="secondary" '+prevDisabled+' onclick="searchProperties('+(publicPage-1)+')">'+uiText("السابق","Previous")+'</button><span>'+uiText("صفحة ","Page ")+(publicPage+1)+' / '+pages+' · '+publicTotal+'</span><button type="button" class="secondary" '+nextDisabled+' onclick="searchProperties('+(publicPage+1)+')">'+uiText("التالي","Next")+'</button>';
+ el.innerHTML='<button type="button" class="secondary" '+prevDisabled+' onclick="searchProperties('+(publicPage-1)+')">'+uiText("السابق","Previous")+'</button><span>'+pageLabel+'</span><button type="button" class="secondary" '+nextDisabled+' onclick="searchProperties('+(publicPage+1)+')">'+uiText("التالي","Next")+'</button>';
 }
 
 function displayProperties(items){
