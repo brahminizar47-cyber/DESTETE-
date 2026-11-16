@@ -9,6 +9,8 @@
 <meta property="og:description" content="منصة رقمية تونسية تجمع أصحاب العقارات والباحثين عنها.">
 <meta property="og:type" content="website">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
 :root{--navy:#244b36;--blue:#4f805b;--gold:#a8bd78;--bg:#f4f7f1;--muted:#68796c;--border:#dce6d8}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;background:var(--bg);color:#182536}
@@ -196,6 +198,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  #profilePanel>.admin-heading{align-items:center}
 }
 
+#mapSearchCanvas,#publishMapCanvas{height:360px;width:100%;border:1px solid var(--border);border-radius:12px;z-index:1}.map-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.map-note{font-size:12px;color:var(--muted);margin:8px 0}.saved-search-list{display:grid;gap:8px;margin-top:10px}.saved-search-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--border);border-radius:9px;background:#fff}.saved-search-item button{width:auto;padding:8px 10px}.property-status{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf3e9;color:var(--navy);font-size:12px;margin:4px 0}.price-unit-note{font-size:12px;color:var(--muted);margin-top:5px}
 </style>
 </head>
 <body>
@@ -233,12 +236,16 @@ button,a{ -webkit-tap-highlight-color:transparent }
   </select></div>
   <div id="ownershipField" class="hidden"><label data-i18n="ownershipType">نوع الملكية</label><select id="ownership" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="individual" data-i18n="individual">فردية</option><option value="shared" data-i18n="shared">مشتركة</option></select></div>
   <div id="landField" class="hidden"><label data-i18n="landNature">الصبغة العقارية</label><select id="landType" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
-  <div><label data-i18n="maxPrice">السعر الأقصى (دينار)</label><input id="maxPrice" type="number" placeholder="200000"></div>
-  <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" placeholder="100"></div>
+  <div><label>السعر الجملي الأدنى (د.ت)</label><input id="minPrice" type="number" min="0" placeholder="مثال: 50000"></div>
+  <div><label>السعر الجملي الأقصى (د.ت)</label><input id="maxPrice" type="number" min="0" placeholder="مثال: 200000"></div>
+  <div><label data-i18n="minArea">المساحة الدنيا (م²)</label><input id="minArea" type="number" min="0" placeholder="100"></div>
   <div><label data-i18n="advertiserType">صفة المعلن</label><select id="advertiserFilter" onchange="searchProperties()"><option value="" data-i18n="all">الكل</option><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
   <div><label data-i18n="sortResults">ترتيب النتائج</label><select id="sortBy" onchange="searchProperties()"><option value="newest" data-i18n="sortNewest">الأحدث أولاً</option><option value="price_asc" data-i18n="sortPriceAsc">السعر: من الأقل إلى الأعلى</option><option value="price_desc" data-i18n="sortPriceDesc">السعر: من الأعلى إلى الأقل</option></select></div>
  </div>
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
+ <div class="map-tools"><button type="button" class="secondary" onclick="toggleMapSearch()">عرض النتائج على الخريطة</button><button type="button" class="secondary" onclick="toggleSavedSearches()">حفظ البحث / بحثاتي المحفوظة</button></div>
+ <div id="mapSearchPanel" class="hidden"><p class="map-note">تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.</p><div id="mapSearchCanvas"></div></div>
+ <div id="savedSearchesPanel" class="hidden"><div class="admin-heading"><strong>عمليات البحث المحفوظة</strong></div><div id="savedSearchesList" class="saved-search-list"></div></div>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
 <section id="listings" class="hidden" style="margin-top:38px"> <h2 class="section-title" data-i18n="latestProperties">أحدث العقارات</h2>
@@ -380,14 +387,17 @@ button,a{ -webkit-tap-highlight-color:transparent }
     <option>تونس</option><option>أريانة</option><option>بن عروس</option><option>منوبة</option><option>نابل</option><option>زغوان</option><option>بنزرت</option><option>باجة</option><option>جندوبة</option><option>الكاف</option><option>سليانة</option><option>سوسة</option><option>المنستير</option><option>المهدية</option><option>صفاقس</option><option>القيروان</option><option>القصرين</option><option>سيدي بوزيد</option><option>قابس</option><option>مدنين</option><option>تطاوين</option><option>قفصة</option><option>توزر</option><option>قبلي</option>
    </select></div>
    <div class="field"><label data-i18n="cityArea">المدينة / المنطقة</label><input id="pCity" required maxlength="100"></div>
-   <div class="field"><label data-i18n="priceTND">السعر بالدينار التونسي</label><input id="pPrice" type="number" min="1" required></div>
-   <div class="field"><label data-i18n="areaSqm">المساحة بالمتر المربع</label><input id="pArea" type="number" min="1" required></div>
+   <div class="field"><label for="pPriceType">طريقة تحديد السعر</label><select id="pPriceType" required onchange="updatePricingLabels()"><option value="total">السعر الجملي</option><option value="per_sqm">السعر للمتر المربع</option><option value="per_hectare">السعر للهكتار</option></select></div>
+   <div class="field"><label id="pPriceLabel" for="pPrice">السعر الجملي (د.ت)</label><input id="pPrice" type="number" min="0.001" step="any" required><div id="pPriceHelp" class="price-unit-note">أدخل السعر الجملي للعقار.</div></div>
+   <div class="field"><label for="pArea">المساحة</label><input id="pArea" type="number" min="0.001" step="any" required></div>
+   <div class="field"><label for="pAreaUnit">وحدة المساحة</label><select id="pAreaUnit" required onchange="updatePricingLabels()"><option value="sqm">متر مربع (م²)</option><option value="hectare">هكتار (هك)</option></select></div>
    <div class="field" id="publishOwnershipField"><label data-i18n="ownershipType">نوع الملكية</label><select id="pOwnership" required><option value="" data-i18n="choose">اختر</option><option value="individual" data-i18n="individual">فردية</option><option value="shared" data-i18n="shared">مشتركة</option></select></div>
    <div class="field hidden" id="publishLandTypeField"><label data-i18n="landNature">الصبغة العقارية</label><select id="pLandType"><option value="" data-i18n="choose">اختر</option><option value="residential" data-i18n="residential">سكنية</option><option value="agricultural" data-i18n="agricultural">فلاحية</option></select></div>
    <div class="field"><label data-i18n="advertiserType">صفة المعلن</label><select id="pAdvertiser" required><option value="owner" data-i18n="owner">مالك العقار</option><option value="broker" data-i18n="broker">وسيط مستقل</option><option value="agency" data-i18n="agency">وكالة عقارية</option></select></div>
    <div class="field"><label data-i18n="phone">رقم الهاتف</label><input id="pPhone" type="tel" required maxlength="30"></div>
    <div class="field"><label data-i18n="description">وصف العقار</label><textarea id="pDescription" maxlength="3000"></textarea></div>
    <div class="field"><label data-i18n="propertyPhotos">صور العقار (من 1 إلى 8 صور)</label><input id="pImages" type="file" accept="image/jpeg,image/png,image/webp" multiple required><div class="upload-info" data-i18n="photoRules">الصيغ المقبولة JPG وPNG وWebP، بحد أقصى 5 ميغابايت للصورة.</div><div id="imagePreview" class="image-grid"></div></div>
+   <div class="field"><label>موقع العقار (اختياري)</label><button type="button" class="secondary" onclick="togglePublishMap()">تحديد الموقع على الخريطة</button><div id="publishMapWrap" class="hidden" style="margin-top:10px"><div id="publishMapCanvas"></div><p id="publishMapStatus" class="map-note">اضغط على الخريطة لتحديد موقع العقار. الموقع تقريبي ويمكن تركه فارغاً.</p></div><input id="pLatitude" type="hidden"><input id="pLongitude" type="hidden"></div>
    <button id="publishButton" class="primary" type="submit" style="width:100%" data-i18n="publish">نشر الإعلان</button>
   </form>
  </div>
@@ -431,6 +441,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
 });
 let currentUser=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=20;
 let compareItems=[];let openedSharedPropertyId=null;
+let publishMap=null,publishMarker=null,searchMap=null,savedSearchesCache=[];
 
 const translations={
 ar:{
@@ -1031,6 +1042,15 @@ function updateFilters(){
  document.getElementById("ownershipField").classList.toggle("hidden",!land);
  updateSubTypeOptions(type);
 }
+function updatePricingLabels(){
+ const type=document.getElementById("pPriceType")?.value||"total";
+ const unit=document.getElementById("pAreaUnit")?.value||"sqm";
+ const label=document.getElementById("pPriceLabel"),help=document.getElementById("pPriceHelp");
+ if(label)label.textContent=type==="per_sqm"?"السعر للمتر المربع (د.ت/م²)":type==="per_hectare"?"السعر للهكتار (د.ت/هك)":"السعر الجملي (د.ت)";
+ if(help)help.textContent=type==="per_sqm"?"أدخل ثمن المتر المربع الواحد.":type==="per_hectare"?"أدخل ثمن الهكتار الواحد.":"أدخل السعر الكامل للعقار.";
+ const areaLabel=document.querySelector('label[for="pArea"]');
+ if(areaLabel)areaLabel.textContent=unit==="hectare"?"المساحة بالهكتار (هك)":"المساحة بالمتر المربع (م²)";
+}
 function updatePublishFields(){
  const type=document.getElementById("pType").value;
  const land=type==="land"||type==="agricultural_land";
@@ -1054,6 +1074,7 @@ function chooseType(type,card){
 function resetSearch(){
  ["type","subType","governorate","ownership","landType","advertiserFilter"].forEach(id=>document.getElementById(id).value="");
  document.getElementById("sortBy").value="newest";
+ document.getElementById("minPrice").value="";
  document.getElementById("maxPrice").value="";
  document.getElementById("minArea").value="";
  document.querySelectorAll("#browseCategories .category").forEach(card=>card.classList.remove("active"));
@@ -1063,6 +1084,74 @@ function resetSearch(){
  searchProperties();
 }
 
+function togglePublishMap(){
+ const wrap=document.getElementById("publishMapWrap");if(!wrap)return;
+ wrap.classList.toggle("hidden");if(wrap.classList.contains("hidden"))return;
+ if(!window.L){alert("تعذّر تحميل الخريطة. حاول تحديث الصفحة.");return}
+ if(!publishMap){
+  publishMap=L.map("publishMapCanvas").setView([34,9.5],6);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(publishMap);
+  publishMap.on("click",e=>{
+   const lat=e.latlng.lat,lon=e.latlng.lng;
+   document.getElementById("pLatitude").value=lat.toFixed(7);document.getElementById("pLongitude").value=lon.toFixed(7);
+   if(publishMarker)publishMarker.setLatLng(e.latlng);else publishMarker=L.marker(e.latlng).addTo(publishMap);
+   document.getElementById("publishMapStatus").textContent="تم تحديد الموقع: "+lat.toFixed(5)+", "+lon.toFixed(5);
+  });
+ }
+ setTimeout(()=>publishMap.invalidateSize(),120);
+}
+function toggleMapSearch(){
+ const panel=document.getElementById("mapSearchPanel");if(!panel)return;
+ panel.classList.toggle("hidden");if(panel.classList.contains("hidden"))return;
+ if(!window.L){alert("تعذّر تحميل الخريطة.");return}
+ if(!searchMap){searchMap=L.map("mapSearchCanvas").setView([34,9.5],6);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(searchMap);}
+ setTimeout(()=>{
+  searchMap.invalidateSize();const points=(lastProperties||[]).filter(p=>p.latitude!==null&&p.longitude!==null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude)));
+  if(searchMap._destateMarkers)searchMap.removeLayer(searchMap._destateMarkers);
+  searchMap._destateMarkers=L.featureGroup().addTo(searchMap);
+  points.forEach(p=>{const marker=L.marker([Number(p.latitude),Number(p.longitude)]).addTo(searchMap._destateMarkers);marker.bindPopup('<strong>'+safe(p.title)+'</strong><br>'+safe(formatListingPrice(p)));});
+  if(points.length)searchMap.fitBounds(searchMap._destateMarkers.getBounds().pad(0.15));
+ },140);
+}
+function currentSearchFilters(){return {type:document.getElementById("type").value,subType:document.getElementById("subType").value,governorate:document.getElementById("governorate").value,ownership:document.getElementById("ownership").value,landType:document.getElementById("landType").value,minPrice:document.getElementById("minPrice").value,maxPrice:document.getElementById("maxPrice").value,minArea:document.getElementById("minArea").value,advertiser:document.getElementById("advertiserFilter").value,sortBy:document.getElementById("sortBy").value};}
+async function toggleSavedSearches(){
+ if(!currentUser){alert(uiText("سجّل الدخول لحفظ عمليات البحث.","Log in to save searches."));openModal("loginModal");return}
+ const panel=document.getElementById("savedSearchesPanel");panel.classList.toggle("hidden");if(!panel.classList.contains("hidden"))await loadSavedSearches();
+}
+async function saveCurrentSearch(){
+ if(!currentUser){openModal("loginModal");return}
+ const label=prompt(uiText("سمّ عملية البحث هذه","Name this search"),uiText("بحث عقارات","Property search"));if(label===null)return;
+ const {error}=await db.from("saved_searches").insert({user_id:currentUser.id,label:label.trim().slice(0,80),filters:currentSearchFilters()});
+ if(error){alert(uiText("تعذّر حفظ البحث: ","Could not save search: ")+error.message);return}await loadSavedSearches();
+}
+async function loadSavedSearches(){
+ const list=document.getElementById("savedSearchesList");if(!list||!currentUser)return;
+ list.innerHTML='<p class="map-note">جاري تحميل عمليات البحث...</p>';
+ const {data,error}=await db.from("saved_searches").select("id,label,filters,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(30);
+ if(error){list.textContent="تعذّر تحميل عمليات البحث المحفوظة.";return}
+ savedSearchesCache=data||[];
+ list.innerHTML=savedSearchesCache.length?savedSearchesCache.map(x=>'<div class="saved-search-item"><span>'+safe(x.label||"بحث محفوظ")+'</span><div><button type="button" class="secondary" onclick="applySavedSearch(\''+safe(x.id)+'\')">فتح</button><button type="button" onclick="deleteSavedSearch(\''+safe(x.id)+'\')">حذف</button></div></div>').join(""):'<p class="map-note">لا توجد عمليات بحث محفوظة بعد.</p>';
+}
+function applySavedSearch(id){
+ const item=savedSearchesCache.find(x=>String(x.id)===String(id));if(!item)return;const f=item.filters||{};
+ const mapping={type:"type",subType:"subType",governorate:"governorate",ownership:"ownership",landType:"landType",minPrice:"minPrice",maxPrice:"maxPrice",minArea:"minArea",advertiser:"advertiserFilter",sortBy:"sortBy"};
+ Object.entries(mapping).forEach(([key,id])=>{const el=document.getElementById(id);if(el)el.value=f[key]??""});updateFilters();searchProperties();
+}
+async function deleteSavedSearch(id){
+ if(!confirm(uiText("حذف عملية البحث المحفوظة؟","Delete this saved search?")))return;
+ const {error}=await db.from("saved_searches").delete().eq("id",id).eq("user_id",currentUser.id);if(error){alert(error.message);return}await loadSavedSearches();
+}
+function formatListingPrice(p){
+ const value=Number(p.price||0).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-US");
+ if(p.price_type==="per_sqm")return value+(currentLanguage==="ar"?" د.ت/م²":" TND/m²");
+ if(p.price_type==="per_hectare")return value+(currentLanguage==="ar"?" د.ت/هك":" TND/ha");
+ return value+(currentLanguage==="ar"?" د.ت":" TND");
+}
+function formatListingArea(p){
+ const value=Number(p.area||0).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-US");
+ return value+(p.area_unit==="hectare"?(currentLanguage==="ar"?" هك":" ha"):(currentLanguage==="ar"?" م²":" m²"));
+}
+function getAvailabilityLabel(p){const v=p.availability_status||"available";return v==="sold"?uiText("تم البيع","Sold"):v==="rented"?uiText("تم الكراء","Rented"):uiText("متوفر","Available");}
 function getSelectedFiles(){
  return Array.from(document.getElementById("pImages").files||[]);
 }
@@ -1167,13 +1256,14 @@ async function uploadPropertyImages(files,propertyId){
  publicPage=Math.max(0,Number(page)||0);
  results.innerHTML='<div class="empty">'+tr("loading")+'</div>';
 
- let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls,created_at,expires_at",{count:"exact"}).eq("status","published").gt("expires_at",new Date().toISOString());
+ let q=db.from("properties").select("id,title,description,property_type,governorate,city,price,price_type,total_price,area,area_unit,area_sqm,latitude,longitude,availability_status,updated_at,advertiser_type,ownership_type,land_type,image_urls,created_at,expires_at",{count:"exact"}).eq("status","published").gt("expires_at",new Date().toISOString());
 
  const type=document.getElementById("type").value;
  const subType=document.getElementById("subType").value;
  const gov=document.getElementById("governorate").value;
  const ownership=document.getElementById("ownership").value;
  const landType=document.getElementById("landType").value;
+ const minPrice=document.getElementById("minPrice").value;
  const maxPrice=document.getElementById("maxPrice").value;
  const minArea=document.getElementById("minArea").value;
  const advertiser=document.getElementById("advertiserFilter").value;
@@ -1185,11 +1275,12 @@ async function uploadPropertyImages(files,propertyId){
  else if(type)q=q.eq("property_type",type);
  if(gov)q=q.eq("governorate",gov);
  if(ownership)q=q.eq("ownership_type",ownership); if(landType)q=q.eq("land_type",landType);
- if(maxPrice)q=q.lte("price",Number(maxPrice));
- if(minArea)q=q.gte("area",Number(minArea));
+ if(minPrice)q=q.gte("total_price",Number(minPrice));
+ if(maxPrice)q=q.lte("total_price",Number(maxPrice));
+ if(minArea)q=q.gte("area_sqm",Number(minArea));
  if(advertiser)q=q.eq("advertiser_type",advertiser);
 
- const sortColumn=sortBy==="price_asc"||sortBy==="price_desc"?"price":"created_at";
+ const sortColumn=sortBy==="price_asc"||sortBy==="price_desc"?"total_price":"created_at";
  const ascending=sortBy==="price_asc";
  const from=publicPage*PUBLIC_PAGE_SIZE;
  const {data,error,count}=await q.order(sortColumn,{ascending, nullsFirst:false}).order("id",{ascending:false}).range(from,from+PUBLIC_PAGE_SIZE-1);
@@ -1237,10 +1328,12 @@ function displayProperties(items){
   return '<article class="property">'+gallery+
    '<div class="property-content">'+
    '<h3>'+safe(p.title)+'</h3>'+
-   '<div class="meta"><strong>'+uiText("الثمن: ","Price: ")+'</strong>'+safe(p.price!==null&&p.price!==undefined&&p.price!==""?Number(p.price).toLocaleString()+" "+(currentLanguage==="ar"?"د.ت":"TND"):tr("notSpecified"))+'</div>'+
+   '<div class="meta"><strong>'+uiText("الثمن: ","Price: ")+'</strong>'+safe(formatListingPrice(p))+'</div>'+
+   '<span class="property-status">'+safe(getAvailabilityLabel(p))+'</span>'+
    '<div class="meta"><strong>'+uiText("العنوان: ","Address: ")+'</strong>'+safe(location||tr("notSpecified"))+'</div>'+
    '<div class="meta"><strong>'+uiText("نوع العقار: ","Property type: ")+'</strong>'+safe(tr(typeNames[p.property_type]||p.property_type||"notSpecified"))+'</div>'+
-   '<div class="meta"><strong>'+uiText("المساحة: ","Area: ")+'</strong>'+safe(p.area!==null&&p.area!==undefined&&p.area!==""?Number(p.area).toLocaleString():tr("notSpecified"))+" "+tr("areaUnit")+'</div>'+
+   '<div class="meta"><strong>'+uiText("المساحة: ","Area: ")+'</strong>'+safe(formatListingArea(p))+'</div>'+
+   '<div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</div>'+
    (p.land_type?'<div class="meta"><strong>'+uiText("الصبغة العقارية: ","Land classification: ")+'</strong>'+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</div>':'')+
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
    '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+
@@ -1281,7 +1374,7 @@ function clearCompare(){compareItems=[];renderCompareToolbar()}
 function openCompareModal(){
  if(compareItems.length<2){alert(uiText("اختر عقارين على الأقل للمقارنة.","Select at least two properties to compare."));return}
  const rows=[
-  [uiText("السعر","Price"),p=>Number(p.price||0).toLocaleString()+" "+(currentLanguage==="ar"?"د.ت":"TND")],
+  [uiText("السعر","Price"),p=>formatListingPrice(p)],
   [uiText("المساحة","Area"),p=>(p.area||"—")+" m²"],
   [uiText("النوع","Type"),p=>tr(typeNames[p.property_type]||p.property_type)],
   [uiText("الموقع","Location"),p=>[p.governorate,p.city].filter(Boolean).join(" - ")],
@@ -1393,13 +1486,14 @@ async function openPropertyDetails(id){
  const box=document.getElementById("propertyDetailsContent");
  box.innerHTML='<div class="status">'+uiText("جاري تحميل التفاصيل...","Loading details...")+'</div>';
  panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});
- const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,area,advertiser_type,ownership_type,land_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
+ const {data:p,error}=await db.from("properties").select("id,title,description,property_type,governorate,city,price,price_type,total_price,area,area_unit,area_sqm,latitude,longitude,availability_status,updated_at,advertiser_type,ownership_type,land_type,image_urls").eq("id",id).eq("status","published").gt("expires_at",new Date().toISOString()).maybeSingle();
  if(error||!p){box.textContent=uiText("العقار غير متوفر حالياً.","This property is currently unavailable.");return}
  document.getElementById("detailTitle").textContent=p.title;
  try{await signPropertyImages(p);}catch(e){console.error("Detail images:",e);}
  const imgs=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
  const gallery=imgs.length?'<div class="detail-gallery">'+imgs.map(u=>'<img src="'+safe(u)+'" alt="Property photo" loading="lazy">').join("")+'</div>':"";
- box.innerHTML=gallery+'<div class="price">'+Number(p.price||0).toLocaleString()+' '+(currentLanguage==="ar"?"د.ت":"TND")+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(p.area||"—")+' m²</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p>'+(p.land_type?'<p class="tag">'+uiText("الصبغة العقارية: ","Land classification: ")+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</p>':'')+(p.ownership_type?'<p class="tag">'+uiText("نوع الملكية: ","Ownership type: ")+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</p>':'')+'<p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+uiText("الهاتف","Phone")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("رسالة","Message")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ box.innerHTML=gallery+'<div class="price">'+safe(formatListingPrice(p))+'</div><p class="meta">'+safe([p.governorate,p.city].filter(Boolean).join(" - "))+' · '+safe(formatListingArea(p))+'</p><p class="property-status">'+safe(getAvailabilityLabel(p))+'</p><p class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</p><p>'+safe(p.description||"")+'</p><p class="tag">'+safe(tr(typeNames[p.property_type]||p.property_type))+'</p>'+(p.land_type?'<p class="tag">'+uiText("الصبغة العقارية: ","Land classification: ")+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</p>':'')+(p.ownership_type?'<p class="tag">'+uiText("نوع الملكية: ","Ownership type: ")+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</p>':'')+'<p class="tag">'+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type))+'</p><div class="card-actions"><button class="secondary" onclick="showContact(\''+safe(p.id)+'\')">'+uiText("الهاتف","Phone")+'</button><button class="secondary" onclick="startPropertyConversation(\''+safe(p.id)+'\')">'+uiText("رسالة","Message")+'</button><button onclick="shareProperty(\''+safe(p.id)+'\')">'+uiText("مشاركة","Share")+'</button><button onclick="toggleFavorite(\''+safe(p.id)+'\')">'+uiText("حفظ","Save")+'</button></div><div id="priceHistory" class="detail-history"><strong>'+uiText("تاريخ تغيّر السعر","Price history")+'</strong><p class="small">'+uiText("جاري التحميل...","Loading...")+'</p></div>';
+ if(p.latitude!==null&&p.longitude!==null){box.innerHTML+='<p><a href="https://www.openstreetmap.org/?mlat='+encodeURIComponent(p.latitude)+'&mlon='+encodeURIComponent(p.longitude)+'#map=16/'+encodeURIComponent(p.latitude)+'/'+encodeURIComponent(p.longitude)+'" target="_blank" rel="noopener">'+uiText("عرض الموقع على الخريطة","View location on map")+'</a></p>'}
  const {error:viewError}=await db.rpc("record_property_view",{p_property_id:p.id,p_visitor_id:getVisitorId()});
  if(viewError)console.warn("View tracking unavailable:",viewError.message);
  const history=await db.rpc("get_property_price_history",{p_property_id:p.id});
@@ -1500,7 +1594,11 @@ async function publishProperty(event){
    governorate:document.getElementById("pGovernorate").value,
    city:document.getElementById("pCity").value.trim(),
    price:Number(document.getElementById("pPrice").value),
+   price_type:document.getElementById("pPriceType").value,
    area:Number(document.getElementById("pArea").value),
+   area_unit:document.getElementById("pAreaUnit").value,
+   latitude:document.getElementById("pLatitude").value||null,
+   longitude:document.getElementById("pLongitude").value||null,
    ownership_type:land?document.getElementById("pOwnership").value:null,
    land_type:land?document.getElementById("pLandType").value:null,
    advertiser_type:document.getElementById("pAdvertiser").value,
@@ -1532,7 +1630,9 @@ async function publishProperty(event){
   alert(tr("publishSuccess"));
   document.getElementById("propertyForm").reset();
   document.getElementById("imagePreview").innerHTML="";
-  updatePublishFields();
+  document.getElementById("pLatitude").value="";document.getElementById("pLongitude").value="";
+  if(publishMarker&&publishMap){publishMap.removeLayer(publishMarker);publishMarker=null}
+  updatePricingLabels();updatePublishFields();
   closeModal("publishModal");
   searchProperties();
 
