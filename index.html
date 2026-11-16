@@ -163,6 +163,11 @@ button,a{ -webkit-tap-highlight-color:transparent }
 .my-page-footer button{padding-inline:4px}
 
 
+/* Neutral black default account avatar */
+.account-avatar{display:flex;justify-content:center;align-items:center;margin:8px auto 18px;width:88px;height:88px}
+.account-avatar svg{display:block;width:100%;height:100%}
+@media(max-width:600px){.account-avatar{width:76px;height:76px;margin-bottom:14px}}
+
 /* My Profile opens as a right-side drawer, like ChatGPT */
 #profilePanel.profile-panel{
  position:fixed;
@@ -283,6 +288,13 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div class="admin-heading"><div><h2 class="section-title" id="profileTitle">صفحتي</h2><p class="small" id="profileIntro">إعلاناتك ومتابعاتك ورسائلك في مكان واحد</p></div><button type="button" onclick="closeProfile()" id="profileCloseButton" aria-label="×" title="×">×</button></div>
  <div id="profileStatus" class="status" role="status" aria-live="polite"></div>
  <section id="myPageHome">
+  <div class="account-avatar" role="img" aria-label="صورة رمزية افتراضية للحساب">
+   <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+    <circle cx="32" cy="32" r="30" fill="#111111"/>
+    <circle cx="32" cy="23" r="10" fill="#ffffff"/>
+    <path d="M13 52c2.8-10.2 10-15 19-15s16.2 4.8 19 15" fill="#ffffff"/>
+   </svg>
+  </div>
   <section class="account-activity">
    <h3 id="accountCenterTitle" class="account-section-heading">نشاطي على المنصة</h3>
    <span id="accountNotificationsCount" class="hidden">0</span><span id="accountMessagesCount" class="hidden">0</span><span id="accountFollowingCount" class="hidden">0</span>
