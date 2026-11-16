@@ -78,6 +78,9 @@ html[dir="ltr"] body{text-align:left}html[dir="rtl"] body{text-align:right}
 .card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .card-actions button{flex:1;min-width:110px}
 .favorite-heart{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:58px!important;flex:0 0 auto!important;padding:9px 13px!important;color:#d62845!important;font-size:18px!important;line-height:1}
+.property-card-heart{position:relative;z-index:2;margin:8px 0 0 auto;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.property-card-heart:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
 .favorite-heart span[aria-hidden="true"]{font-size:23px;line-height:1}
 .favorite-heart.liked{background:#fff0f2!important;color:#d20f3c!important}
 .favorite-count-display{display:inline-flex;align-items:center;gap:6px;color:#d62845;font-weight:700;margin-top:5px}
@@ -1376,10 +1379,11 @@ function displayProperties(items){
    '<div class="meta">'+uiText("آخر تحديث: ","Updated: ")+safe(new Date(p.updated_at||p.created_at).toLocaleDateString())+'</div>'+
    (p.land_type?'<div class="meta"><strong>'+uiText("الصبغة العقارية: ","Land classification: ")+'</strong>'+safe(tr(p.land_type==="residential"?"residential":p.land_type==="agricultural"?"agricultural":p.land_type))+'</div>':'')+
    (p.ownership_type?'<div class="meta"><strong>'+uiText("نوع الملكية: ","Ownership type: ")+'</strong>'+safe(tr(p.ownership_type==="individual"?"individual":p.ownership_type==="shared"?"shared":p.ownership_type))+'</div>':'')+
-   '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+ '<div class="favorite-count-display"><span aria-hidden="true">♥</span> <span data-favorite-count="'+safe(p.id)+'">'+Number(p.favorite_count||0)+'</span></div>'+
+   '<div class="meta"><strong>'+uiText("صفة المعلن: ","User type: ")+'</strong>'+safe(tr(advertiserNames[p.advertiser_type]||"advertiser"))+'</div>'+ '<button type="button" class="favorite-heart property-card-heart" data-favorite-button data-favorite-id="'+safe(p.id)+'" aria-pressed="false" onclick="event.stopPropagation();toggleFavorite(\\''+safe(p.id)+'\\')"><span aria-hidden="true">♥</span><span data-favorite-count="'+safe(p.id)+'">'+Number(p.favorite_count||0)+'</span></button>'+
 
    '</article>';
  }).join("");
+ items.forEach(p=>syncFavoriteUi(p.id));
 }
 
 
