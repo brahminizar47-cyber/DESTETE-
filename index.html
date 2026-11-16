@@ -198,7 +198,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
  #profilePanel>.admin-heading{align-items:center}
 }
 
-#mapSearchCanvas,#publishMapCanvas{height:360px;width:100%;border:1px solid var(--border);border-radius:12px;z-index:1}.map-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.map-note{font-size:12px;color:var(--muted);margin:8px 0}.saved-search-list{display:grid;gap:8px;margin-top:10px}.saved-search-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--border);border-radius:9px;background:#fff}.saved-search-item button{width:auto;padding:8px 10px}.property-status{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf3e9;color:var(--navy);font-size:12px;margin:4px 0}.price-unit-note{font-size:12px;color:var(--muted);margin-top:5px}
+#publishMapCanvas{height:360px;width:100%;border:1px solid var(--border);border-radius:12px;z-index:1}.map-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.map-note{font-size:12px;color:var(--muted);margin:8px 0}.saved-search-list{display:grid;gap:8px;margin-top:10px}.saved-search-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--border);border-radius:9px;background:#fff}.saved-search-item button{width:auto;padding:8px 10px}.property-status{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf3e9;color:var(--navy);font-size:12px;margin:4px 0}.price-unit-note{font-size:12px;color:var(--muted);margin-top:5px}
 </style>
 </head>
 <body>
@@ -243,8 +243,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
   <div><label data-i18n="sortResults">ترتيب النتائج</label><select id="sortBy" onchange="searchProperties()"><option value="newest" data-i18n="sortNewest">الأحدث أولاً</option><option value="price_asc" data-i18n="sortPriceAsc">السعر: من الأقل إلى الأعلى</option><option value="price_desc" data-i18n="sortPriceDesc">السعر: من الأعلى إلى الأقل</option></select></div>
  </div>
  <button class="secondary" style="width:100%;margin-top:15px" onclick="searchProperties()" data-i18n="searchNow">ابحث الآن</button>
- <div class="map-tools"><button id="mapSearchButton" type="button" class="secondary" onclick="toggleMapSearch()">عرض النتائج على الخريطة</button><button id="saveSearchButton" type="button" class="secondary" onclick="saveCurrentSearch()">حفظ هذا البحث</button><button id="savedSearchesButton" type="button" class="secondary" onclick="toggleSavedSearches()">بحثاتي المحفوظة</button></div>
- <div id="mapSearchPanel" class="hidden"><p id="mapSearchNote" class="map-note">تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.</p><div id="mapSearchCanvas"></div></div>
+ <div class="map-tools"><button id="saveSearchButton" type="button" class="secondary" onclick="saveCurrentSearch()">حفظ هذا البحث</button><button id="savedSearchesButton" type="button" class="secondary" onclick="toggleSavedSearches()">بحثاتي المحفوظة</button></div>
  <div id="savedSearchesPanel" class="hidden"><div class="admin-heading"><strong id="savedSearchesTitle">عمليات البحث المحفوظة</strong></div><div id="savedSearchesList" class="saved-search-list"></div></div>
  <button style="background:#eee;width:100%;margin-top:8px" onclick="resetSearch()" data-i18n="resetSearch">إعادة ضبط البحث</button>
 </section>
@@ -441,7 +440,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
 });
 let currentUser=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=20;
 let compareItems=[];let openedSharedPropertyId=null;
-let publishMap=null,publishMarker=null,searchMap=null,savedSearchesCache=[];
+let publishMap=null,publishMarker=null,savedSearchesCache=[];
 
 const translations={
 ar:{
@@ -665,7 +664,7 @@ function applyLanguage(){
  const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
  const favoritesClose=document.getElementById("favoritesCloseButton");if(favoritesClose)favoritesClose.textContent=uiText("×","×");
- const newLabels={minPriceLabel:uiText("السعر الجملي الأدنى (د.ت)","Minimum total price (TND)"),maxPriceLabel:uiText("السعر الجملي الأقصى (د.ت)","Maximum total price (TND)"),mapSearchButton:uiText("عرض النتائج على الخريطة","Show results on map"),saveSearchButton:uiText("حفظ هذا البحث","Save this search"),savedSearchesButton:uiText("بحثاتي المحفوظة","My saved searches"),savedSearchesTitle:uiText("عمليات البحث المحفوظة","Saved searches"),mapSearchNote:uiText("تظهر هنا العقارات التي حدّد صاحب الإعلان موقعها على الخريطة ضمن النتائج الحالية.","Listings with a location pin from the current results appear here."),publishMapButton:uiText("تحديد الموقع على الخريطة","Choose location on map")};
+ const newLabels={minPriceLabel:uiText("السعر الجملي الأدنى (د.ت)","Minimum total price (TND)"),maxPriceLabel:uiText("السعر الجملي الأقصى (د.ت)","Maximum total price (TND)"),saveSearchButton:uiText("حفظ هذا البحث","Save this search"),savedSearchesButton:uiText("بحثاتي المحفوظة","My saved searches"),savedSearchesTitle:uiText("عمليات البحث المحفوظة","Saved searches"),publishMapButton:uiText("تحديد الموقع على الخريطة","Choose location on map")};
  Object.entries(newLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  document.querySelectorAll("[data-i18n]").forEach(el=>{
   const k=el.dataset.i18n;
@@ -1107,19 +1106,6 @@ function togglePublishMap(){
   });
  }
  setTimeout(()=>publishMap.invalidateSize(),120);
-}
-function toggleMapSearch(){
- const panel=document.getElementById("mapSearchPanel");if(!panel)return;
- panel.classList.toggle("hidden");if(panel.classList.contains("hidden"))return;
- if(!window.L){alert("تعذّر تحميل الخريطة.");return}
- if(!searchMap){searchMap=L.map("mapSearchCanvas").setView([34,9.5],6);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(searchMap);}
- setTimeout(()=>{
-  searchMap.invalidateSize();const points=(lastProperties||[]).filter(p=>p.latitude!==null&&p.longitude!==null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude)));
-  if(searchMap._destateMarkers)searchMap.removeLayer(searchMap._destateMarkers);
-  searchMap._destateMarkers=L.featureGroup().addTo(searchMap);
-  points.forEach(p=>{const marker=L.marker([Number(p.latitude),Number(p.longitude)]).addTo(searchMap._destateMarkers);marker.bindPopup('<strong>'+safe(p.title)+'</strong><br>'+safe(formatListingPrice(p)));});
-  if(points.length)searchMap.fitBounds(searchMap._destateMarkers.getBounds().pad(0.15));
- },140);
 }
 function currentSearchFilters(){return {type:document.getElementById("type").value,subType:document.getElementById("subType").value,governorate:document.getElementById("governorate").value,ownership:document.getElementById("ownership").value,landType:document.getElementById("landType").value,minPrice:document.getElementById("minPrice").value,maxPrice:document.getElementById("maxPrice").value,minArea:document.getElementById("minArea").value,advertiser:document.getElementById("advertiserFilter").value,sortBy:document.getElementById("sortBy").value};}
 async function toggleSavedSearches(){
