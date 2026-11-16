@@ -1070,7 +1070,7 @@ async function loadAccountFollowing(){
   const location=[row.governorate,row.city].filter(Boolean).join(" · ");
   const listing=row.latest_listing_title||uiText("لا توجد إعلانات نشطة حالياً","No active listings currently");
   const photo=String(row.profile_photo_url||"");
-  const avatar=/^https:\/\/[^\\s"'<>]+$/i.test(photo)?'<img class="following-avatar" src="'+safe(photo)+'" alt="">':"";
+  const avatar=/^https:\/\/[^\s"'<>]+$/i.test(photo)?'<img class="following-avatar" src="'+safe(photo)+'" alt="">':"";
   return '<article class="account-item">'+avatar+'<div class="following-info"><strong>'+safe(name)+'</strong><p>'+safe(kind)+'</p><small>'+safe(listing)+' · '+safe(location||uiText("الموقع غير محدد","Location not specified"))+' · '+uiText("الإعلانات النشطة: ","Active listings: ")+Number(row.listing_count||0)+'</small><div class="following-actions"><button type="button" class="secondary" data-unfollow-id="'+safe(row.advertiser_id)+'">'+uiText("إلغاء المتابعة","Unfollow")+'</button></div></div></article>';
  }).join("");
  list.querySelectorAll("[data-unfollow-id]").forEach(button=>button.addEventListener("click",()=>unfollowAdvertiser(button.dataset.unfollowId)));
