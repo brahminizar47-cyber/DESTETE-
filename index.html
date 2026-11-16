@@ -163,21 +163,6 @@ button,a{ -webkit-tap-highlight-color:transparent }
 .my-page-footer button{padding-inline:4px}
 
 
-/* Standard profile avatar picker */
-.account-avatar{display:flex;justify-content:center;align-items:center;margin:8px auto 14px;width:76px;height:76px;border-radius:50%;background:#f0f0f0;border:1px solid #d8d8d8;overflow:hidden}
-.account-avatar svg{display:block;width:100%;height:100%}
-.account-avatar-picker{width:min(390px,100%);margin:0 auto 20px;text-align:start}
-.account-avatar-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
-.account-avatar-option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:116px;padding:12px 8px;border:1px solid var(--border);border-radius:12px;background:#fff;color:#182536;cursor:pointer;text-align:center}
-.account-avatar-option input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
-.account-avatar-option svg{width:54px;height:54px;display:block}
-.account-avatar-option span{font-size:13px;font-weight:600}
-.account-avatar-option.active{border:2px solid #111;background:#f5f5f5;box-shadow:0 0 0 2px #1111}
-.account-avatar-option:focus-within{outline:3px solid var(--gold);outline-offset:2px}
-.account-avatar-save{width:100%;margin-top:10px;background:#111;color:#fff}
-.account-avatar-picker .small{margin:6px 0 0;line-height:1.6}
-@media(max-width:600px){.account-avatar{width:68px;height:68px;margin-bottom:10px}.account-avatar-options{gap:7px}.account-avatar-option{min-height:104px;padding:9px 4px}.account-avatar-option svg{width:48px;height:48px}.account-avatar-option span{font-size:12px}}
-
 /* My Profile opens as a right-side drawer, like ChatGPT */
 #profilePanel.profile-panel{
  position:fixed;
@@ -298,29 +283,6 @@ button,a{ -webkit-tap-highlight-color:transparent }
  <div class="admin-heading"><div><h2 class="section-title" id="profileTitle">صفحتي</h2><p class="small" id="profileIntro">إعلاناتك ومتابعاتك ورسائلك في مكان واحد</p></div><button type="button" onclick="closeProfile()" id="profileCloseButton" aria-label="×" title="×">×</button></div>
  <div id="profileStatus" class="status" role="status" aria-live="polite"></div>
  <section id="myPageHome">
-  <div id="accountAvatarPreview" class="account-avatar" role="img" aria-label="بدون صورة رمزية"></div>
-  <div class="account-avatar-picker">
-   <label id="accountAvatarLabel">الصورة الرمزية (اختياري)</label>
-   <div class="account-avatar-options" role="radiogroup" aria-labelledby="accountAvatarLabel">
-    <label class="account-avatar-option" id="accountAvatarMaleOption">
-     <input type="radio" name="accountAvatarChoice" value="male" onchange="renderAccountAvatar(this.value)">
-     <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#111"/><circle cx="32" cy="23" r="10" fill="#fff"/><path d="M13 54c2-11 9-17 19-17s17 6 19 17" fill="#fff"/></svg>
-     <span id="accountAvatarMaleLabel">ذكر</span>
-    </label>
-    <label class="account-avatar-option" id="accountAvatarFemaleOption">
-     <input type="radio" name="accountAvatarChoice" value="female" onchange="renderAccountAvatar(this.value)">
-     <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#111"/><path d="M16 31c0-14 6-22 16-22s16 8 16 22v9H16z" fill="#fff"/><circle cx="32" cy="25" r="9" fill="#111"/><path d="M11 54c2-10 9-16 21-16s19 6 21 16" fill="#fff"/></svg>
-     <span id="accountAvatarFemaleLabel">أنثى</span>
-    </label>
-    <label class="account-avatar-option" id="accountAvatarNoneOption">
-     <input type="radio" name="accountAvatarChoice" value="" onchange="renderAccountAvatar(this.value)">
-     <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#eee" stroke="#aaa" stroke-width="2"/><circle cx="32" cy="23" r="9" fill="#888"/><path d="M13 53c2-10 9-15 19-15s17 5 19 15" fill="#888"/></svg>
-     <span id="accountAvatarNoneLabel">بدون صورة</span>
-    </label>
-   </div>
-   <p class="small" id="accountAvatarHint">اختر الأفتار بالضغط عليه. يمكنك تغييره لاحقاً أو تركه فارغاً.</p>
-   <button type="button" class="account-avatar-save" id="accountAvatarSaveButton" onclick="saveAccountAvatar(document.querySelector('input[name=accountAvatarChoice]:checked')?.value ?? '')">حفظ الاختيار</button>
-  </div>
   <section class="account-activity">
    <h3 id="accountCenterTitle" class="account-section-heading">نشاطي على المنصة</h3>
    <span id="accountNotificationsCount" class="hidden">0</span><span id="accountMessagesCount" class="hidden">0</span><span id="accountFollowingCount" class="hidden">0</span>
@@ -882,36 +844,6 @@ async function signOut(){
  alert(tr("signedOut"));
 }
 
-function renderAccountAvatar(choice){
- const preview=document.getElementById("accountAvatarPreview");
- if(!preview)return;
- const male='<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30" fill="#111"/><circle cx="32" cy="23" r="10" fill="#fff"/><path d="M13 54c2-11 9-17 19-17s17 6 19 17" fill="#fff"/></svg>';
- const female='<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30" fill="#111"/><path d="M16 31c0-14 6-22 16-22s16 8 16 22v9H16z" fill="#fff"/><circle cx="32" cy="25" r="9" fill="#111"/><path d="M11 54c2-10 9-16 21-16s19 6 21 16" fill="#fff"/></svg>';
- preview.innerHTML=choice==="male"?male:choice==="female"?female:"";
- preview.setAttribute("aria-label",choice==="male"?uiText("أفتار ذكر","Male avatar"):choice==="female"?uiText("أفتار أنثى","Female avatar"):uiText("بدون صورة رمزية","No avatar"));
- const options={male:"accountAvatarMaleOption",female:"accountAvatarFemaleOption","":"accountAvatarNoneOption"};
- Object.entries(options).forEach(([value,id])=>{
-  const card=document.getElementById(id),radio=card?.querySelector('input[type="radio"]');
-  if(radio)radio.checked=value===choice;
-  if(card)card.classList.toggle("active",value===choice);
- });
-}
-async function saveAccountAvatar(choice){
- if(!currentUser||!["","male","female"].includes(choice))return;
- const saveButton=document.getElementById("accountAvatarSaveButton"),status=document.getElementById("profileStatus");
- if(saveButton)saveButton.disabled=true;
- const {data,error}=await db.auth.updateUser({data:{account_avatar:choice}});
- if(saveButton)saveButton.disabled=false;
- if(error){
-  const previous=currentUser.user_metadata?.account_avatar||"";
-  renderAccountAvatar(previous);
-  status.textContent=uiText("تعذّر حفظ الصورة الرمزية: ","Could not save avatar: ")+error.message;
-  return;
- }
- currentUser=data.user||currentUser;
- renderAccountAvatar(choice);
- status.textContent=uiText("تم حفظ اختيار الصورة الرمزية.","Avatar preference saved.");
-}
 function renderProfile(){
  const panel=document.getElementById("profilePanel");
  const nav=document.getElementById("profileNavButton");
@@ -920,10 +852,6 @@ function renderProfile(){
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  if(!currentUser){panel.classList.add("hidden");return}
  const metadata=currentUser.user_metadata||{};
- const avatarChoice=["male","female"].includes(metadata.account_avatar)?metadata.account_avatar:"";
- const avatarSelect=document.getElementById("accountAvatarChoice");
- if(avatarSelect)avatarSelect.value=avatarChoice;
- renderAccountAvatar(avatarChoice);
  const displayName=metadata.display_name||metadata.full_name||metadata.name||"—";
  document.getElementById("profileNameValue").textContent=displayName;
  document.getElementById("profileEmailValue").textContent=currentUser.email||"—";
@@ -931,10 +859,9 @@ function renderProfile(){
  document.getElementById("profileDisplayName").value=displayName==="—"?"":displayName;
 }
 function setProfileLabels(){
- const labels={profileTitle:uiText("صفحتي","My Page"),profileIntro:uiText("إعلاناتك ومتابعاتك ورسائلك في مكان واحد","Your listings, follows and messages in one place"),accountAvatarLabel:uiText("الصورة الرمزية (اختياري)","Avatar (optional)"),accountAvatarHint:uiText("اختر الأفتار بالضغط عليه، ثم احفظ اختيارك. يمكنك تغييره لاحقاً أو تركه فارغاً.","Tap an avatar to select it, then save your choice. You can change it later or leave it blank."),profileCloseButton:uiText("×","×"),accountCenterTitle:uiText("نشاطي على المنصة","My activity"),accountSettingsButtonLabel:"Account Settings",accountSettingsPageTitle:uiText("المعلومات الشخصية","Personal Information"),accountSettingsIntro:uiText("إدارة معلومات حسابك","Manage your personal information"),accountSettingsBackButton:uiText("العودة إلى صفحتي","Back to My Page"),myPageLogoutLabel:uiText("تسجيل الخروج","Log out"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFollowingLabel:uiText("متابعاتي","Following"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountMessagesLabel:uiText("الرسائل","Messages"),accountFollowingHeading:uiText("متابعاتي","Following"),accountMessagesHeading:uiText("الرسائل","Messages"),accountFollowingClose:uiText("×","×"),accountMessagesClose:uiText("×","×"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات الشخصية","Edit personal information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileLanguageTitle:uiText("اللغة","Language"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
+ const labels={profileTitle:uiText("صفحتي","My Page"),profileIntro:uiText("إعلاناتك ومتابعاتك ورسائلك في مكان واحد","Your listings, follows and messages in one place"),profileCloseButton:uiText("×","×"),accountCenterTitle:uiText("نشاطي على المنصة","My activity"),accountSettingsButtonLabel:"Account Settings",accountSettingsPageTitle:uiText("المعلومات الشخصية","Personal Information"),accountSettingsIntro:uiText("إدارة معلومات حسابك","Manage your personal information"),accountSettingsBackButton:uiText("العودة إلى صفحتي","Back to My Page"),myPageLogoutLabel:uiText("تسجيل الخروج","Log out"),accountListingsLabel:uiText("إعلاناتي","My listings"),accountFollowingLabel:uiText("متابعاتي","Following"),accountFavoritesLabel:uiText("المفضّلة","Favorites"),accountMessagesLabel:uiText("الرسائل","Messages"),accountFollowingHeading:uiText("متابعاتي","Following"),accountMessagesHeading:uiText("الرسائل","Messages"),accountFollowingClose:uiText("×","×"),accountMessagesClose:uiText("×","×"),profileNameLabel:uiText("الاسم","Name"),profileEmailLabel:uiText("البريد الإلكتروني","Email address"),profileCreatedLabel:uiText("تاريخ إنشاء الحساب","Account created"),profileEditTitle:uiText("تعديل المعلومات الشخصية","Edit personal information"),profileDisplayNameLabel:uiText("الاسم الظاهر","Display name"),profileSaveNameButton:uiText("حفظ الاسم","Save name"),profileSecurityTitle:uiText("الأمان وكلمة المرور","Security and password"),profileNewPasswordLabel:uiText("كلمة مرور جديدة (12 حرفاً على الأقل)","New password (at least 12 characters)"),profileSavePasswordButton:uiText("تحديث كلمة المرور","Update password"),profileLanguageTitle:uiText("اللغة","Language"),profileLanguageButton:uiText("تغيير اللغة","Change language"),profilePrivacyNote:uiText("بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.","Your email and account details are not public. Contact phone numbers are managed separately for each listing.")};
  Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
- const avatarLabels={accountAvatarMaleLabel:uiText("ذكر","Male"),accountAvatarFemaleLabel:uiText("أنثى","Female"),accountAvatarNoneLabel:uiText("بدون صورة","No avatar"),accountAvatarSaveButton:uiText("حفظ الاختيار","Save choice")};
- Object.entries(avatarLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
+
  const accountLabels={accountNotificationsHeading:uiText("إشعاراتي","Notifications")};Object.entries(accountLabels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
  const nav=document.getElementById("profileNavButton");if(nav)nav.textContent=uiText("حسابي","My Profile");
 }
