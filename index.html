@@ -248,6 +248,10 @@ button,a{ -webkit-tap-highlight-color:transparent }
 #profilePanel .account-menu-row:active{background:#f7faf6}
 #profilePanel .account-menu-row:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 @media(max-width:600px){#profilePanel .my-page-identity{padding-top:12px}#profilePanel .account-activity{padding:15px 13px}#profilePanel .account-menu-row{min-height:58px}}
+
+/* Consistent back navigation for all My Page subviews */
+#profilePanel .account-back-button,#favoritesPanel .account-back-button,#myPropertiesPanel .account-back-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--navy);font-size:14px;font-weight:600;white-space:nowrap}
+#profilePanel .account-back-button:active,#favoritesPanel .account-back-button:active,#myPropertiesPanel .account-back-button:active{background:#f2f6f2}
 </style>
 </head>
 <body>
@@ -317,9 +321,9 @@ button,a{ -webkit-tap-highlight-color:transparent }
     <button class="account-tile account-menu-row" type="button" onclick="goToFavorites()"><span class="account-menu-icon" aria-hidden="true">♡</span><strong id="accountFavoritesLabel">المفضّلة</strong><span class="account-menu-arrow" aria-hidden="true">›</span></button>
     <button class="account-tile account-menu-row" type="button" onclick="showAccountTab('messages')"><span class="account-menu-icon" aria-hidden="true">▱</span><strong id="accountMessagesLabel">الرسائل</strong><span class="account-menu-arrow" aria-hidden="true">›</span></button>
    </div>
-   <div id="accountFollowingView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountFollowingHeading">متابعاتي</h3><button type="button" class="secondary" onclick="document.getElementById('accountFollowingView').classList.add('hidden')" id="accountFollowingClose">×</button></div><div id="accountFollowingList" class="account-list"></div></div>
-   <div id="accountMessagesView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountMessagesHeading">الرسائل</h3><button type="button" class="secondary" onclick="document.getElementById('accountMessagesView').classList.add('hidden')" id="accountMessagesClose">×</button></div><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
-   <div id="accountNotificationsView" class="hidden"><h3 id="accountNotificationsHeading">إشعاراتي</h3><div id="accountNotificationsList" class="account-list"></div></div>
+   <div id="accountFollowingView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountFollowingHeading">متابعاتي</h3><button type="button" class="secondary account-back-button" onclick="returnToMyPage()" id="accountFollowingClose">← العودة إلى صفحتي</button></div><div id="accountFollowingList" class="account-list"></div></div>
+   <div id="accountMessagesView" class="hidden profile-section"><div class="admin-heading"><h3 id="accountMessagesHeading">الرسائل</h3><button type="button" class="secondary account-back-button" onclick="returnToMyPage()" id="accountMessagesClose">← العودة إلى صفحتي</button></div><div id="accountConversationsList" class="account-list"></div><div id="accountConversationThread" class="account-list hidden"></div></div>
+   <div id="accountNotificationsView" class="hidden"><div class="admin-heading"><h3 id="accountNotificationsHeading">إشعاراتي</h3><button type="button" class="secondary account-back-button" onclick="returnToMyPage()">← العودة إلى صفحتي</button></div><div id="accountNotificationsList" class="account-list"></div></div>
   </section>
   <div class="my-page-footer account-menu-list">
    <button type="button" class="account-menu-row" id="accountSettingsButton" onclick="openAccountSettings()"><span class="account-menu-icon" aria-hidden="true">⚙</span><span id="accountSettingsButtonLabel">إعدادات الحساب</span><span class="account-menu-arrow" aria-hidden="true">›</span></button>
@@ -350,12 +354,12 @@ button,a{ -webkit-tap-highlight-color:transparent }
 
 </section>
  <section id="favoritesPanel" class="hidden favorites-page">
- <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" id="favoritesCloseButton" onclick="closeFavorites()">×</button></div>
+ <div class="admin-heading"><h2 class="section-title" id="favoritesTitle">العقارات المحفوظة</h2><button type="button" class="secondary account-back-button" id="favoritesCloseButton" onclick="closeFavorites()">← العودة</button></div>
  <div id="favoritesStatus" class="status" role="status" aria-live="polite"></div>
  <div id="favoritesResults" class="results"></div>
  </section>
 
-<section id="myPropertiesPanel" class="hidden" style="margin-top:35px"><h2 class="section-title" id="myPropertiesTitle">إعلاناتي وإحصائياتي</h2><div id="myPropertiesList"></div></section>
+<section id="myPropertiesPanel" class="hidden" style="margin-top:35px"><div class="admin-heading"><h2 class="section-title" id="myPropertiesTitle">إعلاناتي وإحصائياتي</h2><button type="button" class="secondary account-back-button" onclick="returnToMyPage()">← العودة إلى صفحتي</button></div><div id="myPropertiesList"></div></section>
 <section id="adminPanel" class="admin-panel hidden">
  <div class="admin-heading">
   <div><h2 class="section-title" id="adminTitle">لوحة الإدارة</h2><p id="adminIntro"></p></div>
@@ -992,17 +996,36 @@ async function saveProfilePassword(){
  if(error){status.textContent=uiText("تعذّر تحديث كلمة المرور: ","Could not update password: ")+error.message;return}
  input.value="";status.textContent=uiText("تم تحديث كلمة المرور بنجاح.","Password updated successfully.");
 }
-function goToMyListings(){closeProfile();const panel=document.getElementById("myPropertiesPanel");panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"start"});loadMyPropertyStats()}
+function returnToMyPage(){
+ document.getElementById("myPropertiesPanel")?.classList.add("hidden");
+ document.getElementById("favoritesPanel")?.classList.add("hidden");
+ document.getElementById("accountSettingsPanel")?.classList.add("hidden");
+ ["accountNotificationsView","accountMessagesView","accountFollowingView"].forEach(id=>document.getElementById(id)?.classList.add("hidden"));
+ const panel=document.getElementById("profilePanel");
+ panel?.classList.remove("hidden");
+ document.getElementById("myPageHome")?.classList.remove("hidden");
+ panel?.scrollTo({top:0,behavior:"smooth"});
+}
+function goToMyListings(){
+ closeProfile();
+ const panel=document.getElementById("myPropertiesPanel");
+ panel.classList.remove("hidden");
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
+ loadMyPropertyStats();
+}
 function goToFavorites(){openFavorites()}
 
 function showAccountTab(tab){
  const notifications=document.getElementById("accountNotificationsView");
  const messages=document.getElementById("accountMessagesView");
  const following=document.getElementById("accountFollowingView");
- if(!notifications||!messages||!following)return;
+ const home=document.getElementById("myPageHome");
+ if(!notifications||!messages||!following||!home)return;
+ home.classList.add("hidden");
  notifications.classList.toggle("hidden",tab!=="notifications");
  messages.classList.toggle("hidden",tab!=="messages");
  following.classList.toggle("hidden",tab!=="following");
+ document.getElementById("profilePanel")?.scrollTo({top:0,behavior:"smooth"});
  if(tab==="notifications")loadAccountNotifications();
  if(tab==="messages")loadAccountConversations();
  if(tab==="following")loadAccountFollowing();
@@ -1528,8 +1551,10 @@ async function toggleFavorite(id){
 }
 
 
-async function openFavorites(){
+async let favoritesReturnToMyPage=false;
+function openFavorites(){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
+ favoritesReturnToMyPage=!document.getElementById("profilePanel")?.classList.contains("hidden");
  closeProfile();
  closePublicUserProfile();
  document.getElementById("myPropertiesPanel")?.classList.add("hidden");
@@ -1538,7 +1563,10 @@ async function openFavorites(){
  await loadFavoriteProperties();
  window.scrollTo({top:0,behavior:"smooth"});
 }
-function closeFavorites(){document.getElementById("favoritesPanel").classList.add("hidden")}
+function closeFavorites(){
+ document.getElementById("favoritesPanel")?.classList.add("hidden");
+ if(favoritesReturnToMyPage){favoritesReturnToMyPage=false;openProfile()}
+}
 
 async function loadFavoriteProperties(){
  const panel=document.getElementById("favoritesPanel");
