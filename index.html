@@ -1552,7 +1552,7 @@ async function toggleFavorite(id){
 
 
 async let favoritesReturnToMyPage=false;
-function openFavorites(){
+async function openFavorites(){
  if(!currentUser){alert(tr("loginRequired"));openModal("loginModal");return}
  favoritesReturnToMyPage=!document.getElementById("profilePanel")?.classList.contains("hidden");
  closeProfile();
