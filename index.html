@@ -678,7 +678,7 @@ async function loadMyReports(){
   return '<article class="report-item"><div class="admin-card-head"><strong>'+safe(typeNames[r.target_type]||r.target_type)+'</strong><span class="admin-state '+safe(r.status)+'">'+safe(statusNames[r.status]||r.status)+'</span></div>'+
    '<small>'+uiText("رقم البلاغ: ","Report ID: ")+safe(r.id)+' · '+safe(new Date(r.created_at).toLocaleString())+'</small>'+
    (r.property_id?'<small>'+uiText("رقم الإعلان المرتبط: ","Related listing ID: ")+safe(r.property_id)+'</small>':'')+
-   '<p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\\''+safe(r.id)+'\\',\\'reviewing\\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\\''+safe(r.id)+'\\',\\'resolved\\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\\''+safe(r.id)+'\\',\\'rejected\\')">'+uiText("مرفوض","Rejected")+'</button></div></article>';
+   '<p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>';
  }).join(""):'<p class="small">'+uiText("لا توجد بلاغات مطابقة.","No matching reports.")+'</p>';
  renderAdminReportsPagination();
 }
