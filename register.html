@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D-ESTATE | إنشاء حساب جديد</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+<style>
+:root{--navy:#244b36;--blue:#4f805b;--gold:#a8bd78;--bg:#f4f7f1;--muted:#68796c;--border:#dce6d8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#182536;font-family:Arial,Tahoma,sans-serif}
+header{background:var(--navy);color:#fff;padding:18px 5%;text-align:center}
+.logo{font-size:27px;font-weight:900;letter-spacing:2px}.logo span{color:var(--gold)}.logo small{display:block;font-size:10px;letter-spacing:1.5px;margin-top:4px}
+main{width:min(540px,92%);margin:35px auto;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 5px 20px #102b4610}
+h1{font-size:25px;margin:0 0 10px;color:var(--navy)}p{line-height:1.7}.muted,.small{color:var(--muted);font-size:13px}
+.field{margin:16px 0}label{display:block;font-weight:bold;margin-bottom:7px}
+input{width:100%;padding:13px;border:1px solid var(--border);border-radius:8px;font-size:16px}
+button,.button{display:block;width:100%;padding:14px 16px;border:0;border-radius:8px;font-weight:bold;font-size:15px;text-align:center;text-decoration:none;cursor:pointer}
+.primary{background:var(--gold);color:#182536}.secondary{background:var(--blue);color:#fff}
+.legal-consent{display:flex;align-items:flex-start;gap:10px;padding:13px;margin:16px 0;background:var(--bg);border:1px solid var(--border);border-radius:9px;line-height:1.7}
+.legal-consent input{width:19px;min-width:19px;margin-top:4px}.legal-consent a{color:var(--navy)}
+.status{padding:12px;border-radius:8px;margin:12px 0;background:#eef4fa;color:var(--navy);font-size:13px;line-height:1.6}
+.error{background:#fff0ef;color:#a12622}.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:12px;margin:22px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<header><div class="logo">D-<span>ESTATE</span><small>Direct Estate</small></div></header>
+<main>
+<h1 id="title">إنشاء حساب جديد</h1>
+<p class="muted" id="intro">التسجيل مجاني. تصفح العقارات متاح للجميع.</p>
+<form id="registerForm">
+ <div class="field"><label for="displayName" id="nameLabel">الاسم</label><input id="displayName" type="text" maxlength="80" autocomplete="name" required></div>
+ <div class="field"><label for="email" id="emailLabel">البريد الإلكتروني</label><input id="email" type="email" autocomplete="email" required></div>
+ <div class="field"><label for="password" id="passwordLabel">إنشاء كلمة المرور (12 حرفاً على الأقل)</label><input id="password" type="password" minlength="12" autocomplete="new-password" required></div>
+ <label class="legal-consent"><input id="legalConsent" type="checkbox" required><span id="consentText">أوافق على <a href="/legal.html#terms" target="_blank" rel="noopener">شروط الاستخدام</a> و<a href="/legal.html#privacy" target="_blank" rel="noopener">سياسة الخصوصية</a>.</span></label>
+ <p id="status" class="status hidden" role="status" aria-live="polite"></p>
+ <button id="submitButton" class="secondary" type="submit">إنشاء الحساب</button>
+</form>
+<p class="small" id="confirmation">قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.</p>
+<a class="button primary" id="loginLink" href="/?login=1">العودة إلى تسجيل الدخول</a>
+</main>
+<footer>© D-ESTATE - جميع الحقوق محفوظة</footer>
+<script>
+const SUPABASE_URL="https://zmipxldmmfkfpsldvium.supabase.co";
+const SUPABASE_KEY="sb_publishable_ohUN940nP5SXpsFxlbnr8w_s3RMBidV";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});
+const language=localStorage.getItem("destate_language")==="en"?"en":"ar";
+const text={
+ ar:{title:"إنشاء حساب جديد",intro:"التسجيل مجاني. تصفح العقارات متاح للجميع.",name:"الاسم",email:"البريد الإلكتروني",password:"إنشاء كلمة المرور (12 حرفاً على الأقل)",consent:'أوافق على <a href="/legal.html#terms" target="_blank" rel="noopener">شروط الاستخدام</a> و<a href="/legal.html#privacy" target="_blank" rel="noopener">سياسة الخصوصية</a>.',submit:"إنشاء الحساب",confirmation:"قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.",back:"العودة إلى تسجيل الدخول",success:"تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك.",short:"يجب أن تتكون كلمة المرور من 12 حرفاً على الأقل.",failed:"تعذر إنشاء الحساب: "},
+ en:{title:"Create a new account",intro:"Registration is free. Everyone can browse properties.",name:"Name",email:"Email address",password:"Create password (at least 12 characters)",consent:'I agree to the <a href="/legal.html#terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="/legal.html#privacy" target="_blank" rel="noopener">Privacy Policy</a>.',submit:"Create account",confirmation:"You may need to confirm your email depending on your account settings.",back:"Back to log in",success:"Your account has been created. Check your email if confirmation is required.",short:"Your password must be at least 12 characters.",failed:"Could not create account: "}
+}[language];
+document.documentElement.lang=language;document.documentElement.dir=language==="ar"?"rtl":"ltr";document.title="D-ESTATE | "+text.title;
+document.getElementById("title").textContent=text.title;document.getElementById("intro").textContent=text.intro;
+document.getElementById("nameLabel").textContent=text.name;document.getElementById("emailLabel").textContent=text.email;
+document.getElementById("passwordLabel").textContent=text.password;document.getElementById("consentText").innerHTML=text.consent;
+document.getElementById("submitButton").textContent=text.submit;document.getElementById("confirmation").textContent=text.confirmation;
+document.getElementById("loginLink").textContent=text.back;
+document.getElementById("registerForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ const name=document.getElementById("displayName").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const status=document.getElementById("status"),button=document.getElementById("submitButton");
+ status.classList.add("hidden");status.classList.remove("error");
+ if(password.length<12){status.textContent=text.short;status.classList.remove("hidden");status.classList.add("error");return}
+ if(!document.getElementById("legalConsent").checked)return;
+ button.disabled=true;
+ const {error}=await db.auth.signUp({email,password,options:{data:{
+  display_name:name,accepted_terms_version:"2026-11-13-v1",accepted_privacy_version:"2026-11-13-v1"
+ }}});
+ button.disabled=false;
+ if(error){status.textContent=text.failed+error.message;status.classList.remove("hidden");status.classList.add("error");return}
+ status.textContent=text.success;status.classList.remove("hidden");
+ document.getElementById("registerForm").reset();
+});
+</script>
+</body>
+</html>
