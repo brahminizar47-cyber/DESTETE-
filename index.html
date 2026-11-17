@@ -442,18 +442,14 @@ body.admin-mode .admin-panel{margin-top:0}
 <div id="compareModal" class="modal"><div class="modal-box"><div class="modal-head"><h2>مقارنة العقارات</h2><button class="close" onclick="closeModal('compareModal')">✕</button></div><div id="compareResults"></div></div></div>
 <div id="loginModal" class="modal">
  <div class="modal-box">
-  <div class="modal-head"><h2 data-i18n="accountTitle">حساب D-ESTATE</h2><button class="close" onclick="closeModal('loginModal')">✕</button></div>
-  <p id="authStatus" class="small"></p>
-  <div class="field"><label data-i18n="displayName">الاسم</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name"></div>
-  <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email"></div>
-  <div class="field"><label data-i18n="password">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password"></div>
+  <div class="modal-head"><h2 data-i18n="accountTitle">تسجيل الدخول إلى D-ESTATE</h2><button class="close" onclick="closeModal('loginModal')">✕</button></div>
+  <div class="field"><label data-i18n="email">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email" required></div>
+  <div class="field"><label data-i18n="password">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password" required></div>
   <p id="authError" class="status hidden" role="alert" aria-live="polite"></p>
   <button id="authForgotPassword" type="button" class="hidden" style="width:100%;margin-bottom:8px;background:transparent;color:var(--blue);text-decoration:underline" onclick="forgotPassword()">نسيت كلمة المرور؟</button>
-  <label class="legal-consent"><input id="legalConsent" type="checkbox"><span><span data-i18n="legalConsentText">أوافق على شروط الاستخدام وسياسة الخصوصية</span> — <a href="/legal.html#terms" target="_blank" rel="noopener" data-i18n="legalTermsLink">شروط الاستخدام</a> · <a href="/legal.html#privacy" target="_blank" rel="noopener" data-i18n="legalPrivacyLink">سياسة الخصوصية</a></span></label>
   <button class="secondary" style="width:100%;margin-bottom:8px" onclick="signIn()" data-i18n="signIn">تسجيل الدخول</button>
-  <button id="signUpButton" class="primary" style="width:100%;margin-bottom:8px" onclick="signUp()" data-i18n="signUp">حساب جديد</button>
+  <a href="/register.html" class="primary" style="display:block;width:100%;margin-bottom:8px;padding:13px 16px;border-radius:8px;text-align:center;text-decoration:none;font-weight:bold;color:#182536" data-i18n="signUp">إنشاء حساب جديد</a>
   <button id="signOutButton" style="width:100%;background:#eee" onclick="signOut()" data-i18n="signOut">تسجيل الخروج</button>
-  <p class="small" data-i18n="emailConfirmation">قد يطلب منك تأكيد بريدك الإلكتروني حسب إعدادات الحساب.</p>
  </div>
 </div>
 <div id="passwordResetModal" class="modal">
@@ -745,7 +741,7 @@ function applyLanguage(){
  const adminLogout=document.getElementById("adminLogoutButton");if(adminLogout)adminLogout.textContent=uiText("تسجيل الخروج","Log out");
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser&&currentUserIsAdmin===false?"inline-block":"none";}
- const signUpButton=document.getElementById("signUpButton");if(signUpButton)signUpButton.style.display=currentUser?"none":"block";
+ 
  const signOutButton=document.getElementById("signOutButton");if(signOutButton)signOutButton.style.display=currentUser?"block":"none";
  const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
  const favoritesTitle=document.getElementById("favoritesTitle");if(favoritesTitle)favoritesTitle.textContent=uiText("العقارات المحفوظة","Saved Properties");
@@ -797,24 +793,6 @@ async function refreshUser(){
  const favoritesPanel=document.getElementById("favoritesPanel");
  if(currentUser&&favoritesPanel&&!favoritesPanel.classList.contains("hidden"))await loadFavoriteProperties();
 }
-async function signUp(){
- const displayName=document.getElementById("authDisplayName").value.trim();
- const email=document.getElementById("authEmail").value.trim();
- const password=document.getElementById("authPassword").value;
- const accepted=document.getElementById("legalConsent").checked;
- if(!displayName){alert(tr("enterName"));document.getElementById("authDisplayName").focus();return}
- if(!email||password.length<12){alert(tr("enterEmailPassword"));return}
- if(!accepted){alert(tr("legalConsentRequired"));return}
- const {error}=await db.auth.signUp({email,password,options:{data:{
-  display_name:displayName,
-  accepted_terms_version:"2026-11-13-v1",
-  accepted_privacy_version:"2026-11-13-v1"
- }}});
- if(error){alert(error.message);return}
- await refreshUser();
- document.getElementById("authDisplayName").value="";
- alert(tr("accountCreated"));
-}
 async function signIn(){
  const email=document.getElementById("authEmail").value.trim();
  const password=document.getElementById("authPassword").value;
@@ -829,23 +807,6 @@ async function signIn(){
    forgotButton.classList.remove("hidden");
   }else alert(error.message);
   return;
- }
- const metadata=data.user?.user_metadata||{};
- const needsAcceptance=metadata.accepted_terms_version!=="2026-11-13-v1"||metadata.accepted_privacy_version!=="2026-11-13-v1";
- if(needsAcceptance){
-  if(!document.getElementById("legalConsent").checked){
-   await db.auth.signOut();
-   alert(tr("legalConsentRequired"));
-   return;
-  }
-  const {error:acceptError}=await db.rpc("record_legal_acceptance",{
-   p_terms_version:"2026-11-13-v1",p_privacy_version:"2026-11-13-v1"
-  });
-  if(acceptError){await db.auth.signOut();alert(tr("legalAcceptError"));return}
-  const {error:updateError}=await db.auth.updateUser({data:{
-   accepted_terms_version:"2026-11-13-v1",accepted_privacy_version:"2026-11-13-v1"
-  }});
-  if(updateError){await db.auth.signOut();alert(tr("legalAcceptError"));return}
  }
  await refreshUser();
  closeModal("loginModal");
