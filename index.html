@@ -388,7 +388,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
 <section id="adminPanel" class="admin-panel hidden">
  <div class="admin-heading">
   <div><h2 class="section-title" id="adminTitle">لوحة الإدارة</h2><p id="adminIntro"></p></div>
-  <button id="adminRefresh" class="secondary" type="button" onclick="loadAdminProperties()">تحديث البيانات</button>
+   <div class="admin-actions"><button id="adminRefresh" class="secondary" type="button" onclick="loadAdminProperties()">تحديث البيانات</button><button id="adminLogoutButton" type="button" onclick="signOut()" style="background:#eee;color:#182536">تسجيل الخروج</button></div>
  </div>
  <div id="adminStats" class="admin-stats">
   <div class="admin-stat"><span id="adminTotalLabel">كل الإعلانات</span><strong id="adminTotal">0</strong></div>  <div class="admin-stat"><span id="adminPendingLabel">في الانتظار</span><strong id="adminPending">0</strong></div>
@@ -523,7 +523,7 @@ const MAX_IMAGES=3,MAX_IMAGE_SIZE=5*1024*1024;
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
  auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}
 });
-let currentUser=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=10;
+let currentUser=null,currentUserIsAdmin=null,authStateVersion=0,currentLanguage=localStorage.getItem("destate_language")||"ar",lastProperties=[],publicPage=0,publicTotal=0;const PUBLIC_PAGE_SIZE=10;
 let compareItems=[];let openedSharedPropertyId=null;
 let publishMap=null,publishMarker=null,savedSearchesCache=[];
 
@@ -741,7 +741,8 @@ function applyLanguage(){
  document.title=currentLanguage==="ar"?"D-ESTATE | منصة رقمية تونسية للعقارات":"D-ESTATE | Direct Estate";
  document.getElementById("languageButton").textContent=currentLanguage==="ar"?"English":"العربية";
  const reportButton=document.getElementById("headerReportButton");if(reportButton)reportButton.textContent=currentLanguage==="ar"?"تقديم بلاغ / شكوى":"Report / Complaint";
- const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display="inline-block";}
+ const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display=!currentUser||currentUserIsAdmin===false?"inline-block":"none";}
+ const adminLogout=document.getElementById("adminLogoutButton");if(adminLogout)adminLogout.textContent=uiText("تسجيل الخروج","Log out");
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser?"inline-block":"none";}
  const signUpButton=document.getElementById("signUpButton");if(signUpButton)signUpButton.style.display=currentUser?"none":"block";
@@ -903,7 +904,7 @@ function renderProfile(){
  const panel=document.getElementById("profilePanel");
  const nav=document.getElementById("profileNavButton");
  if(!panel||!nav)return;
- nav.style.display="inline-block";
+ nav.style.display=!currentUser||currentUserIsAdmin===false?"inline-block":"none";
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  if(!currentUser){panel.classList.add("hidden");return}
  const metadata=currentUser.user_metadata||{};
@@ -968,6 +969,7 @@ async function openPublicUserProfile(propertyId){
 }
 function closePublicUserProfile(){document.getElementById("publicUserPanel").classList.add("hidden")}
 function openProfile(){
+ if(currentUserIsAdmin===true)return;
  if(!currentUser){openModal("loginModal");return}
  renderProfile();setProfileLabels();
  document.getElementById("myPageHome").classList.remove("hidden");
@@ -1958,14 +1960,22 @@ async function loadAdminPanel(){
  panel.classList.add("hidden");
  if(!currentUser)return;
 
+ const checkedUserId=currentUser.id;
+ currentUserIsAdmin=null;
+ renderProfile();
  const status=document.getElementById("adminStatus");
  status.textContent=tr("adminChecking");
  const {data,error}=await db.rpc("is_admin");
+ if(!currentUser||currentUser.id!==checkedUserId)return;
  if(error){
   console.warn("Admin permission check:",error.message);
+  currentUserIsAdmin=false;
+  renderProfile();
   status.textContent=tr("pendingError")+error.message;
   return;
  }
+ currentUserIsAdmin=data===true;
+ renderProfile();
  if(data!==true)return;
 
  if(adminEntry){adminEntry.textContent=uiText("لوحة الإدارة","Admin Dashboard");adminEntry.classList.remove("hidden");}
@@ -2129,6 +2139,7 @@ db.auth.onAuthStateChange((event,session)=>{
   openModal("passwordResetModal");
  }
  currentUser=session?.user||null;
+ currentUserIsAdmin=null;
  const authNavButton=document.getElementById("authNavButton");
  if(authNavButton)authNavButton.style.display=currentUser?"none":"inline-block";
  renderProfile();
