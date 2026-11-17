@@ -2101,6 +2101,7 @@ applyLanguage();
 updateFilters();
 updatePublishFields();
 refreshUser();
+if(new URLSearchParams(window.location.search).get("login")==="1"&&!currentUser)openModal("loginModal");
 const sharedProperty=new URLSearchParams(window.location.search).get("property");
 if(sharedProperty){document.getElementById("search").classList.remove("hidden");document.getElementById("listings").classList.remove("hidden");searchProperties();}
 renderCompareToolbar();
