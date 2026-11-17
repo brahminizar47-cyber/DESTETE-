@@ -153,6 +153,9 @@ button,a{ -webkit-tap-highlight-color:transparent }
 }
 
 
+.admin-dashboard-entry{display:block;width:100%;margin:14px 0 18px;padding:13px 16px;background:var(--navy);color:#fff;border:1px solid var(--navy);border-radius:9px;text-align:start;font-size:14px}
+.admin-dashboard-entry:hover{filter:brightness(1.08)}
+
 /* Account and service navigation: plain text, no colored tiles */
 .account-tiles{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px}
 .account-tile{appearance:none;background:transparent;border:0;border-radius:0;padding:8px 2px;text-align:start;min-height:40px;color:inherit;box-shadow:none;font:inherit}
@@ -322,6 +325,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
    <img id="myPageProfilePhoto" class="my-page-photo hidden" alt="Profile photo">
    <h3 id="myPageDisplayName">—</h3><p id="myPageMemberLabel">عضو في DESTATE</p>
   </section>
+  <button id="adminDashboardEntry" class="admin-dashboard-entry hidden" type="button" onclick="openAdminDashboard()">لوحة الإدارة</button>
   <section class="account-activity">
    <h3 id="accountCenterTitle" class="account-section-heading">نشاطي على المنصة</h3>
    <span id="accountNotificationsCount" class="hidden">0</span><span id="accountMessagesCount" class="hidden">0</span><span id="accountFollowingCount" class="hidden">0</span>
@@ -1948,6 +1952,8 @@ async function runFacebookPublisher(){
 
 async function loadAdminPanel(){
  const panel=document.getElementById("adminPanel");
+ const adminEntry=document.getElementById("adminDashboardEntry");
+ if(adminEntry)adminEntry.classList.add("hidden");
  if(!panel)return;
  panel.classList.add("hidden");
  if(!currentUser)return;
@@ -1962,6 +1968,7 @@ async function loadAdminPanel(){
  }
  if(data!==true)return;
 
+ if(adminEntry){adminEntry.textContent=uiText("لوحة الإدارة","Admin Dashboard");adminEntry.classList.remove("hidden");}
  closeProfile();
  void runFacebookPublisher();
  panel.classList.remove("hidden");
@@ -1969,6 +1976,21 @@ async function loadAdminPanel(){
  await loadAdminProperties();
  await loadAdminReports();
  await loadAdminActionLogs();
+}
+
+async function openAdminDashboard(){
+ if(!currentUser)return;
+ const {data,error}=await db.rpc("is_admin");
+ if(error||data!==true){
+  document.getElementById("adminDashboardEntry")?.classList.add("hidden");
+  alert(uiText("لا تملك صلاحية الدخول إلى لوحة الإدارة.","You do not have permission to access the admin dashboard."));
+  return;
+ }
+ const panel=document.getElementById("adminPanel");
+ if(!panel)return;
+ panel.classList.remove("hidden");
+ closeProfile();
+ panel.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 async function loadAdminProperties(){
