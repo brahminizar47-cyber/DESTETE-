@@ -350,7 +350,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
   <p class="small" id="profilePrivacyNote">بريدك الإلكتروني ومعلومات حسابك لا تظهر للزوار. رقم الاتصال يُدار بشكل منفصل ضمن كل إعلان.</p>
   <div class="profile-section" id="deleteAccountSection">
    <h3 id="deleteAccountTitle">حذف الحساب</h3>
-   <p class="small" id="deleteAccountIntro">يمكنك طلب حذف حسابك نهائياً في أي وقت. هذا الإجراء لا يمكن التراجع عنه.</p>
+   <p class="small" id="deleteAccountIntro">يمكنك طلب حذف حسابك نهائياً في أي وقت. هذا الإجراء لا يمكن التراجع عنه. لأسباب أمنية، سجّل الخروج ثم الدخول مجدداً قبل الحذف.</p>
    <button type="button" class="danger" id="deleteAccountStartButton" onclick="openDeleteAccountConfirmation()">حذف حسابي نهائياً</button>
    <div id="deleteAccountConfirmPanel" class="hidden" style="margin-top:14px">
     <div class="notice" id="deleteAccountWarning">سيؤدي الحذف إلى إزالة حسابك وإعلاناتك ومفضّلاتك ومتابعاتك ورسائلك وتقييماتك وإشعاراتك وصورك المرتبطة بالحساب. لا يمكن استرجاع هذه البيانات بعد التأكيد.</div>
@@ -1030,7 +1030,7 @@ async function confirmDeleteAccount(){
  status.textContent=uiText("جارٍ التحقق من الجلسة وحذف الحساب والبيانات المرتبطة...","Verifying your session and deleting your account and associated data...");
  try{
   const {data,error}=await db.functions.invoke("delete-account",{body:{confirmation:"DELETE"}});
-  if(error)throw error;
+  if(error){let message=error.message;try{const payload=await error.context?.json();if(payload?.error)message=payload.error}catch{}throw new Error(message)}
   if(!data?.success)throw new Error(data?.error||"Account deletion was not confirmed.");
   await db.auth.signOut({scope:"local"});
   currentUser=null;
