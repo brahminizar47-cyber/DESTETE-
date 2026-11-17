@@ -744,7 +744,7 @@ function applyLanguage(){
  const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display=!currentUser||currentUserIsAdmin===false?"inline-block":"none";}
  const adminLogout=document.getElementById("adminLogoutButton");if(adminLogout)adminLogout.textContent=uiText("تسجيل الخروج","Log out");
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
- const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser&&currentUserIsAdmin!==true?"inline-block":"none";}
+ const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser&&currentUserIsAdmin===false?"inline-block":"none";}
  const signUpButton=document.getElementById("signUpButton");if(signUpButton)signUpButton.style.display=currentUser?"none":"block";
  const signOutButton=document.getElementById("signOutButton");if(signOutButton)signOutButton.style.display=currentUser?"block":"none";
  const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
