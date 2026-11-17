@@ -115,16 +115,6 @@ Deno.serve(async (req: Request) => {
     });
     const userId = userData.user.id;
 
-    // Remove every object under the user's folder before deleting the Auth user.
-    // This covers profile photos and property photos uploaded by this account.
-    for (const bucket of ["profile-photos", "property-images"]) {
-      const files = await collectFiles(admin, bucket, userId);
-      for (let i = 0; i < files.length; i += 100) {
-        const { error } = await admin.storage.from(bucket).remove(files.slice(i, i + 100));
-        if (error) throw new Error("Could not remove all uploaded account photos. The account was not deleted; please retry.");
-      }
-    }
-
     // The database's user-owned foreign keys cascade on Auth user deletion.
     const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
     if (deleteError) {
@@ -132,7 +122,23 @@ Deno.serve(async (req: Request) => {
       return json({ error: "The account could not be deleted. Please contact platform administration." }, 500);
     }
 
-    return json({ success: true });
+    // Storage is separate from Postgres/Auth. Clean up both account folders after
+    // Auth deletion; report cleanup separately if Storage is temporarily unavailable.
+    let storageCleanupPending = false;
+    for (const bucket of ["profile-photos", "property-images"]) {
+      try {
+        const files = await collectFiles(admin, bucket, userId);
+        for (let i = 0; i < files.length; i += 100) {
+          const { error } = await admin.storage.from(bucket).remove(files.slice(i, i + 100));
+          if (error) throw error;
+        }
+      } catch (storageError) {
+        storageCleanupPending = true;
+        console.error("Account storage cleanup pending:", bucket, storageError);
+      }
+    }
+
+    return json({ success: true, storageCleanupPending });
   } catch (error) {
     console.error("Account deletion error:", error);
     return json({
