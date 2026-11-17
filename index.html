@@ -265,6 +265,32 @@ button,a{ -webkit-tap-highlight-color:transparent }
 /* Consistent back navigation for all My Page subviews */
 #profilePanel .account-back-button,#favoritesPanel .account-back-button,#myPropertiesPanel .account-back-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--navy);font-size:14px;font-weight:600;white-space:nowrap}
 #profilePanel .account-back-button:active,#favoritesPanel .account-back-button:active,#myPropertiesPanel .account-back-button:active{background:#f2f6f2}
+
+/* Dedicated administrator workspace */
+body.admin-mode>header{position:sticky;top:0;z-index:25;padding:12px 4%;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+body.admin-mode>header nav>:not(#languageButton){display:none!important}
+body.admin-mode .hero,body.admin-mode main.container>:not(#adminPanel),body.admin-mode>footer{display:none!important}
+body.admin-mode main.container{width:100%;max-width:none;margin:0;padding:0}
+body.admin-mode #adminPanel{display:block!important;width:min(1240px,96%);max-width:1240px;margin:0 auto;padding:24px 0 50px;border:0;border-radius:0;background:transparent}
+.admin-shell-head{margin-bottom:22px}.admin-shell-head .admin-heading{align-items:center}
+.admin-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.8px;color:var(--blue);margin-bottom:7px}
+.admin-shell-head .section-title{font-size:29px;margin:0 0 6px}
+.admin-shell-head #adminIntro,.admin-section-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+.admin-shell-head .admin-actions button{min-height:42px}#adminLogoutButton{background:#f0f2f0;color:#26352a}
+.admin-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;padding:8px;background:#e9efe6;border:1px solid var(--border);border-radius:12px}
+.admin-nav button{background:transparent;color:#344638;padding:10px 15px;border-radius:8px}
+.admin-nav button:hover,.admin-nav button:focus-visible{background:white;color:var(--navy)}
+.admin-section{background:white;border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 0;scroll-margin-top:100px;box-shadow:0 4px 18px rgba(28,56,34,.04)}
+.admin-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.admin-section-heading h2{font-size:19px;color:var(--navy);margin:0 0 5px}
+.admin-section-count{background:#edf3e9;color:var(--navy);border-radius:20px;padding:6px 11px;font-size:12px;font-weight:700}
+.admin-stats{margin:12px 0}.admin-stat{background:#f7f9f6}.admin-stat strong{font-size:27px}
+.admin-toolbar{grid-template-columns:minmax(0,1fr) 190px 190px}
+.admin-listings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.admin-card{min-width:0}.admin-card h3,.admin-card .meta{overflow-wrap:anywhere}.admin-card .meta{line-height:1.6}.admin-card .admin-actions button{min-height:42px}
+.admin-report-toolbar{grid-template-columns:minmax(0,1fr) 170px 170px auto}.admin-report-actions button{min-height:40px}.admin-audit-item{overflow-wrap:anywhere}
+body.admin-mode .admin-panel{margin-top:0}
+@media(max-width:760px){body.admin-mode #adminPanel{width:94%;padding-top:16px}.admin-shell-head .admin-heading{align-items:stretch}.admin-shell-head .admin-actions{width:100%}.admin-shell-head .admin-actions button{flex:1}.admin-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.admin-nav button{padding:10px 6px}.admin-section{padding:14px}.admin-toolbar,.admin-report-toolbar{grid-template-columns:minmax(0,1fr)}.admin-listings-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -325,7 +351,7 @@ button,a{ -webkit-tap-highlight-color:transparent }
    <img id="myPageProfilePhoto" class="my-page-photo hidden" alt="Profile photo">
    <h3 id="myPageDisplayName">—</h3><p id="myPageMemberLabel">عضو في DESTATE</p>
   </section>
-  <button id="adminDashboardEntry" class="admin-dashboard-entry hidden" type="button" onclick="openAdminDashboard()">لوحة الإدارة</button>
+  
   <section class="account-activity">
    <h3 id="accountCenterTitle" class="account-section-heading">نشاطي على المنصة</h3>
    <span id="accountNotificationsCount" class="hidden">0</span><span id="accountMessagesCount" class="hidden">0</span><span id="accountFollowingCount" class="hidden">0</span>
@@ -385,44 +411,30 @@ button,a{ -webkit-tap-highlight-color:transparent }
  </section>
 
 <section id="myPropertiesPanel" class="hidden" style="margin-top:35px"><div class="admin-heading"><h2 class="section-title" id="myPropertiesTitle">إعلاناتي وإحصائياتي</h2><button type="button" class="secondary account-back-button" onclick="returnToMyPage()">← العودة إلى صفحتي</button></div><div id="myPropertiesList"></div></section>
-<section id="adminPanel" class="admin-panel hidden">
- <div class="admin-heading">
-  <div><h2 class="section-title" id="adminTitle">لوحة الإدارة</h2><p id="adminIntro"></p></div>
-   <div class="admin-actions"><button id="adminRefresh" class="secondary" type="button" onclick="loadAdminProperties()">تحديث البيانات</button><button id="adminLogoutButton" type="button" onclick="signOut()" style="background:#eee;color:#182536">تسجيل الخروج</button></div>
- </div>
- <div id="adminStats" class="admin-stats">
-  <div class="admin-stat"><span id="adminTotalLabel">كل الإعلانات</span><strong id="adminTotal">0</strong></div>  <div class="admin-stat"><span id="adminPendingLabel">في الانتظار</span><strong id="adminPending">0</strong></div>
-  <div class="admin-stat"><span id="adminPublishedLabel">منشورة</span><strong id="adminPublished">0</strong></div>
-  <div class="admin-stat"><span id="adminRejectedLabel">مرفوضة</span><strong id="adminRejected">0</strong></div>
- </div>
- <div class="admin-toolbar">
-  <input id="adminSearch" type="search" placeholder="ابحث بالعنوان أو المدينة أو رقم الإعلان" oninput="renderAdminProperties()" aria-label="Search listings">
-  <select id="adminFilter" onchange="renderAdminProperties()" aria-label="Filter listings">
-   <option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="published">منشورة</option><option value="rejected">مرفوضة</option>
-  </select>
- </div>
- <div id="adminStatus" class="status" role="status" aria-live="polite"></div>
- <div id="pendingProperties" class="results"></div>
- <div class="admin-reports">
-  <h3 id="adminReportsTitle">البلاغات والشكاوى</h3>
-  <div class="admin-report-toolbar">
-   <input id="adminReportSearch" type="search" placeholder="ابحث في تفاصيل البلاغ أو رقمه" onkeydown="if(event.key==='Enter'){adminReportPage=0;loadAdminReports()}">
-   <select id="adminReportStatus" onchange="adminReportPage=0;loadAdminReports()">
-    <option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="reviewing">قيد المراجعة</option><option value="resolved">تمت المعالجة</option><option value="rejected">مرفوض</option>
-   </select>
-   <select id="adminReportType" onchange="adminReportPage=0;loadAdminReports()">
-    <option value="all">كل الأنواع</option><option value="listing">إعلان</option><option value="advertiser">معلن</option><option value="review">تقييم</option><option value="technical">تقني</option><option value="other">أخرى</option>
-   </select>
-   <button class="secondary" type="button" onclick="adminReportPage=0;loadAdminReports()">بحث</button>
+<section id="adminPanel" class="admin-panel hidden" aria-label="DESTATE administration">
+ <div class="admin-shell-head">
+  <div class="admin-heading"><div><div class="admin-eyebrow">DESTATE · ADMINISTRATION</div><h1 class="section-title" id="adminTitle">لوحة إدارة DESTATE</h1><p id="adminIntro">إدارة المنصة ومراجعة محتواها من مكان واحد.</p></div>
+   <div class="admin-actions"><button id="adminRefresh" class="secondary" type="button" onclick="refreshAdminDashboard()">تحديث البيانات</button><button id="adminLogoutButton" type="button" onclick="signOut()">تسجيل الخروج</button></div>
   </div>
-  <div id="adminReportsList"></div>
-  <div id="adminReportsPagination" class="pagination"></div>
+  <nav class="admin-nav" aria-label="أقسام الإدارة"><button type="button" onclick="adminGoTo('adminOverviewSection')" id="adminNavOverview">نظرة عامة</button><button type="button" onclick="adminGoTo('adminListingsSection')" id="adminNavListings">العقارات</button><button type="button" onclick="adminGoTo('adminReportsSection')" id="adminNavReports">البلاغات والشكاوى</button><button type="button" onclick="adminGoTo('adminActivitySection')" id="adminNavActivity">سجل العمليات</button></nav>
  </div>
- <div class="admin-reports">
-  <h3 id="adminAuditTitle">سجل أنشطة الإدارة</h3>
-  <div id="adminAuditList"></div>
- </div>
-
+ <section id="adminOverviewSection" class="admin-section"><div class="admin-section-heading"><div><h2 id="adminOverviewTitle">نظرة عامة</h2><p id="adminOverviewIntro">ملخص حالة الإعلانات على المنصة.</p></div></div>
+  <div id="adminStats" class="admin-stats"><div class="admin-stat"><span id="adminTotalLabel">كل الإعلانات</span><strong id="adminTotal">0</strong></div><div class="admin-stat"><span id="adminPendingLabel">في الانتظار</span><strong id="adminPending">0</strong></div><div class="admin-stat"><span id="adminPublishedLabel">منشورة</span><strong id="adminPublished">0</strong></div><div class="admin-stat"><span id="adminRejectedLabel">مرفوضة</span><strong id="adminRejected">0</strong></div></div><div id="adminStatus" class="status" role="status" aria-live="polite"></div>
+ </section>
+ <section id="adminListingsSection" class="admin-section"><div class="admin-section-heading"><div><h2 id="adminListingsTitle">إدارة العقارات</h2><p id="adminListingsIntro">ابحث في الإعلانات وراجع حالتها قبل النشر أو بعده.</p></div></div>
+  <div class="admin-toolbar"><input id="adminSearch" type="search" placeholder="العنوان أو الولاية أو المدينة أو رقم الإعلان" oninput="renderAdminProperties()" aria-label="Search listings">
+   <select id="adminFilter" onchange="renderAdminProperties()" aria-label="Filter listing status"><option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="published">منشورة</option><option value="rejected">مرفوضة</option></select>
+   <select id="adminTypeFilter" onchange="renderAdminProperties()" aria-label="Filter property type"><option value="all">كل أنواع العقارات</option><option value="house">منزل</option><option value="apartment">شقة</option><option value="land">أرض سكنية</option><option value="agricultural_land">أرض فلاحية</option><option value="commercial">محل تجاري</option></select>
+  </div><div id="pendingProperties" class="admin-listings-grid"></div>
+ </section>
+ <section id="adminReportsSection" class="admin-section"><div class="admin-section-heading"><div><h2 id="adminReportsTitle">البلاغات والشكاوى</h2><p id="adminReportsIntro">راجع البلاغات الواردة وحدّث حالتها بعد المعالجة.</p></div><span id="adminReportsSummary" class="admin-section-count">0</span></div>
+  <div class="admin-report-toolbar"><input id="adminReportSearch" type="search" placeholder="ابحث في تفاصيل البلاغ أو رقمه" onkeydown="if(event.key==='Enter'){adminReportPage=0;loadAdminReports()}">
+   <select id="adminReportStatus" onchange="adminReportPage=0;loadAdminReports()"><option value="all">كل الحالات</option><option value="pending">في الانتظار</option><option value="reviewing">قيد المراجعة</option><option value="resolved">تمت المعالجة</option><option value="rejected">مرفوض</option></select>
+   <select id="adminReportType" onchange="adminReportPage=0;loadAdminReports()"><option value="all">كل الأنواع</option><option value="listing">إعلان</option><option value="advertiser">معلن</option><option value="review">تقييم</option><option value="technical">تقني</option><option value="other">أخرى</option></select>
+   <button class="secondary" type="button" onclick="adminReportPage=0;loadAdminReports()" id="adminReportSearchButton">بحث</button>
+  </div><div id="adminReportsList"></div><div id="adminReportsPagination" class="pagination"></div>
+ </section>
+ <section id="adminActivitySection" class="admin-section"><div class="admin-section-heading"><div><h2 id="adminAuditTitle">سجل العمليات الإدارية</h2><p id="adminAuditIntro">آخر الإجراءات الإدارية المسجلة على المنصة.</p></div></div><div id="adminAuditList"></div></section>
 </section>
 <section id="propertyDetailsPanel" class="container profile-panel hidden" aria-live="polite"><div class="admin-heading"><h2 class="section-title" id="detailTitle">تفاصيل العقار</h2><button type="button" class="secondary" onclick="closePropertyDetails()">رجوع إلى القائمة</button></div><div id="propertyDetailsContent"></div></section>
 </main>
@@ -678,6 +690,7 @@ async function loadAdminReports(){
  const result=data&&typeof data==="object"?data:{};
  const rows=Array.isArray(result.items)?result.items:[];
  adminReportTotal=Number(result.total_count)||0;
+ const reportSummary=document.getElementById("adminReportsSummary");if(reportSummary)reportSummary.textContent=uiText("إجمالي النتائج: ","Total results: ")+adminReportTotal;
  if(adminReportPage>0&&adminReportPage*ADMIN_REPORT_PAGE_SIZE>=adminReportTotal){adminReportPage=Math.max(0,Math.ceil(adminReportTotal/ADMIN_REPORT_PAGE_SIZE)-1);return loadAdminReports()}
  list.innerHTML=rows.length?rows.map(r=>'<article class="report-item"><strong>'+safe(r.target_type)+'</strong> · '+safe(r.status)+'<small> · '+safe(new Date(r.created_at).toLocaleString())+'</small><p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>').join(""):'<p class="small">'+uiText("لا توجد بلاغات مطابقة.","No matching reports.")+'</p>';
  renderAdminReportsPagination();
@@ -744,7 +757,7 @@ function applyLanguage(){
  const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display=!currentUser||currentUserIsAdmin===false?"inline-block":"none";}
  const adminLogout=document.getElementById("adminLogoutButton");if(adminLogout)adminLogout.textContent=uiText("تسجيل الخروج","Log out");
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
- const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser?"inline-block":"none";}
+ const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser&&currentUserIsAdmin!==true?"inline-block":"none";}
  const signUpButton=document.getElementById("signUpButton");if(signUpButton)signUpButton.style.display=currentUser?"none":"block";
  const signOutButton=document.getElementById("signOutButton");if(signOutButton)signOutButton.style.display=currentUser?"block":"none";
  const forgotButton=document.getElementById("authForgotPassword");if(forgotButton)forgotButton.textContent=tr("forgotPassword");
@@ -1906,37 +1919,16 @@ function adminText(ar,en){
 }
 
 function setAdminLabels(){
- document.getElementById("adminTitle").textContent=tr("adminTitle");
- document.getElementById("adminIntro").textContent=tr("adminIntro");
- document.getElementById("adminRefresh").textContent=tr("adminRefresh");
- document.getElementById("adminTotalLabel").textContent=tr("adminTotal");
- document.getElementById("adminPendingLabel").textContent=tr("adminPending");
- document.getElementById("adminPublishedLabel").textContent=tr("adminPublished");
- document.getElementById("adminRejectedLabel").textContent=tr("adminRejected");
- document.getElementById("adminSearch").placeholder=tr("adminSearch");
- const filter=document.getElementById("adminFilter");
- filter.options[0].text=tr("adminFilterAll");
- filter.options[1].text=tr("adminPending");
- filter.options[2].text=tr("adminPublished");
- filter.options[3].text=tr("adminRejected");
- const reportsTitle=document.getElementById("adminReportsTitle");
- if(reportsTitle)reportsTitle.textContent=uiText("البلاغات والشكاوى","Reports and complaints");
- const auditTitle=document.getElementById("adminAuditTitle");
- if(auditTitle)auditTitle.textContent=uiText("سجل أنشطة الإدارة","Admin activity log");
- const reportSearch=document.getElementById("adminReportSearch");
- if(reportSearch)reportSearch.placeholder=uiText("ابحث في تفاصيل البلاغ أو رقمه","Search report details or ID");
- const reportStatus=document.getElementById("adminReportStatus");
- if(reportStatus){
-  const labels={all:uiText("كل الحالات","All statuses"),pending:uiText("في الانتظار","Pending"),reviewing:uiText("قيد المراجعة","Reviewing"),resolved:uiText("تمت المعالجة","Resolved"),rejected:uiText("مرفوض","Rejected")};
-  Array.from(reportStatus.options).forEach(o=>{o.textContent=labels[o.value]||o.value});
- }
- const reportType=document.getElementById("adminReportType");
- if(reportType){
-  const labels={all:uiText("كل الأنواع","All types"),listing:uiText("إعلان","Listing"),advertiser:uiText("معلن","User"),review:uiText("تقييم","Review"),technical:uiText("تقني","Technical"),other:uiText("أخرى","Other")};
-  Array.from(reportType.options).forEach(o=>{o.textContent=labels[o.value]||o.value});
- }
- const searchButton=document.querySelector(".admin-report-toolbar button");
- if(searchButton)searchButton.textContent=uiText("بحث","Search");
+ const labels={adminTitle:uiText("لوحة إدارة DESTATE","DESTATE Admin Dashboard"),adminIntro:uiText("إدارة المنصة ومراجعة محتواها من مكان واحد.","Manage the platform and review its content in one place."),adminRefresh:uiText("تحديث البيانات","Refresh data"),adminOverviewTitle:uiText("نظرة عامة","Overview"),adminOverviewIntro:uiText("ملخص حالة الإعلانات على المنصة.","Listing status summary."),adminListingsTitle:uiText("إدارة العقارات","Property management"),adminListingsIntro:uiText("ابحث في الإعلانات وراجع حالتها قبل النشر أو بعده.","Search listings and review their status before or after publication."),adminReportsTitle:uiText("البلاغات والشكاوى","Reports and complaints"),adminReportsIntro:uiText("راجع البلاغات الواردة وحدّث حالتها بعد المعالجة.","Review incoming reports and update their status after handling."),adminAuditTitle:uiText("سجل العمليات الإدارية","Admin activity log"),adminAuditIntro:uiText("آخر الإجراءات الإدارية المسجلة على المنصة.","Recent administrative actions recorded on the platform."),adminNavOverview:uiText("نظرة عامة","Overview"),adminNavListings:uiText("العقارات","Properties"),adminNavReports:uiText("البلاغات والشكاوى","Reports"),adminNavActivity:uiText("سجل العمليات","Activity log"),adminReportSearchButton:uiText("بحث","Search")};
+ Object.entries(labels).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
+ const statLabels=[uiText("كل الإعلانات","All listings"),uiText("في الانتظار","Pending"),uiText("منشورة","Published"),uiText("مرفوضة","Rejected")];["adminTotalLabel","adminPendingLabel","adminPublishedLabel","adminRejectedLabel"].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=statLabels[i]});
+ const search=document.getElementById("adminSearch");if(search)search.placeholder=uiText("العنوان أو الولاية أو المدينة أو رقم الإعلان","Title, governorate, city or listing ID");
+ const status=document.getElementById("adminFilter");if(status){const names={all:uiText("كل الحالات","All statuses"),pending:uiText("في الانتظار","Pending"),published:uiText("منشورة","Published"),rejected:uiText("مرفوضة","Rejected")};Array.from(status.options).forEach(o=>o.textContent=names[o.value]||o.value)}
+ const types=document.getElementById("adminTypeFilter");if(types){const names={all:uiText("كل أنواع العقارات","All property types"),house:uiText("منزل","House"),apartment:uiText("شقة","Apartment"),land:uiText("أرض سكنية","Residential land"),agricultural_land:uiText("أرض فلاحية","Agricultural land"),commercial:uiText("محل تجاري","Commercial")};Array.from(types.options).forEach(o=>o.textContent=names[o.value]||o.value)}
+ const reportSearch=document.getElementById("adminReportSearch");if(reportSearch)reportSearch.placeholder=uiText("ابحث في تفاصيل البلاغ أو رقمه","Search report details or ID");
+ const reportStatus=document.getElementById("adminReportStatus");if(reportStatus){const names={all:uiText("كل الحالات","All statuses"),pending:uiText("في الانتظار","Pending"),reviewing:uiText("قيد المراجعة","Reviewing"),resolved:uiText("تمت المعالجة","Resolved"),rejected:uiText("مرفوض","Rejected")};Array.from(reportStatus.options).forEach(o=>o.textContent=names[o.value]||o.value)}
+ const reportType=document.getElementById("adminReportType");if(reportType){const names={all:uiText("كل الأنواع","All types"),listing:uiText("إعلان","Listing"),advertiser:uiText("معلن","Advertiser"),review:uiText("تقييم","Review"),technical:uiText("تقني","Technical"),other:uiText("أخرى","Other")};Array.from(reportType.options).forEach(o=>o.textContent=names[o.value]||o.value)}
+ const logout=document.getElementById("adminLogoutButton");if(logout)logout.textContent=uiText("تسجيل الخروج","Log out");
 }
 
 async function runFacebookPublisher(){
@@ -1953,54 +1945,34 @@ async function runFacebookPublisher(){
 }
 
 async function loadAdminPanel(){
- const panel=document.getElementById("adminPanel");
- const adminEntry=document.getElementById("adminDashboardEntry");
- if(adminEntry)adminEntry.classList.add("hidden");
- if(!panel)return;
- panel.classList.add("hidden");
- if(!currentUser)return;
-
- const checkedUserId=currentUser.id;
- currentUserIsAdmin=null;
- renderProfile();
- const status=document.getElementById("adminStatus");
- status.textContent=tr("adminChecking");
+ const panel=document.getElementById("adminPanel");if(!panel)return;
+ panel.classList.add("hidden");document.body.classList.remove("admin-mode");
+ if(!currentUser){currentUserIsAdmin=false;return}
+ const checkedUserId=currentUser.id;currentUserIsAdmin=null;renderProfile();
+ const status=document.getElementById("adminStatus");if(status)status.textContent=tr("adminChecking");
  const {data,error}=await db.rpc("is_admin");
  if(!currentUser||currentUser.id!==checkedUserId)return;
- if(error){
-  console.warn("Admin permission check:",error.message);
-  currentUserIsAdmin=false;
-  renderProfile();
-  status.textContent=tr("pendingError")+error.message;
-  return;
- }
- currentUserIsAdmin=data===true;
- renderProfile();
- if(data!==true)return;
-
- if(adminEntry){adminEntry.textContent=uiText("لوحة الإدارة","Admin Dashboard");adminEntry.classList.remove("hidden");}
- closeProfile();
- void runFacebookPublisher();
- panel.classList.remove("hidden");
- setAdminLabels();
- await loadAdminProperties();
- await loadAdminReports();
- await loadAdminActionLogs();
+ if(error){console.warn("Admin permission check:",error.message);currentUserIsAdmin=false;document.body.classList.remove("admin-mode");renderProfile();if(status)status.textContent=tr("pendingError")+error.message;return}
+ currentUserIsAdmin=data===true;renderProfile();
+ if(data!==true){document.body.classList.remove("admin-mode");return}
+ document.body.classList.add("admin-mode");closeProfile();closePublicUserProfile();void runFacebookPublisher();
+ panel.classList.remove("hidden");setAdminLabels();
+ await Promise.all([loadAdminProperties(),loadAdminReports(),loadAdminActionLogs()]);
 }
-
+async function refreshAdminDashboard(){
+ if(currentUserIsAdmin!==true)return;
+ const button=document.getElementById("adminRefresh");if(button)button.disabled=true;
+ try{await Promise.all([loadAdminProperties(),loadAdminReports(),loadAdminActionLogs()])}finally{if(button)button.disabled=false}
+}
+function adminGoTo(sectionId){
+ if(currentUserIsAdmin!==true)return;
+ const section=document.getElementById(sectionId);if(section)section.scrollIntoView({behavior:"smooth",block:"start"});
+}
 async function openAdminDashboard(){
  if(!currentUser)return;
- const {data,error}=await db.rpc("is_admin");
- if(error||data!==true){
-  document.getElementById("adminDashboardEntry")?.classList.add("hidden");
-  alert(uiText("لا تملك صلاحية الدخول إلى لوحة الإدارة.","You do not have permission to access the admin dashboard."));
-  return;
- }
- const panel=document.getElementById("adminPanel");
- if(!panel)return;
- panel.classList.remove("hidden");
- closeProfile();
- panel.scrollIntoView({behavior:"smooth",block:"start"});
+ const {data,error}=await db.rpc("is_admin");if(error||data!==true){alert(uiText("لا تملك صلاحية الدخول إلى لوحة الإدارة.","You do not have permission to access the admin dashboard."));return}
+ const panel=document.getElementById("adminPanel");if(!panel)return;
+ currentUserIsAdmin=true;document.body.classList.add("admin-mode");panel.classList.remove("hidden");closeProfile();panel.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 async function loadAdminProperties(){
@@ -2011,7 +1983,7 @@ async function loadAdminProperties(){
  status.textContent=tr("adminLoading");
  list.innerHTML="";
  const {data,error}=await db.from("properties")
-  .select("id,title,description,property_type,governorate,city,price,area,availability_status,advertiser_type,ownership_type,land_type,image_urls,created_at,status")
+  .select("id,owner_id,title,description,property_type,governorate,city,price,price_type,area,area_unit,availability_status,advertiser_type,ownership_type,land_type,image_urls,created_at,updated_at,status")
   .order("created_at",{ascending:false});
 
  if(error){  status.textContent=tr("pendingError")+error.message;
@@ -2031,45 +2003,38 @@ async function loadAdminProperties(){
  renderAdminProperties();
 }
 function renderAdminProperties(){
- const list=document.getElementById("pendingProperties");
- if(!list)return;
- const filter=document.getElementById("adminFilter")?.value||"all";
+ const list=document.getElementById("pendingProperties");if(!list)return;
+ const filter=document.getElementById("adminFilter")?.value||"all",typeFilter=document.getElementById("adminTypeFilter")?.value||"all";
  const term=(document.getElementById("adminSearch")?.value||"").trim().toLocaleLowerCase();
  const items=adminProperties.filter(p=>{
-  const matchesStatus=filter==="all"||p.status===filter;
-  const haystack=[p.title,p.governorate,p.city,p.id].filter(Boolean).join(" ").toLocaleLowerCase();
-  return matchesStatus&&(!term||haystack.includes(term));
+  const matchesStatus=filter==="all"||p.status===filter,matchesType=typeFilter==="all"||p.property_type===typeFilter;
+  const haystack=[p.title,p.governorate,p.city,p.id,p.owner_id].filter(Boolean).join(" ").toLocaleLowerCase();
+  return matchesStatus&&matchesType&&(!term||haystack.includes(term));
  });
-
- if(!items.length){
-  list.innerHTML='<div class="empty">'+(adminProperties.length?tr("adminEmptyFilter"):tr("adminEmptyAll"))+'</div>';
-  return;
- }
-
+ if(!items.length){list.innerHTML='<div class="empty">'+(adminProperties.length?tr("adminEmptyFilter"):tr("adminEmptyAll"))+'</div>';return}
  list.innerHTML=items.map(p=>{
-  const loc=[p.governorate,p.city].filter(Boolean).map(safe).join(" - ");
-  const images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
-  const photos=images.length
-   ?'<div class="property-gallery">'+images.map(u=>'<a href="'+safe(u)+'" target="_blank" rel="noopener"><img src="'+safe(u)+'" alt="Property photo" loading="lazy"></a>').join("")+'</div>'
-   :'';
+  const loc=[p.governorate,p.city].filter(Boolean).map(safe).join(" - "),images=Array.isArray(p.signed_image_urls)?p.signed_image_urls:[];
+  const photos=images.length?'<div class="property-gallery">'+images.map(u=>'<a href="'+safe(u)+'" target="_blank" rel="noopener"><img src="'+safe(u)+'" alt="Property photo" loading="lazy"></a>').join("")+'</div>':'';
   const stateLabel=p.status==="pending"?tr("statusPending"):p.status==="published"?tr("statusPublished"):tr("statusRejected");
+  const typeLabels={house:uiText("منزل","House"),apartment:uiText("شقة","Apartment"),land:uiText("أرض سكنية","Residential land"),agricultural_land:uiText("أرض فلاحية","Agricultural land"),commercial:uiText("محل تجاري","Commercial")};
+  const advertiserLabels={owner:uiText("مالك العقار","Property owner"),broker:uiText("وسيط مستقل","Independent broker"),agency:uiText("وكالة عقارية","Real-estate agency")};
+  const ownership=p.ownership_type?uiText(p.ownership_type==="shared"?"مشتركة":"فردية",p.ownership_type==="shared"?"Shared":"Individual"):"—";
+  const availability=p.availability_status==="available"?uiText("متوفر","Available"):uiText("غير متوفر","Unavailable");
+  const areaUnit=p.area_unit==="hectare"?uiText("هكتار","hectare"):uiText("م²","m²");
+  const created=p.created_at?new Date(p.created_at).toLocaleString(currentLanguage==="ar"?"ar-TN":"en-GB"):"—";
+  const priceType=p.price_type==="per_sqm"?uiText("للمتر المربع","per m²"):p.price_type==="per_hectare"?uiText("للهكتار","per hectare"):uiText("السعر الجملي","Total price");
   let actions="";
-  if(p.status==="pending"){
-   actions='<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\',\'pending\')">'+tr("approve")+'</button>'+
-    '<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'pending\')">'+tr("reject")+'</button>';
-  }else if(p.status==="rejected"){
-   actions='<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\',\'rejected\')">'+tr("republish")+'</button>';
-  }else if(p.status==="published"){
-   actions='<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'published\')">'+tr("reject")+'</button>';
-  }
+  if(p.status==="pending")actions='<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\',\'pending\')">'+tr("approve")+'</button><button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'pending\')">'+tr("reject")+'</button>';
+  else if(p.status==="rejected")actions='<button class="secondary" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'published\',\'rejected\')">'+tr("republish")+'</button>';
+  else if(p.status==="published")actions='<button class="danger" type="button" onclick="reviewProperty(\''+safe(p.id)+'\',\'rejected\',\'published\')">'+tr("reject")+'</button>';
   actions+='<button class="danger" type="button" onclick="deleteAdminProperty(\''+safe(p.id)+'\')">'+tr("deleteListing")+'</button>';
-  return '<article class="admin-card">'+
-   '<div class="admin-card-head"><h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3><span class="admin-state '+safe(p.status)+'">'+stateLabel+'</span></div>'+
-   '<div class="meta">'+tr("location")+": "+loc+'</div>'+
-   '<div class="meta">'+tr("price")+": "+Number(p.price||0).toLocaleString()+' TND · '+tr("area")+": "+safe(p.area||"")+' m²</div>'+
-   '<div class="meta">'+tr("advertiserType")+": "+safe(tr(advertiserNames[p.advertiser_type]||p.advertiser_type||""))+'</div>'+
-   '<p>'+safe(p.description||"")+'</p>'+photos+
-   '<div class="admin-actions">'+actions+'</div></article>';
+  return '<article class="admin-card"><div class="admin-card-head"><h3 style="margin:0 0 8px;color:var(--navy)">'+safe(p.title||"")+'</h3><span class="admin-state '+safe(p.status)+'">'+stateLabel+'</span></div>'+
+   '<div class="meta">'+tr("location")+": "+loc+'</div><div class="meta">'+tr("price")+": "+Number(p.price||0).toLocaleString()+" TND · "+priceType+'</div>'+
+   '<div class="meta">'+tr("area")+": "+safe(p.area??"—")+" "+areaUnit+'</div><div class="meta">'+uiText("نوع العقار: ","Property type: ")+safe(typeLabels[p.property_type]||p.property_type||"—")+'</div>'+
+   '<div class="meta">'+tr("advertiserType")+": "+safe(advertiserLabels[p.advertiser_type]||"—")+'</div>'+
+   '<div class="meta">'+uiText("الملكية: ","Ownership: ")+ownership+" · "+uiText("التوفر: ","Availability: ")+availability+'</div>'+
+   '<div class="meta">'+uiText("تاريخ الإضافة: ","Created: ")+safe(created)+'</div><div class="meta">'+uiText("رقم الإعلان: ","Listing ID: ")+safe(p.id)+'</div>'+
+   '<p>'+safe(p.description||"")+'</p>'+photos+'<div class="admin-actions">'+actions+'</div></article>';
  }).join("");
 }
 
@@ -2140,6 +2105,8 @@ db.auth.onAuthStateChange((event,session)=>{
  }
  currentUser=session?.user||null;
  currentUserIsAdmin=null;
+ document.body.classList.remove("admin-mode");
+ document.getElementById("adminPanel")?.classList.add("hidden");
  const authNavButton=document.getElementById("authNavButton");
  if(authNavButton)authNavButton.style.display=currentUser?"none":"inline-block";
  renderProfile();
