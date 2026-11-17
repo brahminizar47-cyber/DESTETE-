@@ -672,27 +672,14 @@ async function loadMyReports(){
  const list=document.getElementById("myReportsList");if(!list||!currentUser)return;
  const {data,error}=await db.rpc("my_platform_reports");if(error){list.textContent=uiText("تعذّر تحميل البلاغات.","Could not load reports.");return}
  const rows=Array.isArray(data)?data:[];
- list.innerHTML=rows.length?rows.map(r=>'<div class="report-item"><strong>'+safe(r.target_type)+'</strong><br><small>'+safe(r.status)+' · '+safe(new Date(r.created_at).toLocaleDateString())+'</small><p>'+safe(r.details)+'</p></div>').join(""):'<p class="small">'+uiText("لا توجد بلاغات سابقة.","No previous reports.")+'</p>';
-}
-async function loadAdminReports(){
- const list=document.getElementById("adminReportsList");if(!list)return;
- const status=document.getElementById("adminReportStatus")?.value||"all";
- const type=document.getElementById("adminReportType")?.value||"all";
- const search=document.getElementById("adminReportSearch")?.value.trim()||"";
- const {data,error}=await db.rpc("admin_list_platform_reports",{
-  p_limit:ADMIN_REPORT_PAGE_SIZE,
-  p_offset:adminReportPage*ADMIN_REPORT_PAGE_SIZE,
-  p_status:status==="all"?null:status,
-  p_target_type:type==="all"?null:type,
-  p_search:search||null
- });
- if(error){list.textContent=uiText("تعذّر تحميل الشكاوى: ","Could not load reports: ")+error.message;return}
- const result=data&&typeof data==="object"?data:{};
- const rows=Array.isArray(result.items)?result.items:[];
- adminReportTotal=Number(result.total_count)||0;
- const reportSummary=document.getElementById("adminReportsSummary");if(reportSummary)reportSummary.textContent=uiText("إجمالي النتائج: ","Total results: ")+adminReportTotal;
- if(adminReportPage>0&&adminReportPage*ADMIN_REPORT_PAGE_SIZE>=adminReportTotal){adminReportPage=Math.max(0,Math.ceil(adminReportTotal/ADMIN_REPORT_PAGE_SIZE)-1);return loadAdminReports()}
- list.innerHTML=rows.length?rows.map(r=>'<article class="report-item"><strong>'+safe(r.target_type)+'</strong> · '+safe(r.status)+'<small> · '+safe(new Date(r.created_at).toLocaleString())+'</small><p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'reviewing\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'resolved\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\''+safe(r.id)+'\',\'rejected\')">'+uiText("مرفوض","Rejected")+'</button></div></article>').join(""):'<p class="small">'+uiText("لا توجد بلاغات مطابقة.","No matching reports.")+'</p>';
+ list.innerHTML=rows.length?rows.map(r=>{
+  const typeNames={listing:uiText("إعلان","Listing"),advertiser:uiText("معلن","Advertiser"),review:uiText("تقييم","Review"),technical:uiText("تقني","Technical"),other:uiText("أخرى","Other")};
+  const statusNames={pending:uiText("في الانتظار","Pending"),reviewing:uiText("قيد المراجعة","Reviewing"),resolved:uiText("تمت المعالجة","Resolved"),rejected:uiText("مرفوض","Rejected")};
+  return '<article class="report-item"><div class="admin-card-head"><strong>'+safe(typeNames[r.target_type]||r.target_type)+'</strong><span class="admin-state '+safe(r.status)+'">'+safe(statusNames[r.status]||r.status)+'</span></div>'+
+   '<small>'+uiText("رقم البلاغ: ","Report ID: ")+safe(r.id)+' · '+safe(new Date(r.created_at).toLocaleString())+'</small>'+
+   (r.property_id?'<small>'+uiText("رقم الإعلان المرتبط: ","Related listing ID: ")+safe(r.property_id)+'</small>':'')+
+   '<p>'+safe(r.details)+'</p><div class="admin-report-actions"><button type="button" onclick="updateAdminReport(\\''+safe(r.id)+'\\',\\'reviewing\\')">'+uiText("قيد المراجعة","Reviewing")+'</button><button type="button" onclick="updateAdminReport(\\''+safe(r.id)+'\\',\\'resolved\\')">'+uiText("تمت المعالجة","Resolved")+'</button><button type="button" onclick="updateAdminReport(\\''+safe(r.id)+'\\',\\'rejected\\')">'+uiText("مرفوض","Rejected")+'</button></div></article>';
+ }).join(""):'<p class="small">'+uiText("لا توجد بلاغات مطابقة.","No matching reports.")+'</p>';
  renderAdminReportsPagination();
 }
 function renderAdminReportsPagination(){
