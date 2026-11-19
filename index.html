@@ -737,7 +737,7 @@ function applyLanguage(){
  document.title=currentLanguage==="ar"?"D-ESTATE | منصة رقمية تونسية للعقارات":"D-ESTATE | Direct Estate";
  document.getElementById("languageButton").textContent=currentLanguage==="ar"?"English":"العربية";
  const reportButton=document.getElementById("headerReportButton");if(reportButton)reportButton.textContent=currentLanguage==="ar"?"تقديم بلاغ / شكوى":"Report / Complaint";
- const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display=!currentUser||currentUserIsAdmin===false?"inline-block":"none";}
+ const profileNav=document.getElementById("profileNavButton");if(profileNav){profileNav.textContent=uiText("حسابي","My Profile");profileNav.style.display=!currentUser||currentUserIsAdmin!==true?"inline-block":"none";}
  const adminLogout=document.getElementById("adminLogoutButton");if(adminLogout)adminLogout.textContent=uiText("تسجيل الخروج","Log out");
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  const favoritesNav=document.getElementById("favoritesNavButton");if(favoritesNav){favoritesNav.textContent=uiText("مفضلتي","My Favorites");favoritesNav.style.display=currentUser&&currentUserIsAdmin===false?"inline-block":"none";}
@@ -865,7 +865,7 @@ function renderProfile(){
  const panel=document.getElementById("profilePanel");
  const nav=document.getElementById("profileNavButton");
  if(!panel||!nav)return;
- nav.style.display=!currentUser||currentUserIsAdmin===false?"inline-block":"none";
+ nav.style.display=!currentUser||currentUserIsAdmin!==true?"inline-block":"none";
  const authNav=document.getElementById("authNavButton");if(authNav)authNav.style.display=currentUser?"none":"inline-block";
  if(!currentUser){panel.classList.add("hidden");return}
  const metadata=currentUser.user_metadata||{};
